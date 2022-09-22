@@ -1,0 +1,465 @@
+---
+title: "Behavioural genetics analysis of social isolation (Cholesky)"
+output:  
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    number_sections: false
+    highlight: monochrome
+    theme: flatly
+    code_folding: hide
+    includes:
+      after_body: footer.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      prompt = FALSE,
+                      cache = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      results = 'asis')
+
+options(bitmapType = 'quartz') # to render fonts better
+```
+
+```{r Clear global environment, include=FALSE}
+remove(list = ls())
+```
+
+```{r Load packages, include=FALSE}
+library(knitr)
+library(haven)
+library(psych)   
+library(OpenMx)
+library(tidyr)
+library(tidyverse)
+library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
+```
+
+```{r source the data file path, include=FALSE}
+#source raw data directory: data_raw and data included
+source("../isolation_mentalhealth_data_path.R")
+```
+
+```{r read in dta data file}
+dat.raw <- read_dta(paste0(data_path_raw, "Katie_21Sep22.dta"))
+colnames(dat.raw)
+```
+
+This is using the total score for social isolation (mother and teacher report combined). We will need to think about if this should also be done for mother and teacher report separately. 
+
+```{r select variables needed}
+dat <- dat.raw %>%
+  dplyr::select(
+         atwinid,
+         btwinid,
+         familyid,
+         rorderp5,
+         torder,
+         zygosity,
+         sampsex,
+         seswq35,
+         sethnic,
+         sisoe5,
+         sisoe7,
+         sisoe10,
+         sisoe12,
+         sisoy5,
+         sisoy7,
+         sisoy10,
+         sisoy12
+  )
+
+colnames(dat)
+```
+
+# Recode variables into factors
+
+```{r recode sex}
+dat <- dat %>%
+  mutate(
+    sex = 
+      recode_factor(as_factor(sampsex),
+        "1" = "Male",
+        "2" = "Female"))
+
+table(dat$sex)
+```
+
+```{r recode SES}
+dat <- dat %>%
+  mutate(
+    ses = 
+      recode_factor(as_factor(seswq35),
+        "1" = "Low",
+        "2" = "Middle", 
+        "3" = "High"))
+
+table(dat$ses)
+```
+
+```{r recode zygosity}
+dat <- dat %>%
+  mutate(
+    zygosity = 
+      recode_factor(as_factor(zygosity),
+        "1" = "MZ",
+        "2" = "DZ"))
+
+table(dat$zygosity)
+```
+
+```{r recode ethnicity variable}
+dat <- dat %>%
+  mutate(
+    ethnicity = 
+      recode_factor(as_factor(sethnic),
+        "1" = "White",
+        "2" = "Asian", 
+        "3" = "Black",
+        "4" = "Mixed race",
+        "5" = "Other"))
+
+table(dat$ethnicity)
+```
+
+# Create variables as numeric versions
+
+```{r create numeric isolation variables}
+dat <- dat %>%
+  mutate(
+    sisoe5 = as.numeric(sisoe5),      # isolation elder
+    sisoe7 = as.numeric(sisoe7),
+    sisoe10 = as.numeric(sisoe10),
+    sisoe12 = as.numeric(sisoe12),
+    sisoy5 = as.numeric(sisoy5),      # isolation younger
+    sisoy7 = as.numeric(sisoy7),
+    sisoy10 = as.numeric(sisoy10),
+    sisoy12 = as.numeric(sisoy12)
+  )
+colnames(dat)
+```
+
+# Creating the twin dataset
+
+```{r remove variables not needed}
+dat <- dat %>% select(
+      -c(sampsex, 
+         seswq35)
+         )
+colnames(dat)
+```
+
+To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
+
+```{r remove one twin pair row}
+dat.twin <- dat %>% filter(rorderp5 == "1")
+```
+
+```{r datasets for MZ and DZ}
+# with all data to check numbers
+dat.MZ <- dat %>% filter(zygosity == "MZ")
+dat.DZ <- dat %>% filter (zygosity == "DZ")
+
+# twin layout
+dat.twin.MZ <- dat.twin %>% filter(zygosity == "MZ")
+dat.twin.DZ <- dat.twin %>% filter (zygosity == "DZ")
+```
+
+```{r describe MZ and DZ data}
+MZ_summary <- describe(dat.twin.MZ, 
+                       skew = FALSE, 
+                       range = FALSE)
+MZ_summary
+
+DZ_summary <- describe(dat.twin.DZ, 
+                       skew = FALSE, 
+                       range = FALSE)
+DZ_summary
+```
+
+# MZ and DZ correlation and covariance matrices
+
+```{r select variables for correlations}
+selvars <- c("sisoe5", "sisoe7", "sisoe10", "sisoe12", "sisoy5", "sisoy7", "sisoy10", "sisoy12")
+```
+
+Need to check the within-twin MZ and DZ phenotypic correlations (rmz, rdz) of each phenotype (correlations between elder and younger twin for each phenotype)
+
+The rule of thumb is: 
+ - if 2*rdz>rmz, choose an ACE model; 
+ - if 2*rdz<rmz, choose a ADE model
+ 
+Social isolation age 5: 
+- rMZ = 0.585
+- rDZ = 0.056 *seems low?*
+- 2*rDZ = 0.112
+- 0.112<0.585 = ADE*?*
+
+Social isolation age 7: 
+- rMZ = 0.444
+- rDZ = 0.159 
+- 2*rDZ = 0.318
+- 0.318<0.444 = ADE*?*
+
+Social isolation age 10: 
+- rMZ = 0.453
+- rDZ = 0.174 
+- 2*rDZ = 0.348
+- 0.348<0.453 = ADE*?*
+
+Social isolation age 12: 
+- rMZ = 0.453
+- rDZ = 0.110 
+- 2*rDZ = 0.220
+- 0.220<0.453 = ADE*?*
+
+**surely this can't be right - ACE model would be the way to go here??**
+
+Using Falconer's equations, we can obtain preliminary estimates of the standardized A, D, E variance components. 
+
+For ADE:
+VA = 4*rdz-rmz 
+VD = 2*rmz-4*rdz
+VE = 1-VA-VD
+
+For ACE: *need to check this against my notes from boulder course*
+VA = 2*rmz-rdz
+VC = 1-VA+VE
+VE= 1-rmz
+
+```{r MZ matrices}
+covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
+round(covar.mz, 3)
+
+cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
+round(cor.mz, 3)
+```
+
+```{r DZ matrices}
+covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
+round(covar.dz, 3)
+
+cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
+round(cor.dz, 3)
+```
+
+I don't think much of the below is needed for analyses - this is just showing how to manipulate the matrices to get what you want 
+
+```{r express covariance matrix using SD and correlations}
+# variances from covariance matrix - diagonal is one variable with itself
+var.mz <- diag(covar.mz) 
+round(var.mz, 3)
+
+# creating the standard deviation into a vector (sd is the square root of the variance) then put this into a matrix
+sd.mz <- diag(sqrt(var.mz))
+round(sd.mz, 3)
+
+# re-calculating variance of mz (I think??)
+Smz <- sd.mz%*%cor.mz%*%t(sd.mz) # boulder course says this is good to know but I'm not sure why
+round(Smz, 3)
+round(covar.mz - Smz, 3) # compare with previous calculation
+
+# Therefore, you can also obtain the correlation matrix as follows
+rMZ = cov2cor(covar.mz)
+round(rMZ, 3)
+```
+
+
+# Cholesky fitting
+
+**AT THE MOMENT I DONT UNDERSTAND HOW TO MAKE THIS A CHOLESKY AND NOT THE STANDARD BIVARIATE WITH CORRELATED FACTORS**
+
+```{r mx set up}
+# mxOption(NULL, "Default optimizer","CSOLNP") #what does this actually do???? 
+```
+
+```{r number of variables (phenotypes)}
+nv	<- 4			# number of variables for a twin 
+ntv	<- 2*nv		# number of variables for a pair 
+```
+
+## Saturated Bivariate Model - **will need to rename chunks so we know it's the saturated model**
+
+### Parameter labels
+
+First we need to specify the start values and labels to make the code less busy. 
+For the start values, I used the describe tables above to look for the approximate value the model should be looking for. 
+The list should reflect the same order that you have in selvars. 
+
+*Labels for variables*
+The correlations should reflect all in the matrix that are not 1 and below/above the diagonal, an example of the labelling is below:
+
+Fruhling's labeling:
+        sisoe5   sisoe7   sisoy5  sisoy7
+sisoe5  1.000      
+sisoe7  rPhMZ1   1.000    
+sisoy5  rMZ1     MZxtxt2  1.000  
+sisoy7  MZxtxt1  rMZ2     rPhMZ2  1.000
+
+My labeling:
+        sisoe5  sisoe7  sisoy5 sisoy7
+sisoe5  1.000      
+sisoe7  xph1    1.000    
+sisoy5  xt1     xtxph2  1.000  
+sisoy7  xtxph1  xt2     xph2   1.000
+
+So for the full correlation matrix: **would this be the right way to label these??**
+         sisoe5   sisoe7   sisoe10  sisoe12  sisoy5  sisoy7  sisoy10  sisoy12
+sisoe5   1.000   
+sisoe7   xph1    1.000   
+sisoe10  xph2    xph4     1.000   
+sisoe12  xph3    xph5     xph6     1.000 
+sisoy5   xt1     xtxph4   xtxph7   xtxph10  1.000  
+sisoy7   xtxph1  xt2      xtxph8   xtxph11  xph7   1.000   
+sisoy10  xtxph2  xtxph5   xt3      xtxph12  xph8   xph10   1.000  
+sisoy12  xtxph3  xtxph6   xtxph9   xt4      xph9   xph11   xph12   1.000
+
+      xph   = cross phenotype/variable/trait
+      xt    = cross twin
+      xtxph = cross twin cross phenotype
+
+```{r specify saturated bivariate model}
+# start values
+svM	  <- c(0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7)	  # means               
+svSD  <- c(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)    # standard deviations
+svRmz <- c(rep(0.3, 28))                    # correlations for MZ - can I just have one estimate here to apply to all? Rather than doing the repetition? 28 correlations in total
+svRdz <- c(rep(0.15, 28))                   # correlations for DZ 
+
+# labels
+labMZm	<- c("MZme5", "MZme7", "MZme10", "MZme12", "MZmy5", "MZmy7", "MZmy10", "MZmy12")	         # MZ means       
+labDZm	<- c("DZme5", "DZme7", "DZme10", "DZme12", "DZmy5", "DZmy7", "DZmy10", "DZmy12")           # DZ means
+
+labMZsd	<- c("MZsde5", "MZsde7", "MZsde10", "MZsde12", "MZsdy5", "MZsdy7", "MZsdy10", "MZsdy12")   # MZ standard deviations
+labDZsd	<- c("DZsde5", "DZsde7", "DZsde10", "DZsde12", "DZsdy5", "DZsdy7", "DZsdy10", "DZsdy12")   # DZ standard deviations
+
+labMZr	<- c("MZrxph1", "MZrxph2", "MZrxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
+            "MZrxph4", "MZrxph5", "MZrxtxph4", "MZrxt2", "MZrxtxph5", "MZrxtxph6", 
+            "MZrxph6", "MZrxtxph7", "MZrxtxph8", "MZrxt3", "MZrxtxph9",
+            "MZrxtxph10", "MZrxtxph11", "MZrxtxph12", "MZrxt4",
+            "MZrxph7", "MZrxph8", "MZrxph9", 
+            "MZrxph10", "MZrxph11",
+            "MZrxph12")     
+labDZr	<- c("DZrxph1", "DZrxph2", "DZrxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
+            "DZrxph4", "DZrxph5", "DZrxtxph4", "DZrxt2", "DZrxtxph5", "DZrxtxph6", 
+            "DZrxph6", "DZrxtxph7", "DZrxtxph8", "DZrxt3", "DZrxtxph9",
+            "DZrxtxph10", "DZrxtxph11", "DZrxtxph12", "DZrxt4",
+            "DZrxph7", "DZrxph8", "DZrxph9", 
+            "DZrxph10", "DZrxph11",
+            "DZrxph12") 
+```
+
+### Matrices
+
+```{r matrices for free parameters (means, sd, cor)}
+# MZ
+meanMZ	<- mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM,	labels = labMZm, name = "ExpMeanMZ")
+sdMZ		<- mxMatrix(type = "Diag", nrow = ntv, ncol = ntv, free = TRUE, values = svSD,	labels = labMZsd, name = "sdMZ")
+corMZ		<- mxMatrix(type = "Stand", nrow = ntv, ncol = ntv, free = TRUE, values = svRmz, labels = labMZr,	name = "corMZ") 
+
+# DZ
+meanDZ	<- mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM,	labels = labDZm, name = "ExpMeanDZ")
+sdDZ		<- mxMatrix(type = "Diag", nrow = ntv, ncol = ntv, free = TRUE, values = svSD,	labels = labDZsd, name = "sdDZ")
+corDZ		<- mxMatrix(type = "Stand", nrow = ntv, ncol = ntv, free = TRUE, values = svRdz, labels = labDZr,	name = "corDZ") 
+```
+
+### Alegbra 
+
+This is the same matrix algebra that is calculated above from the Boulder workshop code:
+covariace = SD * r * t(SD) 
+
+%*% is matrix multiplication
+t() is transpose
+full list of operators here: https://openmx.ssri.psu.edu/wiki/matrix-operators-and-functions 
+
+```{r Algebra for expected variance/covariance matrices for MZ and DZ pairs}
+covMZ	<- mxAlgebra(expression = sdMZ %*% corMZ %*% t(sdMZ), name = "ExpCovMZ")
+covDZ	<- mxAlgebra(expression = sdDZ %*% corDZ %*% t(sdDZ), name = "ExpCovDZ")
+```
+
+### Data 
+
+We need to specify what data to populate the matrices with.
+
+```{r specify data objects to be saved in openMx format}
+datMZ <- mxData(observed = dat.twin.MZ, type = "raw")
+datDZ <- mxData(observed = dat.twin.DZ, type = "raw")
+```
+
+### Objectives 
+
+**I'm not sure what objectives are - why do we need them?**
+
+```{r create objectives}
+# Objective objects 
+objMZ <- mxExpectationNormal(covariance = "ExpCovMZ", means = "ExpMeanMZ", dimnames = selvars)
+objDZ <- mxExpectationNormal(covariance = "ExpCovDZ", means = "ExpMeanDZ", dimnames = selvars)
+```
+
+### Specify fit function
+
+```{r fit function for all models}
+fitFunction <- mxFitFunctionML()
+```
+
+### Create the model
+
+**Fruhling called it combining groups but I'm not sure why??**
+
+```{r create model}
+# models for MZ and DZ
+modelMZ	<- mxModel(meanMZ, sdMZ, corMZ, covMZ, datMZ, objMZ, fitFunction, name = "MZ")
+modelDZ	<- mxModel(meanDZ, sdDZ, corDZ, covDZ, datDZ, objDZ, fitFunction, name = "DZ")
+
+# estimation??
+minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	<- mxFitFunctionAlgebra("m2LL")
+
+# confidence intervals
+Conf1 <- mxCI(c('MZ.MZCor[2,1]', 'MZ.MZCor[3,1]', 'MZ.MZCor[4,1]', 'MZ.MZCor[4,2]')) # I dont know if I should edit these???????????
+Conf2 <- mxCI(c('DZ.DZCor[3,1]', 'DZ.DZCor[4,1]', 'DZ.DZCor[4,2]'))
+
+# Saturated model 
+SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj, Conf1, Conf2)
+```
+
+### Saturated model output
+
+i think there is omething wrong here with how I m defining the confirdence intervals. 
+
+```{r saturated model output}
+# Run the saturated model
+SatFit	<- mxRun(SatModel, intervals = FALSE)
+(SatSumm	<- summary(SatFit))
+
+
+# Generate SatModel Output so you could see the labels
+SatFit$MZ.corMZ
+SatFit$MZ.ExpCovMZ
+SatFit$DZ.corDZ
+SatFit$DZ.ExpCovDZ
+```
+
+***
+Next steps:
+- go through GED material to see what the saturated model means and remind myself why we use it and how to interpret the matrices
+- only once I've understood the code and interpretation can I go onto the ACE model
+
+
+
+
+
+
+
+
+
+
+
+
+
+
