@@ -42,16 +42,18 @@ library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
 ```
 
 ```{r source the data file path, include=FALSE}
-#source raw data directory: data_raw and data included
+# source raw data directory
 source("../isolation_mentalhealth_data_path.R")
 ```
 
 ```{r read in dta data file}
-dat.raw <- read_dta(paste0(data_path_raw, "Katie_21Sep22.dta"))
+dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
 colnames(dat.raw)
 ```
 
-This is using the total score for social isolation (mother and teacher report combined). We will need to think about if this should also be done for mother and teacher report separately. 
+**This is using the total score for social isolation (mother and teacher report combined). We will need to think about if this should be done for mother and teacher report separately.** 
+
+# Data prep
 
 ```{r select variables needed}
 dat <- dat.raw %>%
@@ -78,7 +80,7 @@ dat <- dat.raw %>%
 colnames(dat)
 ```
 
-# Recode variables into factors
+## Recode variables into factors
 
 ```{r recode sex}
 dat <- dat %>%
@@ -128,7 +130,7 @@ dat <- dat %>%
 table(dat$ethnicity)
 ```
 
-# Create variables as numeric versions
+## Create variables as numeric versions
 
 ```{r create numeric isolation variables}
 dat <- dat %>%
@@ -145,7 +147,7 @@ dat <- dat %>%
 colnames(dat)
 ```
 
-# Creating the twin dataset
+## Creating the twin dataset
 
 ```{r remove variables not needed}
 dat <- dat %>% select(
@@ -183,7 +185,7 @@ DZ_summary <- describe(dat.twin.DZ,
 DZ_summary
 ```
 
-# MZ and DZ correlation and covariance matrices
+# MZ and DZ phenotypic correlation matrices
 
 ```{r select variables for correlations}
 selvars <- c("sisoe5", "sisoe7", "sisoe10", "sisoe12", "sisoy5", "sisoy7", "sisoy10", "sisoy12")
@@ -249,7 +251,7 @@ cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
 round(cor.dz, 3)
 ```
 
-I don't think much of the below is needed for analyses - this is just showing how to manipulate the matrices to get what you want 
+Below is not needed for analyses - but showing another way to get matrices. 
 
 ```{r express covariance matrix using SD and correlations}
 # variances from covariance matrix - diagonal is one variable with itself
@@ -260,12 +262,12 @@ round(var.mz, 3)
 sd.mz <- diag(sqrt(var.mz))
 round(sd.mz, 3)
 
-# re-calculating variance of mz (I think??)
-Smz <- sd.mz%*%cor.mz%*%t(sd.mz) # boulder course says this is good to know but I'm not sure why
+# re-calculating variance of MZ 
+Smz <- sd.mz%*%cor.mz%*%t(sd.mz) 
 round(Smz, 3)
 round(covar.mz - Smz, 3) # compare with previous calculation
 
-# Therefore, you can also obtain the correlation matrix as follows
+# Therefore, we can also obtain the correlation matrix as follows
 rMZ = cov2cor(covar.mz)
 round(rMZ, 3)
 ```
@@ -284,9 +286,9 @@ nv	<- 4			# number of variables for a twin
 ntv	<- 2*nv		# number of variables for a pair 
 ```
 
-## Saturated Bivariate Model - **will need to rename chunks so we know it's the saturated model**
+## Saturated model
 
-### Parameter labels
+#### Parameter labels
 
 First we need to specify the start values and labels to make the code less busy. 
 For the start values, I used the describe tables above to look for the approximate value the model should be looking for. 
@@ -309,7 +311,7 @@ sisoe7  xph1    1.000
 sisoy5  xt1     xtxph2  1.000  
 sisoy7  xtxph1  xt2     xph2   1.000
 
-So for the full correlation matrix: **would this be the right way to label these??**
+**For the full correlation matrix:** 
          sisoe5   sisoe7   sisoe10  sisoe12  sisoy5  sisoy7  sisoy10  sisoy12
 sisoe5   1.000   
 sisoe7   xph1    1.000   
@@ -324,11 +326,12 @@ sisoy12  xtxph3  xtxph6   xtxph9   xt4      xph9   xph11   xph12   1.000
       xt    = cross twin
       xtxph = cross twin cross phenotype
 
-```{r specify saturated bivariate model}
+
+```{r specify saturated model}
 # start values
 svM	  <- c(0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7)	  # means               
 svSD  <- c(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)    # standard deviations
-svRmz <- c(rep(0.3, 28))                    # correlations for MZ - can I just have one estimate here to apply to all? Rather than doing the repetition? 28 correlations in total
+svRmz <- c(rep(0.3, 28))                    # correlations for MZ - 28 correlations in total
 svRdz <- c(rep(0.15, 28))                   # correlations for DZ 
 
 # labels
@@ -354,9 +357,9 @@ labDZr	<- c("DZrxph1", "DZrxph2", "DZrxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2",
             "DZrxph12") 
 ```
 
-### Matrices
+#### Matrices
 
-```{r matrices for free parameters (means, sd, cor)}
+```{r matrices for saturated free parameters (means, sd, cor)}
 # MZ
 meanMZ	<- mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM,	labels = labMZm, name = "ExpMeanMZ")
 sdMZ		<- mxMatrix(type = "Diag", nrow = ntv, ncol = ntv, free = TRUE, values = svSD,	labels = labMZsd, name = "sdMZ")
@@ -368,75 +371,87 @@ sdDZ		<- mxMatrix(type = "Diag", nrow = ntv, ncol = ntv, free = TRUE, values = s
 corDZ		<- mxMatrix(type = "Stand", nrow = ntv, ncol = ntv, free = TRUE, values = svRdz, labels = labDZr,	name = "corDZ") 
 ```
 
-### Alegbra 
+#### Alegbra 
 
 This is the same matrix algebra that is calculated above from the Boulder workshop code:
-covariace = SD * r * t(SD) 
+
+            covariace = SD * r * t(SD) 
 
 %*% is matrix multiplication
 t() is transpose
-full list of operators here: https://openmx.ssri.psu.edu/wiki/matrix-operators-and-functions 
+full list of operators [here](https://openmx.ssri.psu.edu/wiki/matrix-operators-and-functions) 
 
-```{r Algebra for expected variance/covariance matrices for MZ and DZ pairs}
+The result matrix of the matrix algebra calculation S*R*S’ is the Symmetric Variance-Covariance matrix of the model, with the expected Variance of the Twin 1 variable on the 1st Diagonal Element, the expected Variance of the Twin 2 variable on the 2nd  Diagonal Element and the Covariance on the off-diagonal. Since we are dealing with two types of Twin pairs, we will specify a different S and R matrix for MZ and DZ pairs and fit a separate Saturated model to each of the sub-data files, the MZ data and the DZ data. 
+
+```{r Algebra for saturated expected variance/covariance matrices for MZ and DZ pairs}
 covMZ	<- mxAlgebra(expression = sdMZ %*% corMZ %*% t(sdMZ), name = "ExpCovMZ")
 covDZ	<- mxAlgebra(expression = sdDZ %*% corDZ %*% t(sdDZ), name = "ExpCovDZ")
 ```
 
-### Data 
+#### Data 
 
 We need to specify what data to populate the matrices with.
 
-```{r specify data objects to be saved in openMx format}
+```{r specify saturated data objects to be saved in openMx format}
 datMZ <- mxData(observed = dat.twin.MZ, type = "raw")
 datDZ <- mxData(observed = dat.twin.DZ, type = "raw")
 ```
 
-### Objectives 
+#### Objectives 
 
-**I'm not sure what objectives are - why do we need them?**
+*I'm not sure what objectives are - why do we need them?*
 
-```{r create objectives}
+```{r create saturated objectives}
 # Objective objects 
 objMZ <- mxExpectationNormal(covariance = "ExpCovMZ", means = "ExpMeanMZ", dimnames = selvars)
 objDZ <- mxExpectationNormal(covariance = "ExpCovDZ", means = "ExpMeanDZ", dimnames = selvars)
 ```
 
-### Specify fit function
+#### Specify fit function
 
-```{r fit function for all models}
+```{r fit function for saturated model}
 fitFunction <- mxFitFunctionML()
 ```
 
-### Create the model
+#### Create the model
 
-**Fruhling called it combining groups but I'm not sure why??**
+*the confidence intervals here definitely need editing but I don't know how - maybe look at Tims scripts for this*. I have hashed out the confidence interval specification for now as I'm not sure how to update this. 
 
-```{r create model}
+```{r create saturated model}
 # models for MZ and DZ
 modelMZ	<- mxModel(meanMZ, sdMZ, corMZ, covMZ, datMZ, objMZ, fitFunction, name = "MZ")
 modelDZ	<- mxModel(meanDZ, sdDZ, corDZ, covDZ, datDZ, objDZ, fitFunction, name = "DZ")
 
-# estimation??
+# estimation
 minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
 obj	<- mxFitFunctionAlgebra("m2LL")
 
 # confidence intervals
-Conf1 <- mxCI(c('MZ.MZCor[2,1]', 'MZ.MZCor[3,1]', 'MZ.MZCor[4,1]', 'MZ.MZCor[4,2]')) # I dont know if I should edit these???????????
-Conf2 <- mxCI(c('DZ.DZCor[3,1]', 'DZ.DZCor[4,1]', 'DZ.DZCor[4,2]'))
+# Conf1 <- mxCI(c('MZ.MZCor[2,1]', 'MZ.MZCor[3,1]', 'MZ.MZCor[4,1]', 'MZ.MZCor[4,2]')) # edit these???????????
+# Conf2 <- mxCI(c('DZ.DZCor[3,1]', 'DZ.DZCor[4,1]', 'DZ.DZCor[4,2]'))
 
 # Saturated model 
-SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj, Conf1, Conf2)
+SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj 
+                    #Conf1, Conf2
+                    )
 ```
 
-### Saturated model output
+#### Saturated model output
 
-i think there is omething wrong here with how I m defining the confirdence intervals. 
+The Saturated Model is represented by a path diagram and using path tracing rules we will derive the expected model for the variance-covariance structure of the data. The ultimate goal of the Saturated Model is to obtain the best possible (maximum likelihood) estimation of the ‘Twin Correlations’ and this is preferred over the correlations that you can typically get using R commands (also shown above). 
+
+*** 
+THINK ABOUT THIS
+Estimating ACE based on the saturated model as an example:
+Falconer’s equations	a2 = 2*(rMZ-rDZ); c2= rMZ-a2; e2=1-a2-c2
+Social isolation at age 5 -> a2 = 2*
+rMZ = 
+***
 
 ```{r saturated model output}
 # Run the saturated model
 SatFit	<- mxRun(SatModel, intervals = FALSE)
 (SatSumm	<- summary(SatFit))
-
 
 # Generate SatModel Output so you could see the labels
 SatFit$MZ.corMZ
@@ -445,10 +460,115 @@ SatFit$DZ.corDZ
 SatFit$DZ.ExpCovDZ
 ```
 
-***
-Next steps:
-- go through GED material to see what the saturated model means and remind myself why we use it and how to interpret the matrices
-- only once I've understood the code and interpretation can I go onto the ACE model
+Although the ultimate goal is to decompose the variance into components A, C and E, we first start with the Saturated Model. This Model simply estimates the variances of the variables in MZ and DZ twin pairs, as well as the covariance in each group. The model therefore provides a basis to *test certain assumptions* that are implicit in the ACE model, and that is: that **all variances should be alike or more precisely, non-significantly different**. This means that we don’t expect birth order nor zygosity effects on the variances so that  Var1=Var2=Var3=Var4. The correlations estimated by optimizing the Saturated Model using OpenMx, will also have the benefit that they will be corrected for missingness in the data and therefore representing the best possible estimates. The third reason for the Saturated Model is to obtain a baseline fit index (-2 * the likelihood, -2LL) for the observed data, to be used as a reference for comparison with the likelihood (-2LL) of the genetic models. 
+
+### Specify saturated sub-model 1: Constrained correlation model (equal variances & means across twin order & zygosity group)
+
+To manipulate  the parameters in matrices we wish to change in the full model, we use the 'omxSetParameters' function with the original 'labels' and 'newlabels' to indicate the changes, i.e. specifying the same label effectively constraints the parameters to be the same. 
+
+Here we have equated means and variances across twin order and zygosity. Then created *one overall set of within-person cross-trait correlations and symmetric xtwin-xtrait correlation matrices in MZ and DZ groups*.  
+
+Labeling:
+        sisoe5  sisoe7  sisoy5 sisoy7
+sisoe5  1.000      
+sisoe7  xph     1.000    
+sisoy5  xt1     xtxph   1.000  
+sisoy7  xtxph   xt2     xph    1.000
+
+**For the full matrix:** 
+         sisoe5   sisoe7   sisoe10  sisoe12     sisoy5  sisoy7  sisoy10  sisoy12
+sisoe5   1.000   
+sisoe7   xph1    1.000   
+sisoe10  xph2    xph4     1.000   
+sisoe12  xph3    xph5     xph6     1.000 
+
+sisoy5   xt1     xtxph1   xtxph2   xtxph3       1.000  
+sisoy7   xtxph1  xt2      xtxph4   xtxph5       xph1   1.000   
+sisoy10  xtxph2  xtxph4   xt3      xtxph6       xph2   xph4   1.000  
+sisoy12  xtxph3  xtxph5   xtxph6   xt4          xph3   xph5   xph6   1.000
+
+```{r specify saturday submodel 1 new labels}
+# start values
+newsvRmz <- c(rep(0.3, 16))                    # correlations for MZ - 16 distinct correlations in total
+newsvRdz <- c(rep(0.15, 16))                   # correlations for DZ 
+
+# labels
+newlabm	<- c("m5", "m7", "m10", "m12", "m5", "m7", "m10", "m12")	         # means       
+newlabsd	<- c("sd5", "sd7", "sd10", "sd12", "sd5", "sd7", "sd10", "sd12") # standard deviations
+
+newlabrMZ	<- c("rxph1", "rxph2", "rxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
+            "rxph4", "rxph5", "MZrxtxph1", "MZrxt2", "MZrxtxph4", "MZrxtxph5", 
+            "rxph6", "MZrxtxph2", "MZrxtxph4", "MZrxt3", "MZrxtxph6",
+            "MZrxtxph3", "MZrxtxph5", "MZrxtxph6", "MZrxt4",
+            "rxph1", "rxph2", "rxph3", 
+            "rxph4", "rxph5",
+            "rxph6")  
+newlabrDZ	<- c("rxph1", "rxph2", "rxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
+            "rxph4", "rxph5", "DZrxtxph1", "DZrxt2", "DZrxtxph4", "DZrxtxph5", 
+            "rxph6", "DZrxtxph2", "DZrxtxph4", "DZrxt3", "DZrxtxph6",
+            "DZrxtxph3", "DZrxtxph5", "DZrxtxph6", "DZrxt4",
+            "rxph1", "rxph2", "rxph3", 
+            "rxph4", "rxph5",
+            "rxph6") 
+```
+
+```{r specify saturated submodel 1}
+# create model 
+Sub1Model	<- mxModel(SatModel, name = "Sub1")
+
+# set parameters to be the same across 
+# equal means
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svM, labels = labMZm, newlabels = newlabm)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svM, labels = labDZm, newlabels = newlabm)
+# equal variances
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svSD, labels = labMZsd, newlabels = newlabsd)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svSD, labels = labDZsd, newlabels = newlabsd)
+# equal correlations
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = newsvRmz, labels = labMZr, newlabels = newlabrMZ)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = newsvRdz, labels = labDZr, newlabels = newlabrDZ)
+
+# for some reason it's the wrong number of starting values so to choose randomly I've set the below
+Sub1Model <- omxAssignFirstParameters(Sub1Model)
+```
+
+```{r run saturated sub model 1}
+Sub1Fit	<- mxRun(Sub1Model, intervals = TRUE)
+(Sub1Summ	<- summary(Sub1Fit))
+```
+
+As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model - **what do I do with this?** 
+
+```{r submodel 1 output}
+Sub1Fit$MZ.ExpCovMZ
+Sub1Fit$MZ.MZCor
+Sub1Fit$DZ.ExpCovDZ
+Sub1Fit$DZ.DZCor
+
+mxCompare(SatFit, Sub1Fit)
+```
+
+## ACE model
+
+#### Matrices to estimate a, c, and e path coefficients
+
+```{r ace matrices}
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(1,-4,8), labels = c("a11", "a21","a22"), name="a" ) 
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(1,-4,8), labels = c("c11", "c21","c22"), name="c" )
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(1,-4,8), labels = c("e11", "e21","e22"), name="e" )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
