@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Behavioural genetics analysis of social isolation (Cholesky)</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { font-weight: bold; } /* Alert */
+code span.an { font-style: italic; } /* Annotation */
+code span.cf { font-weight: bold; } /* ControlFlow */
+code span.co { font-style: italic; } /* Comment */
+code span.cv { font-style: italic; } /* CommentVar */
+code span.do { font-style: italic; } /* Documentation */
+code span.dt { text-decoration: underline; } /* DataType */
+code span.er { font-weight: bold; } /* Error */
+code span.in { font-style: italic; } /* Information */
+code span.kw { font-weight: bold; } /* Keyword */
+code span.pp { font-weight: bold; } /* Preprocessor */
+code span.wa { font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html"></a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-home"></span>
+     
+    Home
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/knthompson26/social-isolation-ADHD-bidirectional-effects">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Behavioural genetics analysis of social isolation (Cholesky)</h1>
+
+</div>
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>dat.raw <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="fu">paste0</span>(data_path_raw, <span class="st">&quot;Katie_23Sep22.dta&quot;</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dat.raw)</span></code></pre></div>
+<p>[1] “familyid” “atwinid” “btwinid” “rorderp5”<br />
+[5] “torder” “risks” “cohort” “sampsex”<br />
+[9] “zygosity” “seswq35” “sethnic” “sisoe5”<br />
+[13] “sisoet5” “sisoem5” “sisoy5” “sisoyt5”<br />
+[17] “sisoym5” “sisoe7” “sisoet7” “sisoem7”<br />
+[21] “sisoy7” “sisoyt7” “sisoym7” “sisoe10”<br />
+[25] “sisoet10” “sisoem10” “sisoy10” “sisoyt10”<br />
+[29] “sisoym10” “ExpV_DV510” “sisoe12” “sisoet12”<br />
+[33] “sisoem12” “sisoy12” “sisoyt12” “sisoym12”<br />
+[37] “masce12” “masccate12” “mascy12” “masccaty12”<br />
+[41] “cdie12” “cdicate12” “cdiy12” “cdicaty12”<br />
+[45] “conec12” “conyc12” “dxCD_emt12” “dxCD_ymt12”<br />
+[49] “psysymp01e12” “psysympe12” “psysymp01y12” “psysympy12”<br />
+[53] “pabsevtye12” “pabsevtyy12” “sasevtye12” “sasevtyy12”<br />
+[57] “bullseve12” “bullsevy12” “polyve512” “polyvy512”<br />
+[61] “pnseveritye12” “pnseverityy12” “eanseve12” “eansevy12”<br />
+[65] “IMDdecile_p12” “socisoe18” “socisoy18” “gadsxe18”<br />
+[69] “gadsxy18” “dxgade18” “dxgady18” “mdesxe18”<br />
+[73] “dxmdee18” “mdesxy18” “dxmdey18” “cdsxe18”<br />
+[77] “cdmode18” “cdsxy18” “cdmody18” “psysymp01e18” [81] “psysympe18” “psyexpe18” “psyexpce18” “psysymp01y18” [85] “psysympy18” “psyexpy18” “psyexpcy18” “IMDdecile_p18” [89] “polyvctze18” “polyvctzy18”</p>
+<p><strong>This is using the total score for social isolation (mother and teacher report combined). We will need to think about if this should be done for mother and teacher report separately.</strong></p>
+<div id="data-prep" class="section level1">
+<h1>Data prep</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat.raw <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>         atwinid,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>         btwinid,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>         familyid,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>         rorderp5,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>         torder,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>         zygosity,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>         sampsex,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>         seswq35,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>         sethnic,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>         sisoe5,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>         sisoe7,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>         sisoe10,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>         sisoe12,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>         sisoy5,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>         sisoy7,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>         sisoy10,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>         sisoy12</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dat)</span></code></pre></div>
+<p>[1] “atwinid” “btwinid” “familyid” “rorderp5” “torder” “zygosity” [7] “sampsex” “seswq35” “sethnic” “sisoe5” “sisoe7” “sisoe10” [13] “sisoe12” “sisoy5” “sisoy7” “sisoy10” “sisoy12”</p>
+<div id="recode-variables-into-factors" class="section level2">
+<h2>Recode variables into factors</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">sex =</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">recode_factor</span>(<span class="fu">as_factor</span>(sampsex),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Male&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Female&quot;</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>sex)</span></code></pre></div>
+<p>Male Female 1092 1140</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ses =</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">recode_factor</span>(<span class="fu">as_factor</span>(seswq35),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Low&quot;</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Middle&quot;</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;3&quot;</span> <span class="ot">=</span> <span class="st">&quot;High&quot;</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>ses)</span></code></pre></div>
+<p>Low Middle High 742 738 752</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">zygosity =</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">recode_factor</span>(<span class="fu">as_factor</span>(zygosity),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;1&quot;</span> <span class="ot">=</span> <span class="st">&quot;MZ&quot;</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;2&quot;</span> <span class="ot">=</span> <span class="st">&quot;DZ&quot;</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>zygosity)</span></code></pre></div>
+<p>MZ DZ 1242 990</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ethnicity =</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">recode_factor</span>(<span class="fu">as_factor</span>(sethnic),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;1&quot;</span> <span class="ot">=</span> <span class="st">&quot;White&quot;</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Asian&quot;</span>, </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;3&quot;</span> <span class="ot">=</span> <span class="st">&quot;Black&quot;</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;4&quot;</span> <span class="ot">=</span> <span class="st">&quot;Mixed race&quot;</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;5&quot;</span> <span class="ot">=</span> <span class="st">&quot;Other&quot;</span>))</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>ethnicity)</span></code></pre></div>
+<pre><code> White      Asian      Black Mixed race      Other    Missing 
+  2018         90         42          8         74          0 </code></pre>
+</div>
+<div id="create-variables-as-numeric-versions" class="section level2">
+<h2>Create variables as numeric versions</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoe5 =</span> <span class="fu">as.numeric</span>(sisoe5),      <span class="co"># isolation elder</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoe7 =</span> <span class="fu">as.numeric</span>(sisoe7),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoe10 =</span> <span class="fu">as.numeric</span>(sisoe10),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoe12 =</span> <span class="fu">as.numeric</span>(sisoe12),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoy5 =</span> <span class="fu">as.numeric</span>(sisoy5),      <span class="co"># isolation younger</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoy7 =</span> <span class="fu">as.numeric</span>(sisoy7),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoy10 =</span> <span class="fu">as.numeric</span>(sisoy10),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">sisoy12 =</span> <span class="fu">as.numeric</span>(sisoy12)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dat)</span></code></pre></div>
+<p>[1] “atwinid” “btwinid” “familyid” “rorderp5” “torder” “zygosity” [7] “sampsex” “seswq35” “sethnic” “sisoe5” “sisoe7” “sisoe10”<br />
+[13] “sisoe12” “sisoy5” “sisoy7” “sisoy10” “sisoy12” “sex”<br />
+[19] “ses” “ethnicity”</p>
+</div>
+<div id="creating-the-twin-dataset" class="section level2">
+<h2>Creating the twin dataset</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span> <span class="fu">select</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>      <span class="sc">-</span><span class="fu">c</span>(sampsex, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>         seswq35)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dat)</span></code></pre></div>
+<p>[1] “atwinid” “btwinid” “familyid” “rorderp5” “torder” “zygosity” [7] “sethnic” “sisoe5” “sisoe7” “sisoe10” “sisoe12” “sisoy5”<br />
+[13] “sisoy7” “sisoy10” “sisoy12” “sex” “ses” “ethnicity”</p>
+<p>To remove the double entry in the data, we will remove everyone who has a “random twin order” variable of 0. This will then remove any birth order effects.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dat.twin <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(rorderp5 <span class="sc">==</span> <span class="st">&quot;1&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with all data to check numbers</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>dat.MZ <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(zygosity <span class="sc">==</span> <span class="st">&quot;MZ&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>dat.DZ <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span> <span class="fu">filter</span> (zygosity <span class="sc">==</span> <span class="st">&quot;DZ&quot;</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># twin layout</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>dat.twin.MZ <span class="ot">&lt;-</span> dat.twin <span class="sc">%&gt;%</span> <span class="fu">filter</span>(zygosity <span class="sc">==</span> <span class="st">&quot;MZ&quot;</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>dat.twin.DZ <span class="ot">&lt;-</span> dat.twin <span class="sc">%&gt;%</span> <span class="fu">filter</span> (zygosity <span class="sc">==</span> <span class="st">&quot;DZ&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>MZ_summary <span class="ot">&lt;-</span> <span class="fu">describe</span>(dat.twin.MZ, </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">skew =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">range =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>MZ_summary</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"621","3":"7.672082e+04","4":"3.891705e+04","5":"1.561688e+03","_rn_":"atwinid"},{"1":"2","2":"621","3":"7.672083e+04","4":"3.891708e+04","5":"1.561689e+03","_rn_":"btwinid"},{"1":"3","2":"621","3":"7.671932e+03","4":"3.891707e+03","5":"1.561688e+02","_rn_":"familyid"},{"1":"4","2":"621","3":"1.000000e+00","4":"0.000000e+00","5":"0.000000e+00","_rn_":"rorderp5"},{"1":"5","2":"621","3":"1.492754e+00","4":"5.003505e-01","5":"2.007837e-02","_rn_":"torder"},{"1":"6","2":"621","3":"1.000000e+00","4":"0.000000e+00","5":"0.000000e+00","_rn_":"zygosity*"},{"1":"7","2":"621","3":"1.223833e+00","4":"8.010953e-01","5":"3.214685e-02","_rn_":"sethnic"},{"1":"8","2":"621","3":"7.662641e-01","4":"1.156995e+00","5":"4.642862e-02","_rn_":"sisoe5"},{"1":"9","2":"606","3":"7.886139e-01","4":"1.092311e+00","5":"4.437209e-02","_rn_":"sisoe7"},{"1":"10","2":"592","3":"9.253378e-01","4":"1.297948e+00","5":"5.334535e-02","_rn_":"sisoe10"},{"1":"11","2":"596","3":"8.795302e-01","4":"1.329823e+00","5":"5.447167e-02","_rn_":"sisoe12"},{"1":"12","2":"621","3":"6.958937e-01","4":"9.609572e-01","5":"3.856188e-02","_rn_":"sisoy5"},{"1":"13","2":"606","3":"6.844884e-01","4":"1.006487e+00","5":"4.088572e-02","_rn_":"sisoy7"},{"1":"14","2":"592","3":"8.074324e-01","4":"1.122292e+00","5":"4.612590e-02","_rn_":"sisoy10"},{"1":"15","2":"595","3":"8.273109e-01","4":"1.307630e+00","5":"5.360761e-02","_rn_":"sisoy12"},{"1":"16","2":"621","3":"1.520129e+00","4":"4.999974e-01","5":"2.006420e-02","_rn_":"sex*"},{"1":"17","2":"621","3":"1.980676e+00","4":"8.109812e-01","5":"3.254355e-02","_rn_":"ses*"},{"1":"18","2":"621","3":"1.223833e+00","4":"8.010953e-01","5":"3.214685e-02","_rn_":"ethnicity*"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>DZ_summary <span class="ot">&lt;-</span> <span class="fu">describe</span>(dat.twin.DZ, </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">skew =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">range =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>DZ_summary</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["vars"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"495","3":"7.594116e+04","4":"3.856557e+04","5":"1.733393e+03","_rn_":"atwinid"},{"1":"2","2":"495","3":"7.594116e+04","4":"3.856554e+04","5":"1.733392e+03","_rn_":"btwinid"},{"1":"3","2":"495","3":"7.593966e+03","4":"3.856555e+03","5":"1.733393e+02","_rn_":"familyid"},{"1":"4","2":"495","3":"1.000000e+00","4":"0.000000e+00","5":"0.000000e+00","_rn_":"rorderp5"},{"1":"5","2":"495","3":"1.509091e+00","4":"5.004231e-01","5":"2.249234e-02","_rn_":"torder"},{"1":"6","2":"495","3":"2.000000e+00","4":"0.000000e+00","5":"0.000000e+00","_rn_":"zygosity*"},{"1":"7","2":"495","3":"1.218182e+00","4":"7.850274e-01","5":"3.528436e-02","_rn_":"sethnic"},{"1":"8","2":"495","3":"8.961616e-01","4":"1.163360e+00","5":"5.228914e-02","_rn_":"sisoe5"},{"1":"9","2":"483","3":"9.913043e-01","4":"1.431321e+00","5":"6.512735e-02","_rn_":"sisoe7"},{"1":"10","2":"477","3":"1.110692e+00","4":"1.480529e+00","5":"6.778875e-02","_rn_":"sisoe10"},{"1":"11","2":"477","3":"1.110377e+00","4":"1.504602e+00","5":"6.889097e-02","_rn_":"sisoe12"},{"1":"12","2":"495","3":"9.355556e-01","4":"1.254041e+00","5":"5.636497e-02","_rn_":"sisoy5"},{"1":"13","2":"483","3":"9.004141e-01","4":"1.171072e+00","5":"5.328564e-02","_rn_":"sisoy7"},{"1":"14","2":"477","3":"9.494759e-01","4":"1.294488e+00","5":"5.927052e-02","_rn_":"sisoy10"},{"1":"15","2":"477","3":"9.970650e-01","4":"1.353688e+00","5":"6.198110e-02","_rn_":"sisoy12"},{"1":"16","2":"495","3":"1.498990e+00","4":"5.005048e-01","5":"2.249602e-02","_rn_":"sex*"},{"1":"17","2":"495","3":"2.034343e+00","4":"8.276793e-01","5":"3.720142e-02","_rn_":"ses*"},{"1":"18","2":"495","3":"1.218182e+00","4":"7.850274e-01","5":"3.528436e-02","_rn_":"ethnicity*"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div id="mz-and-dz-phenotypic-correlation-matrices" class="section level1">
+<h1>MZ and DZ phenotypic correlation matrices</h1>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>selvars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;sisoe5&quot;</span>, <span class="st">&quot;sisoe7&quot;</span>, <span class="st">&quot;sisoe10&quot;</span>, <span class="st">&quot;sisoe12&quot;</span>, <span class="st">&quot;sisoy5&quot;</span>, <span class="st">&quot;sisoy7&quot;</span>, <span class="st">&quot;sisoy10&quot;</span>, <span class="st">&quot;sisoy12&quot;</span>)</span></code></pre></div>
+<p>Need to check the within-twin MZ and DZ phenotypic correlations (rmz, rdz) of each phenotype (correlations between elder and younger twin for each phenotype)</p>
+<p>The rule of thumb is:</p>
+<ul>
+<li>if 2*rdz&gt;rmz, choose an ACE model;</li>
+<li>if 2*rdz&lt;rmz, choose a ADE model</li>
+</ul>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># covariance matrix</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>covar.mz <span class="ot">&lt;-</span> <span class="fu">cov</span>(dat.twin.MZ[, selvars], <span class="at">use =</span> <span class="st">&quot;complete&quot;</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation matrix (standardized covariance)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>cor.mz <span class="ot">&lt;-</span> <span class="fu">cor</span>(dat.twin.MZ[, selvars], <span class="at">use =</span> <span class="st">&quot;complete&quot;</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(cor.mz, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>    sisoe5 sisoe7 sisoe10 sisoe12 sisoy5 sisoy7 sisoy10 sisoy12</code></pre>
+<p>sisoe5 1.000 0.485 0.327 0.247 0.585 0.354 0.294 0.299 sisoe7 0.485 1.000 0.438 0.351 0.299 0.444 0.252 0.251 sisoe10 0.327 0.438 1.000 0.537 0.247 0.387 0.453 0.394 sisoe12 0.247 0.351 0.537 1.000 0.212 0.283 0.343 0.453 sisoy5 0.585 0.299 0.247 0.212 1.000 0.554 0.368 0.357 sisoy7 0.354 0.444 0.387 0.283 0.554 1.000 0.438 0.413 sisoy10 0.294 0.252 0.453 0.343 0.368 0.438 1.000 0.532 sisoy12 0.299 0.251 0.394 0.453 0.357 0.413 0.532 1.000</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># covariance matrix</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>covar.dz <span class="ot">&lt;-</span> <span class="fu">cov</span>(dat.twin.DZ[, selvars], <span class="at">use =</span> <span class="st">&quot;complete&quot;</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation matrix (standardized covariance)</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>cor.dz <span class="ot">&lt;-</span> <span class="fu">cor</span>(dat.twin.DZ[, selvars], <span class="at">use =</span> <span class="st">&quot;complete&quot;</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(cor.dz, <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>    sisoe5 sisoe7 sisoe10 sisoe12 sisoy5 sisoy7 sisoy10 sisoy12</code></pre>
+<p>sisoe5 1.000 0.547 0.426 0.397 0.059 0.125 0.095 0.145 sisoe7 0.547 1.000 0.579 0.468 0.042 0.165 0.118 0.096 sisoe10 0.426 0.579 1.000 0.650 0.040 0.103 0.174 0.149 sisoe12 0.397 0.468 0.650 1.000 -0.032 0.077 0.078 0.110 sisoy5 0.059 0.042 0.040 -0.032 1.000 0.431 0.351 0.300 sisoy7 0.125 0.165 0.103 0.077 0.431 1.000 0.468 0.364 sisoy10 0.095 0.118 0.174 0.078 0.351 0.468 1.000 0.565 sisoy12 0.145 0.096 0.149 0.110 0.300 0.364 0.565 1.000</p>
+<p>Social isolation age 5:</p>
+<ul>
+<li>rMZ = 0.585</li>
+<li>rDZ = 0.056 <em>seems low?</em></li>
+<li>2*rDZ = 0.112</li>
+<li>0.112&lt;0.585 = ADE<em>?</em></li>
+</ul>
+<p>Social isolation age 7:</p>
+<ul>
+<li>rMZ = 0.444</li>
+<li>rDZ = 0.159</li>
+<li>2*rDZ = 0.318</li>
+<li>0.318&lt;0.444 = ADE<em>?</em></li>
+</ul>
+<p>Social isolation age 10:</p>
+<ul>
+<li>rMZ = 0.453</li>
+<li>rDZ = 0.174</li>
+<li>2*rDZ = 0.348</li>
+<li>0.348&lt;0.453 = ADE<em>?</em></li>
+</ul>
+<p>Social isolation age 12:</p>
+<ul>
+<li>rMZ = 0.453</li>
+<li>rDZ = 0.110</li>
+<li>2*rDZ = 0.220</li>
+<li>0.220&lt;0.453 = ADE<em>?</em></li>
+</ul>
+<p><strong>As the MZ correlations are relatively low for a dominance effect, it suggests here that an AE would be the way to go - so that A captures all additive and dominant genetic effects.</strong></p>
+<p>Using Falconer’s equations, we can obtain preliminary estimates of the standardized A, C, E variance components.</p>
+<p>VA = 2*rmz-rdz VC = 1-VA+VE VE= 1-rmz</p>
+<p>VA = 2*0.59-0.056 = 1.068 VC = 1- 1.068 + 0.41 = -0.4789 VE = 1 - 0.59 = 0.41</p>
+<p>As C is negative here, it’s likely that the OpenMX model will give a very small estimate for C and that C will be dropped from the ACE model. The power to detect C is very low, to detect a C2 of 10% with a h2 of 60% requires 2200 MZ and DZ pairs. However, when deciding on an AE model, any C that does exist will fall into A and you will get an inflated heritability estimate.</p>
+<hr />
+<p>Below is not needed for analyses - but showing another way to get matrices.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># variances from covariance matrix - diagonal is one variable with itself</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>var.mz <span class="ot">&lt;-</span> <span class="fu">diag</span>(covar.mz) </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># creating the standard deviation into a vector (sd is the square root of the variance) then put this into a matrix</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>sd.mz <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fu">sqrt</span>(var.mz))</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># re-calculating variance of MZ </span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>Smz <span class="ot">&lt;-</span> sd.mz<span class="sc">%*%</span>cor.mz<span class="sc">%*%</span><span class="fu">t</span>(sd.mz) </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(covar.mz <span class="sc">-</span> Smz, <span class="dv">3</span>) <span class="co"># compare with previous calculation</span></span></code></pre></div>
+<pre><code>    sisoe5 sisoe7 sisoe10 sisoe12 sisoy5 sisoy7 sisoy10 sisoy12</code></pre>
+<p>sisoe5 0 0 0 0 0 0 0 0 sisoe7 0 0 0 0 0 0 0 0 sisoe10 0 0 0 0 0 0 0 0 sisoe12 0 0 0 0 0 0 0 0 sisoy5 0 0 0 0 0 0 0 0 sisoy7 0 0 0 0 0 0 0 0 sisoy10 0 0 0 0 0 0 0 0 sisoy12 0 0 0 0 0 0 0 0</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Therefore, we can also obtain the correlation matrix as follows</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>rMZ <span class="ot">&lt;-</span> <span class="fu">cov2cor</span>(covar.mz)</span></code></pre></div>
+<hr />
+</div>
+<div id="cholesky-fitting" class="section level1">
+<h1>Cholesky fitting</h1>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>nv  <span class="ot">&lt;-</span> <span class="dv">4</span>            <span class="co"># number of variables for a twin </span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>ntv <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>nv     <span class="co"># number of variables for a pair </span></span></code></pre></div>
+<div id="saturated-model" class="section level2">
+<h2>Saturated model</h2>
+<div id="parameter-labels" class="section level4">
+<h4>Parameter labels</h4>
+<p><strong>Labels for variables:</strong></p>
+<p>The correlations should reflect all in the matrix that are not 1 and below/above the diagonal, an example of the labeling is below:</p>
+<pre><code>  xph   = cross phenotype/variable/trait
+  xt    = cross twin
+  xtxph = cross twin cross phenotype</code></pre>
+<p>2x2 matrix: sisoe5 sisoe7 sisoy5 sisoy7 sisoe5 1.000<br />
+sisoe7 xph1 1.000<br />
+sisoy5 xt1 xtxph2 1.000<br />
+sisoy7 xtxph1 xt2 xph2 1.000</p>
+<p>Full 4x4 correlation matrix: sisoe5 sisoe7 sisoe10 sisoe12 sisoy5 sisoy7 sisoy10 sisoy12 sisoe5 1.000<br />
+sisoe7 xph1 1.000<br />
+sisoe10 xph2 xph4 1.000<br />
+sisoe12 xph3 xph5 xph6 1.000 sisoy5 xt1 xtxph4 xtxph7 xtxph10 1.000<br />
+sisoy7 xtxph1 xt2 xtxph8 xtxph11 xph7 1.000<br />
+sisoy10 xtxph2 xtxph5 xt3 xtxph12 xph8 xph10 1.000<br />
+sisoy12 xtxph3 xtxph6 xtxph9 xt4 xph9 xph11 xph12 1.000</p>
+<p>First we need to specify the start values and labels to make the code less busy. For the start values, I used the summary tables to check the approximate value the model should be looking for. The list should reflect the same order that you have in selvars.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># start values</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>svM   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>)    <span class="co"># means               </span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>svSD  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.1</span>, <span class="fl">1.1</span>, <span class="fl">1.1</span>, <span class="fl">1.1</span>, <span class="fl">1.1</span>, <span class="fl">1.1</span>, <span class="fl">1.1</span>, <span class="fl">1.1</span>)    <span class="co"># standard deviations</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>svRmz <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fl">0.3</span>, <span class="dv">28</span>))                    <span class="co"># correlations for MZ - 28 correlations in total</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>svRdz <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fl">0.15</span>, <span class="dv">28</span>))                   <span class="co"># correlations for DZ </span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># labels</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>labMZm  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;MZme5&quot;</span>, <span class="st">&quot;MZme7&quot;</span>, <span class="st">&quot;MZme10&quot;</span>, <span class="st">&quot;MZme12&quot;</span>, <span class="st">&quot;MZmy5&quot;</span>, <span class="st">&quot;MZmy7&quot;</span>, <span class="st">&quot;MZmy10&quot;</span>, <span class="st">&quot;MZmy12&quot;</span>)             <span class="co"># MZ means       </span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>labDZm  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;DZme5&quot;</span>, <span class="st">&quot;DZme7&quot;</span>, <span class="st">&quot;DZme10&quot;</span>, <span class="st">&quot;DZme12&quot;</span>, <span class="st">&quot;DZmy5&quot;</span>, <span class="st">&quot;DZmy7&quot;</span>, <span class="st">&quot;DZmy10&quot;</span>, <span class="st">&quot;DZmy12&quot;</span>)           <span class="co"># DZ means</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>labMZsd <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;MZsde5&quot;</span>, <span class="st">&quot;MZsde7&quot;</span>, <span class="st">&quot;MZsde10&quot;</span>, <span class="st">&quot;MZsde12&quot;</span>, <span class="st">&quot;MZsdy5&quot;</span>, <span class="st">&quot;MZsdy7&quot;</span>, <span class="st">&quot;MZsdy10&quot;</span>, <span class="st">&quot;MZsdy12&quot;</span>)   <span class="co"># MZ standard deviations</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>labDZsd <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;DZsde5&quot;</span>, <span class="st">&quot;DZsde7&quot;</span>, <span class="st">&quot;DZsde10&quot;</span>, <span class="st">&quot;DZsde12&quot;</span>, <span class="st">&quot;DZsdy5&quot;</span>, <span class="st">&quot;DZsdy7&quot;</span>, <span class="st">&quot;DZsdy10&quot;</span>, <span class="st">&quot;DZsdy12&quot;</span>)   <span class="co"># DZ standard deviations</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>labMZr  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;MZrxph1&quot;</span>, <span class="st">&quot;MZrxph2&quot;</span>, <span class="st">&quot;MZrxph3&quot;</span>, <span class="st">&quot;MZrxt1&quot;</span>, <span class="st">&quot;MZrxtxph1&quot;</span>, <span class="st">&quot;MZrxtxph2&quot;</span>, <span class="st">&quot;MZrxtxph3&quot;</span>,     <span class="co"># MZ correlations</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;MZrxph4&quot;</span>, <span class="st">&quot;MZrxph5&quot;</span>, <span class="st">&quot;MZrxtxph4&quot;</span>, <span class="st">&quot;MZrxt2&quot;</span>, <span class="st">&quot;MZrxtxph5&quot;</span>, <span class="st">&quot;MZrxtxph6&quot;</span>, </span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;MZrxph6&quot;</span>, <span class="st">&quot;MZrxtxph7&quot;</span>, <span class="st">&quot;MZrxtxph8&quot;</span>, <span class="st">&quot;MZrxt3&quot;</span>, <span class="st">&quot;MZrxtxph9&quot;</span>,</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;MZrxtxph10&quot;</span>, <span class="st">&quot;MZrxtxph11&quot;</span>, <span class="st">&quot;MZrxtxph12&quot;</span>, <span class="st">&quot;MZrxt4&quot;</span>,</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;MZrxph7&quot;</span>, <span class="st">&quot;MZrxph8&quot;</span>, <span class="st">&quot;MZrxph9&quot;</span>, </span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;MZrxph10&quot;</span>, <span class="st">&quot;MZrxph11&quot;</span>,</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;MZrxph12&quot;</span>)     </span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>labDZr  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;DZrxph1&quot;</span>, <span class="st">&quot;DZrxph2&quot;</span>, <span class="st">&quot;DZrxph3&quot;</span>, <span class="st">&quot;DZrxt1&quot;</span>, <span class="st">&quot;DZrxtxph1&quot;</span>, <span class="st">&quot;DZrxtxph2&quot;</span>, <span class="st">&quot;DZrxtxph3&quot;</span>,     <span class="co"># DZ correlations</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;DZrxph4&quot;</span>, <span class="st">&quot;DZrxph5&quot;</span>, <span class="st">&quot;DZrxtxph4&quot;</span>, <span class="st">&quot;DZrxt2&quot;</span>, <span class="st">&quot;DZrxtxph5&quot;</span>, <span class="st">&quot;DZrxtxph6&quot;</span>, </span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;DZrxph6&quot;</span>, <span class="st">&quot;DZrxtxph7&quot;</span>, <span class="st">&quot;DZrxtxph8&quot;</span>, <span class="st">&quot;DZrxt3&quot;</span>, <span class="st">&quot;DZrxtxph9&quot;</span>,</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;DZrxtxph10&quot;</span>, <span class="st">&quot;DZrxtxph11&quot;</span>, <span class="st">&quot;DZrxtxph12&quot;</span>, <span class="st">&quot;DZrxt4&quot;</span>,</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;DZrxph7&quot;</span>, <span class="st">&quot;DZrxph8&quot;</span>, <span class="st">&quot;DZrxph9&quot;</span>, </span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;DZrxph10&quot;</span>, <span class="st">&quot;DZrxph11&quot;</span>,</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;DZrxph12&quot;</span>) </span></code></pre></div>
+</div>
+<div id="matrices" class="section level4">
+<h4>Matrices</h4>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MZ</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>meanMZ  <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Full&quot;</span>, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol =</span> ntv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svM, <span class="at">labels =</span> labMZm, <span class="at">name =</span> <span class="st">&quot;ExpMeanMZ&quot;</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>sdMZ        <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Diag&quot;</span>, <span class="at">nrow =</span> ntv, <span class="at">ncol =</span> ntv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svSD,  <span class="at">labels =</span> labMZsd, <span class="at">name =</span> <span class="st">&quot;sdMZ&quot;</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>corMZ       <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Stand&quot;</span>, <span class="at">nrow =</span> ntv, <span class="at">ncol =</span> ntv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svRmz, <span class="at">labels =</span> labMZr,   <span class="at">name =</span> <span class="st">&quot;corMZ&quot;</span>) </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co"># DZ</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>meanDZ  <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Full&quot;</span>, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol =</span> ntv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svM, <span class="at">labels =</span> labDZm, <span class="at">name =</span> <span class="st">&quot;ExpMeanDZ&quot;</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>sdDZ        <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Diag&quot;</span>, <span class="at">nrow =</span> ntv, <span class="at">ncol =</span> ntv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svSD,  <span class="at">labels =</span> labDZsd, <span class="at">name =</span> <span class="st">&quot;sdDZ&quot;</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>corDZ       <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Stand&quot;</span>, <span class="at">nrow =</span> ntv, <span class="at">ncol =</span> ntv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svRdz, <span class="at">labels =</span> labDZr,   <span class="at">name =</span> <span class="st">&quot;corDZ&quot;</span>) </span></code></pre></div>
+</div>
+<div id="alegbra" class="section level4">
+<h4>Alegbra</h4>
+<p>This is the same matrix algebra that is calculated above from the Boulder workshop code:</p>
+<pre><code>        covariace = SD * r * t(SD) </code></pre>
+<p>%*% is matrix multiplication t() is transpose full list of operators <a href="https://openmx.ssri.psu.edu/wiki/matrix-operators-and-functions">here</a></p>
+<p>The result matrix of the matrix algebra calculation S<em>R</em>S’ is the Symmetric Variance-Covariance matrix of the model, with the expected Variance of the Twin 1 variable on the 1st Diagonal Element, the expected Variance of the Twin 2 variable on the 2nd Diagonal Element and the Covariance on the off-diagonal. Since we are dealing with two types of Twin pairs, we will specify a different S and R matrix for MZ and DZ pairs and fit a separate Saturated model to each of the sub-data files, the MZ data and the DZ data.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>covMZ   <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> sdMZ <span class="sc">%*%</span> corMZ <span class="sc">%*%</span> <span class="fu">t</span>(sdMZ), <span class="at">name =</span> <span class="st">&quot;ExpCovMZ&quot;</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>covDZ   <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> sdDZ <span class="sc">%*%</span> corDZ <span class="sc">%*%</span> <span class="fu">t</span>(sdDZ), <span class="at">name =</span> <span class="st">&quot;ExpCovDZ&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>datMZ <span class="ot">&lt;-</span> <span class="fu">mxData</span>(<span class="at">observed =</span> dat.twin.MZ, <span class="at">type =</span> <span class="st">&quot;raw&quot;</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>datDZ <span class="ot">&lt;-</span> <span class="fu">mxData</span>(<span class="at">observed =</span> dat.twin.DZ, <span class="at">type =</span> <span class="st">&quot;raw&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Objective objects </span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>objMZ <span class="ot">&lt;-</span> <span class="fu">mxExpectationNormal</span>(<span class="at">covariance =</span> <span class="st">&quot;ExpCovMZ&quot;</span>, <span class="at">means =</span> <span class="st">&quot;ExpMeanMZ&quot;</span>, <span class="at">dimnames =</span> selvars)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>objDZ <span class="ot">&lt;-</span> <span class="fu">mxExpectationNormal</span>(<span class="at">covariance =</span> <span class="st">&quot;ExpCovDZ&quot;</span>, <span class="at">means =</span> <span class="st">&quot;ExpMeanDZ&quot;</span>, <span class="at">dimnames =</span> selvars)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fitFunction <span class="ot">&lt;-</span> <span class="fu">mxFitFunctionML</span>()</span></code></pre></div>
+</div>
+<div id="create-the-saturated-model" class="section level4">
+<h4>Create the saturated model</h4>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># models for MZ and DZ</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>modelMZ <span class="ot">&lt;-</span> <span class="fu">mxModel</span>(meanMZ, sdMZ, corMZ, covMZ, datMZ, objMZ, fitFunction, <span class="at">name =</span> <span class="st">&quot;MZ&quot;</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>modelDZ <span class="ot">&lt;-</span> <span class="fu">mxModel</span>(meanDZ, sdDZ, corDZ, covDZ, datDZ, objDZ, fitFunction, <span class="at">name =</span> <span class="st">&quot;DZ&quot;</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># estimation</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>minus2ll <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> MZ.objective <span class="sc">+</span> DZ.objective, <span class="at">name =</span> <span class="st">&quot;m2LL&quot;</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">mxFitFunctionAlgebra</span>(<span class="st">&quot;m2LL&quot;</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Saturated model </span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>SatModel <span class="ot">&lt;-</span> <span class="fu">mxModel</span>(<span class="st">&quot;Sat&quot;</span>, modelMZ, modelDZ, minus2ll, obj)</span></code></pre></div>
+</div>
+<div id="saturated-model-output" class="section level4">
+<h4>Saturated model output</h4>
+<p>The Saturated Model is represented by a path diagram. Using path tracing rules we will derive the expected model for the variance-covariance structure of the data. The goal of the saturated model is to obtain the best possible (maximum likelihood) estimation of the twin correlations and this is preferred over the correlations that you can typically get using R commands (also shown above).</p>
+<p>The cross-twin correlations (rxt) are expected to be different, and the cross-twin cross-trait (rxtxph) are expected to be different. However, the within-twin cross trait (rxph) are not supposed to differ for the elder and younger twins.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the saturated model</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>SatFit  <span class="ot">&lt;-</span> <span class="fu">mxRun</span>(SatModel, <span class="at">intervals =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>(SatSumm    <span class="ot">&lt;-</span> <span class="fu">summary</span>(SatFit))</span></code></pre></div>
+<p>Summary of Sat</p>
+<p>free parameters: name matrix row col Estimate Std.Error A 1 MZme5 MZ.ExpMeanMZ 1 sisoe5 0.766264795 0.04638809<br />
+2 MZme7 MZ.ExpMeanMZ 1 sisoe7 0.788673191 0.04420977<br />
+3 MZme10 MZ.ExpMeanMZ 1 sisoe10 0.923596833 0.05286343<br />
+4 MZme12 MZ.ExpMeanMZ 1 sisoe12 0.878391935 0.05412559<br />
+5 MZmy5 MZ.ExpMeanMZ 1 sisoy5 0.695893812 0.03852844<br />
+6 MZmy7 MZ.ExpMeanMZ 1 sisoy7 0.687117516 0.04073248<br />
+7 MZmy10 MZ.ExpMeanMZ 1 sisoy10 0.811396645 0.04589466<br />
+8 MZmy12 MZ.ExpMeanMZ 1 sisoy12 0.825344828 0.05320588<br />
+9 MZsde5 MZ.sdMZ 1 1 1.156063398 0.03280288<br />
+10 MZsde7 MZ.sdMZ 2 2 1.091781991 0.03135476<br />
+11 MZsde10 MZ.sdMZ 3 3 1.294433336 0.03746034<br />
+12 MZsde12 MZ.sdMZ 4 4 1.326338386 0.03828306<br />
+13 MZsdy5 MZ.sdMZ 5 5 0.960183290 0.02724378<br />
+14 MZsdy7 MZ.sdMZ 6 6 1.006730100 0.02891466<br />
+15 MZsdy10 MZ.sdMZ 7 7 1.123471380 0.03267962<br />
+16 MZsdy12 MZ.sdMZ 8 8 1.304462076 0.03768187<br />
+17 MZrxph1 MZ.corMZ 1 2 0.475165362 0.03149680<br />
+18 MZrxph2 MZ.corMZ 1 3 0.320576807 0.03681112<br />
+19 MZrxph4 MZ.corMZ 2 3 0.430096744 0.03328192<br />
+20 MZrxph3 MZ.corMZ 1 4 0.249485674 0.03845723<br />
+21 MZrxph5 MZ.corMZ 2 4 0.347483455 0.03584243<br />
+22 MZrxph6 MZ.corMZ 3 4 0.527348212 0.02960677<br />
+23 MZrxt1 MZ.corMZ 1 5 0.579270090 0.02666357<br />
+24 MZrxtxph4 MZ.corMZ 2 5 0.287291894 0.03733623<br />
+25 MZrxtxph7 MZ.corMZ 3 5 0.233927607 0.03871212<br />
+26 MZrxtxph10 MZ.corMZ 4 5 0.199584121 0.03894081<br />
+27 MZrxtxph1 MZ.corMZ 1 6 0.340502272 0.03593749<br />
+28 MZrxt2 MZ.corMZ 2 6 0.438606051 0.03285631<br />
+29 MZrxtxph8 MZ.corMZ 3 6 0.380178076 0.03533315<br />
+30 MZrxtxph11 MZ.corMZ 4 6 0.270120075 0.03808340<br />
+31 MZrxph7 MZ.corMZ 5 6 0.535199509 0.02903081<br />
+32 MZrxtxph2 MZ.corMZ 1 7 0.281462249 0.03780030<br />
+33 MZrxtxph5 MZ.corMZ 2 7 0.246336822 0.03831630<br />
+34 MZrxt3 MZ.corMZ 3 7 0.453977195 0.03262058<br />
+35 MZrxtxph12 MZ.corMZ 4 7 0.331794424 0.03654413<br />
+36 MZrxph8 MZ.corMZ 5 7 0.353281771 0.03589125<br />
+37 MZrxph10 MZ.corMZ 6 7 0.436515681 0.03336009<br />
+38 MZrxtxph3 MZ.corMZ 1 8 0.279150719 0.03778410<br />
+39 MZrxtxph6 MZ.corMZ 2 8 0.234400791 0.03886400<br />
+40 MZrxtxph9 MZ.corMZ 3 8 0.379996825 0.03546718<br />
+41 MZrxt4 MZ.corMZ 4 8 0.427408662 0.03338735<br />
+42 MZrxph9 MZ.corMZ 5 8 0.338018221 0.03595036<br />
+43 MZrxph11 MZ.corMZ 6 8 0.418066166 0.03421032<br />
+44 MZrxph12 MZ.corMZ 7 8 0.532536311 0.02979503<br />
+45 DZme5 DZ.ExpMeanDZ 1 sisoe5 0.896161522 0.05223791<br />
+46 DZme7 DZ.ExpMeanDZ 1 sisoe7 0.991774651 0.06469738<br />
+47 DZme10 DZ.ExpMeanDZ 1 sisoe10 1.118334307 0.06701619<br />
+48 DZme12 DZ.ExpMeanDZ 1 sisoe12 1.110563850 0.06843914<br />
+49 DZmy5 DZ.ExpMeanDZ 1 sisoy5 0.935556396 0.05630833<br />
+50 DZmy7 DZ.ExpMeanDZ 1 sisoy7 0.903257545 0.05307285<br />
+51 DZmy10 DZ.ExpMeanDZ 1 sisoy10 0.945189665 0.05875289<br />
+52 DZmy12 DZ.ExpMeanDZ 1 sisoy12 0.996286849 0.06187303<br />
+53 DZsde5 DZ.sdDZ 1 1 1.162184232 0.03693726<br />
+54 DZsde7 DZ.sdDZ 2 2 1.428730408 0.04583557<br />
+55 DZsde10 DZ.sdDZ 3 3 1.474537574 0.04742857<br />
+56 DZsde12 DZ.sdDZ 4 4 1.503710911 0.04860012<br />
+57 DZsdy5 DZ.sdDZ 5 5 1.252774562 0.03981576<br />
+58 DZsdy7 DZ.sdDZ 6 6 1.170262848 0.03763202<br />
+59 DZsdy10 DZ.sdDZ 7 7 1.290465401 0.04159347<br />
+60 DZsdy12 DZ.sdDZ 8 8 1.357391197 0.04412414<br />
+61 DZrxph1 DZ.corDZ 1 2 0.534581616 0.03234885<br />
+62 DZrxph2 DZ.corDZ 1 3 0.409217888 0.03777711<br />
+63 DZrxph4 DZ.corDZ 2 3 0.579062591 0.03071981<br />
+64 DZrxph3 DZ.corDZ 1 4 0.372909940 0.03905181<br />
+65 DZrxph5 DZ.corDZ 2 4 0.468407293 0.03669841<br />
+66 DZrxph6 DZ.corDZ 3 4 0.660462621 0.02585673<br />
+67 DZrxt1 DZ.corDZ 1 5 0.056871593 0.04479988<br />
+68 DZrxtxph4 DZ.corDZ 2 5 0.055624372 0.04524195<br />
+69 DZrxtxph7 DZ.corDZ 3 5 0.053670638 0.04554953<br />
+70 DZrxtxph10 DZ.corDZ 4 5 -0.009405021 0.04571680<br />
+71 DZrxtxph1 DZ.corDZ 1 6 0.135596168 0.04428098<br />
+72 DZrxt2 DZ.corDZ 2 6 0.198852591 0.04360335<br />
+73 DZrxtxph8 DZ.corDZ 3 6 0.133270333 0.04507874<br />
+74 DZrxtxph11 DZ.corDZ 4 6 0.109148612 0.04598103<br />
+75 DZrxph7 DZ.corDZ 5 6 0.423353664 0.03738051<br />
+76 DZrxtxph2 DZ.corDZ 1 7 0.108018822 0.04478140<br />
+77 DZrxtxph5 DZ.corDZ 2 7 0.155460988 0.04447253<br />
+78 DZrxt3 DZ.corDZ 3 7 0.190206381 0.04387623<br />
+79 DZrxtxph12 DZ.corDZ 4 7 0.099239611 0.04550383<br />
+80 DZrxph8 DZ.corDZ 5 7 0.349709466 0.04027653<br />
+81 DZrxph10 DZ.corDZ 6 7 0.482963026 0.03500181<br />
+82 DZrxtxph3 DZ.corDZ 1 8 0.152876346 0.04430422<br />
+83 DZrxtxph6 DZ.corDZ 2 8 0.119699773 0.04541255<br />
+84 DZrxtxph9 DZ.corDZ 3 8 0.165005788 0.04438085<br />
+85 DZrxt4 DZ.corDZ 4 8 0.128940673 0.04501320<br />
+86 DZrxph9 DZ.corDZ 5 8 0.300027273 0.04172784<br />
+87 DZrxph11 DZ.corDZ 6 8 0.372262438 0.03952115<br />
+88 DZrxph12 DZ.corDZ 7 8 0.569266657 0.03118713</p>
+<p>Model Statistics: | Parameters | Degrees of Freedom | Fit (-2lnL units) Model: 88 8605 25456.57 Saturated: NA NA NA Independence: NA NA NA Number of observations/statistics: 1116/8693</p>
+<p>Information Criteria: | df Penalty | Parameters Penalty | Sample-Size Adjusted AIC: 8246.569 25632.57 25647.82 BIC: -34929.072 26074.11 25794.60 CFI: NA TLI: 1 (also known as NNFI) RMSEA: 0 [95% CI (NA, NA)] Prob(RMSEA &lt;= 0.05): NA To get additional fit indices, see help(mxRefModels) timestamp: 2022-09-29 19:33:12 Wall clock time: 2.219029 secs optimizer: SLSQP OpenMx version number: 2.20.3 Need help? See help(mxSummary)</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate SatModel Output so you could see the labels</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>SatFit<span class="sc">$</span>MZ.corMZ</span></code></pre></div>
+<p>StandMatrix ‘corMZ’</p>
+<p>$labels [,1] [,2] [,3] [,4] [,5] [,6]<br />
+[1,] NA “MZrxph1” “MZrxph2” “MZrxph3” “MZrxt1” “MZrxtxph1” [2,] “MZrxph1” NA “MZrxph4” “MZrxph5” “MZrxtxph4” “MZrxt2”<br />
+[3,] “MZrxph2” “MZrxph4” NA “MZrxph6” “MZrxtxph7” “MZrxtxph8” [4,] “MZrxph3” “MZrxph5” “MZrxph6” NA “MZrxtxph10” “MZrxtxph11” [5,] “MZrxt1” “MZrxtxph4” “MZrxtxph7” “MZrxtxph10” NA “MZrxph7”<br />
+[6,] “MZrxtxph1” “MZrxt2” “MZrxtxph8” “MZrxtxph11” “MZrxph7” NA<br />
+[7,] “MZrxtxph2” “MZrxtxph5” “MZrxt3” “MZrxtxph12” “MZrxph8” “MZrxph10”<br />
+[8,] “MZrxtxph3” “MZrxtxph6” “MZrxtxph9” “MZrxt4” “MZrxph9” “MZrxph11”<br />
+[,7] [,8]<br />
+[1,] “MZrxtxph2” “MZrxtxph3” [2,] “MZrxtxph5” “MZrxtxph6” [3,] “MZrxt3” “MZrxtxph9” [4,] “MZrxtxph12” “MZrxt4”<br />
+[5,] “MZrxph8” “MZrxph9”<br />
+[6,] “MZrxph10” “MZrxph11” [7,] NA “MZrxph12” [8,] “MZrxph12” NA</p>
+<p>$values [,1] [,2] [,3] [,4] [,5] [,6] [,7] [1,] 1.0000000 0.4751654 0.3205768 0.2494857 0.5792701 0.3405023 0.2814622 [2,] 0.4751654 1.0000000 0.4300967 0.3474835 0.2872919 0.4386061 0.2463368 [3,] 0.3205768 0.4300967 1.0000000 0.5273482 0.2339276 0.3801781 0.4539772 [4,] 0.2494857 0.3474835 0.5273482 1.0000000 0.1995841 0.2701201 0.3317944 [5,] 0.5792701 0.2872919 0.2339276 0.1995841 1.0000000 0.5351995 0.3532818 [6,] 0.3405023 0.4386061 0.3801781 0.2701201 0.5351995 1.0000000 0.4365157 [7,] 0.2814622 0.2463368 0.4539772 0.3317944 0.3532818 0.4365157 1.0000000 [8,] 0.2791507 0.2344008 0.3799968 0.4274087 0.3380182 0.4180662 0.5325363 [,8] [1,] 0.2791507 [2,] 0.2344008 [3,] 0.3799968 [4,] 0.4274087 [5,] 0.3380182 [6,] 0.4180662 [7,] 0.5325363 [8,] 1.0000000</p>
+<p>$free [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [1,] FALSE TRUE TRUE TRUE TRUE TRUE TRUE TRUE [2,] TRUE FALSE TRUE TRUE TRUE TRUE TRUE TRUE [3,] TRUE TRUE FALSE TRUE TRUE TRUE TRUE TRUE [4,] TRUE TRUE TRUE FALSE TRUE TRUE TRUE TRUE [5,] TRUE TRUE TRUE TRUE FALSE TRUE TRUE TRUE [6,] TRUE TRUE TRUE TRUE TRUE FALSE TRUE TRUE [7,] TRUE TRUE TRUE TRUE TRUE TRUE FALSE TRUE [8,] TRUE TRUE TRUE TRUE TRUE TRUE TRUE FALSE</p>
+<p>$lbound: No lower bounds assigned.</p>
+<p>$ubound: No upper bounds assigned.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>SatFit<span class="sc">$</span>MZ.ExpCovMZ</span></code></pre></div>
+<p>mxAlgebra ‘ExpCovMZ’ $formula: sdMZ %<em>% corMZ %</em>% t(sdMZ) $result: [,1] [,2] [,3] [,4] [,5] [,6] [,7] [1,] 1.3364826 0.5997391 0.4797262 0.3825442 0.6430088 0.3962915 0.3655643 [2,] 0.5997391 1.1919879 0.6078295 0.5031812 0.3011712 0.4820850 0.3021533 [3,] 0.4797262 0.6078295 1.6755577 0.9053813 0.2907470 0.4954272 0.6602003 [4,] 0.3825442 0.5031812 0.9053813 1.7591735 0.2541760 0.3606818 0.4944079 [5,] 0.6430088 0.3011712 0.2907470 0.2541760 0.9219520 0.5173482 0.3810986 [6,] 0.3962915 0.4820850 0.4954272 0.3606818 0.5173482 1.0135055 0.4937134 [7,] 0.3655643 0.3021533 0.6602003 0.4944079 0.3810986 0.4937134 1.2621879 [8,] 0.4209707 0.3338308 0.6416395 0.7394846 0.4233755 0.5490217 0.7804457 [,8] [1,] 0.4209707 [2,] 0.3338308 [3,] 0.6416395 [4,] 0.7394846 [5,] 0.4233755 [6,] 0.5490217 [7,] 0.7804457 [8,] 1.7016213 dimnames: NULL</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>SatFit<span class="sc">$</span>DZ.corDZ</span></code></pre></div>
+<p>StandMatrix ‘corDZ’</p>
+<p>$labels [,1] [,2] [,3] [,4] [,5] [,6]<br />
+[1,] NA “DZrxph1” “DZrxph2” “DZrxph3” “DZrxt1” “DZrxtxph1” [2,] “DZrxph1” NA “DZrxph4” “DZrxph5” “DZrxtxph4” “DZrxt2”<br />
+[3,] “DZrxph2” “DZrxph4” NA “DZrxph6” “DZrxtxph7” “DZrxtxph8” [4,] “DZrxph3” “DZrxph5” “DZrxph6” NA “DZrxtxph10” “DZrxtxph11” [5,] “DZrxt1” “DZrxtxph4” “DZrxtxph7” “DZrxtxph10” NA “DZrxph7”<br />
+[6,] “DZrxtxph1” “DZrxt2” “DZrxtxph8” “DZrxtxph11” “DZrxph7” NA<br />
+[7,] “DZrxtxph2” “DZrxtxph5” “DZrxt3” “DZrxtxph12” “DZrxph8” “DZrxph10”<br />
+[8,] “DZrxtxph3” “DZrxtxph6” “DZrxtxph9” “DZrxt4” “DZrxph9” “DZrxph11”<br />
+[,7] [,8]<br />
+[1,] “DZrxtxph2” “DZrxtxph3” [2,] “DZrxtxph5” “DZrxtxph6” [3,] “DZrxt3” “DZrxtxph9” [4,] “DZrxtxph12” “DZrxt4”<br />
+[5,] “DZrxph8” “DZrxph9”<br />
+[6,] “DZrxph10” “DZrxph11” [7,] NA “DZrxph12” [8,] “DZrxph12” NA</p>
+<p>$values [,1] [,2] [,3] [,4] [,5] [,6] [1,] 1.00000000 0.53458162 0.40921789 0.372909940 0.056871593 0.1355962 [2,] 0.53458162 1.00000000 0.57906259 0.468407293 0.055624372 0.1988526 [3,] 0.40921789 0.57906259 1.00000000 0.660462621 0.053670638 0.1332703 [4,] 0.37290994 0.46840729 0.66046262 1.000000000 -0.009405021 0.1091486 [5,] 0.05687159 0.05562437 0.05367064 -0.009405021 1.000000000 0.4233537 [6,] 0.13559617 0.19885259 0.13327033 0.109148612 0.423353664 1.0000000 [7,] 0.10801882 0.15546099 0.19020638 0.099239611 0.349709466 0.4829630 [8,] 0.15287635 0.11969977 0.16500579 0.128940673 0.300027273 0.3722624 [,7] [,8] [1,] 0.10801882 0.1528763 [2,] 0.15546099 0.1196998 [3,] 0.19020638 0.1650058 [4,] 0.09923961 0.1289407 [5,] 0.34970947 0.3000273 [6,] 0.48296303 0.3722624 [7,] 1.00000000 0.5692667 [8,] 0.56926666 1.0000000</p>
+<p>$free [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [1,] FALSE TRUE TRUE TRUE TRUE TRUE TRUE TRUE [2,] TRUE FALSE TRUE TRUE TRUE TRUE TRUE TRUE [3,] TRUE TRUE FALSE TRUE TRUE TRUE TRUE TRUE [4,] TRUE TRUE TRUE FALSE TRUE TRUE TRUE TRUE [5,] TRUE TRUE TRUE TRUE FALSE TRUE TRUE TRUE [6,] TRUE TRUE TRUE TRUE TRUE FALSE TRUE TRUE [7,] TRUE TRUE TRUE TRUE TRUE TRUE FALSE TRUE [8,] TRUE TRUE TRUE TRUE TRUE TRUE TRUE FALSE</p>
+<p>$lbound: No lower bounds assigned.</p>
+<p>$ubound: No upper bounds assigned.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>SatFit<span class="sc">$</span>DZ.ExpCovDZ</span></code></pre></div>
+<p>mxAlgebra ‘ExpCovDZ’ $formula: sdDZ %<em>% corDZ %</em>% t(sdDZ) $result: [,1] [,2] [,3] [,4] [,5] [,6] [1,] 1.35067219 0.88764495 0.70127028 0.65169335 0.08280247 0.1844191 [2,] 0.88764495 2.04127058 1.21992081 1.00632506 0.09956079 0.3324796 [3,] 0.70127028 1.21992081 2.17426106 1.46442940 0.09914379 0.2299708 [4,] 0.65169335 1.00632506 1.46442940 2.26114651 -0.01771728 0.1920729 [5,] 0.08280247 0.09956079 0.09914379 -0.01771728 1.56944410 0.6206684 [6,] 0.18441906 0.33247957 0.22997082 0.19207285 0.62066845 1.3695151 [7,] 0.16200215 0.28662765 0.36193226 0.19257317 0.56536208 0.7293629 [8,] 0.24116834 0.23213928 0.33026310 0.26318390 0.51019793 0.5913406 [,7] [,8] [1,] 0.1620022 0.2411683 [2,] 0.2866276 0.2321393 [3,] 0.3619323 0.3302631 [4,] 0.1925732 0.2631839 [5,] 0.5653621 0.5101979 [6,] 0.7293629 0.5913406 [7,] 1.6653010 0.9971653 [8,] 0.9971653 1.8425109 dimnames: NULL</p>
+<p>The saturated model estimates the variances for the variables in MZ and DZ twin pairs, as well as the covariance in each group. The model provides a basis to test assumptions that are implicit in the ACE model:</p>
+<ul>
+<li>All variances should be non-significantly different</li>
+<li>We do not expect birth order nor zygosity effects on the variances</li>
+<li>Var1 = Var2 = Var3 = Var4</li>
+</ul>
+<p>The correlations estimated by optimizing the saturated Model using OpenMx correct for missingness. The saturated model also gives a baseline fit index (-2 * the likelihood, -2LL) for the observed data, to be used as a reference for comparison with the likelihood (-2LL) of the genetic models.</p>
+</div>
+<div id="saturated-sub-model-1-constrained-correlation-model-equal-variances-means-across-twin-order-zygosity-group" class="section level3">
+<h3>Saturated sub-model 1: Constrained correlation model (equal variances &amp; means across twin order &amp; zygosity group)</h3>
+<p>To manipulate the parameters in matrices we wish to change in the full model, we use the ‘omxSetParameters’ function with the original ‘labels’ and ‘newlabels’ to indicate the changes, i.e. specifying the same label effectively constraints the parameters to be the same.</p>
+<p>Here we have equated means and variances across twin order and zygosity. Then created <em>one overall set of within-person cross-trait correlations and symmetric xtwin-xtrait correlation matrices in MZ and DZ groups</em>.</p>
+<p>Labeling: sisoe5 sisoe7 sisoy5 sisoy7 sisoe5 1.000<br />
+sisoe7 xph 1.000<br />
+sisoy5 xt1 xtxph 1.000<br />
+sisoy7 xtxph xt2 xph 1.000</p>
+<p>The full matrix sisoe5 sisoe7 sisoe10 sisoe12 sisoy5 sisoy7 sisoy10 sisoy12 sisoe5 1.000<br />
+sisoe7 xph1 1.000<br />
+sisoe10 xph2 xph4 1.000<br />
+sisoe12 xph3 xph5 xph6 1.000</p>
+<p>sisoy5 xt1 xtxph1 xtxph2 xtxph3 1.000<br />
+sisoy7 xtxph1 xt2 xtxph4 xtxph5 xph1 1.000<br />
+sisoy10 xtxph2 xtxph4 xt3 xtxph6 xph2 xph4 1.000<br />
+sisoy12 xtxph3 xtxph5 xtxph6 xt4 xph3 xph5 xph6 1.000</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># start values</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>newsvRmz <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fl">0.3</span>, <span class="dv">16</span>))                    <span class="co"># correlations for MZ - 16 distinct correlations in total</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>newsvRdz <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fl">0.15</span>, <span class="dv">16</span>))                   <span class="co"># correlations for DZ </span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="co"># labels</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>newlabm <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;m5&quot;</span>, <span class="st">&quot;m7&quot;</span>, <span class="st">&quot;m10&quot;</span>, <span class="st">&quot;m12&quot;</span>, <span class="st">&quot;m5&quot;</span>, <span class="st">&quot;m7&quot;</span>, <span class="st">&quot;m10&quot;</span>, <span class="st">&quot;m12&quot;</span>)             <span class="co"># means       </span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>newlabsd    <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;sd5&quot;</span>, <span class="st">&quot;sd7&quot;</span>, <span class="st">&quot;sd10&quot;</span>, <span class="st">&quot;sd12&quot;</span>, <span class="st">&quot;sd5&quot;</span>, <span class="st">&quot;sd7&quot;</span>, <span class="st">&quot;sd10&quot;</span>, <span class="st">&quot;sd12&quot;</span>) <span class="co"># standard deviations</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>newlabrMZ   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;rxph1&quot;</span>, <span class="st">&quot;rxph2&quot;</span>, <span class="st">&quot;rxph3&quot;</span>, <span class="st">&quot;MZrxt1&quot;</span>,   <span class="st">&quot;MZrxtxph1&quot;</span>, <span class="st">&quot;MZrxtxph2&quot;</span>, <span class="st">&quot;MZrxtxph3&quot;</span>,     <span class="co"># MZ correlations</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph4&quot;</span>, <span class="st">&quot;rxph5&quot;</span>, <span class="st">&quot;MZrxtxph1&quot;</span>, <span class="st">&quot;MZrxt2&quot;</span>, <span class="st">&quot;MZrxtxph4&quot;</span>, <span class="st">&quot;MZrxtxph5&quot;</span>, </span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph6&quot;</span>, <span class="st">&quot;MZrxtxph2&quot;</span>, <span class="st">&quot;MZrxtxph4&quot;</span>, <span class="st">&quot;MZrxt3&quot;</span>, <span class="st">&quot;MZrxtxph6&quot;</span>,</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;MZrxtxph3&quot;</span>, <span class="st">&quot;MZrxtxph5&quot;</span>, <span class="st">&quot;MZrxtxph6&quot;</span>, <span class="st">&quot;MZrxt4&quot;</span>,</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph1&quot;</span>, <span class="st">&quot;rxph2&quot;</span>, <span class="st">&quot;rxph3&quot;</span>, </span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph4&quot;</span>, <span class="st">&quot;rxph5&quot;</span>,</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph6&quot;</span>)  </span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>newlabrDZ   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;rxph1&quot;</span>, <span class="st">&quot;rxph2&quot;</span>, <span class="st">&quot;rxph3&quot;</span>, <span class="st">&quot;DZrxt1&quot;</span>,   <span class="st">&quot;DZrxtxph1&quot;</span>, <span class="st">&quot;DZrxtxph2&quot;</span>, <span class="st">&quot;DZrxtxph3&quot;</span>,     <span class="co"># DZ correlations</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph4&quot;</span>, <span class="st">&quot;rxph5&quot;</span>, <span class="st">&quot;DZrxtxph1&quot;</span>, <span class="st">&quot;DZrxt2&quot;</span>, <span class="st">&quot;DZrxtxph4&quot;</span>, <span class="st">&quot;DZrxtxph5&quot;</span>, </span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph6&quot;</span>, <span class="st">&quot;DZrxtxph2&quot;</span>, <span class="st">&quot;DZrxtxph4&quot;</span>, <span class="st">&quot;DZrxt3&quot;</span>, <span class="st">&quot;DZrxtxph6&quot;</span>,</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;DZrxtxph3&quot;</span>, <span class="st">&quot;DZrxtxph5&quot;</span>, <span class="st">&quot;DZrxtxph6&quot;</span>, <span class="st">&quot;DZrxt4&quot;</span>,</span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph1&quot;</span>, <span class="st">&quot;rxph2&quot;</span>, <span class="st">&quot;rxph3&quot;</span>, </span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph4&quot;</span>, <span class="st">&quot;rxph5&quot;</span>,</span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rxph6&quot;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create model </span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>Sub1Model   <span class="ot">&lt;-</span> <span class="fu">mxModel</span>(SatModel, <span class="at">name =</span> <span class="st">&quot;Sub1&quot;</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># set parameters to be the same across </span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co"># equal means</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>Sub1Model   <span class="ot">&lt;-</span> <span class="fu">omxSetParameters</span>(Sub1Model, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svM, <span class="at">labels =</span> labMZm, <span class="at">newlabels =</span> newlabm)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>Sub1Model   <span class="ot">&lt;-</span> <span class="fu">omxSetParameters</span>(Sub1Model, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svM, <span class="at">labels =</span> labDZm, <span class="at">newlabels =</span> newlabm)</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="co"># equal variances</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>Sub1Model   <span class="ot">&lt;-</span> <span class="fu">omxSetParameters</span>(Sub1Model, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svSD, <span class="at">labels =</span> labMZsd, <span class="at">newlabels =</span> newlabsd)</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>Sub1Model   <span class="ot">&lt;-</span> <span class="fu">omxSetParameters</span>(Sub1Model, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svSD, <span class="at">labels =</span> labDZsd, <span class="at">newlabels =</span> newlabsd)</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="co"># equal correlations</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>Sub1Model   <span class="ot">&lt;-</span> <span class="fu">omxSetParameters</span>(Sub1Model, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> newsvRmz, <span class="at">labels =</span> labMZr, <span class="at">newlabels =</span> newlabrMZ)</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>Sub1Model   <span class="ot">&lt;-</span> <span class="fu">omxSetParameters</span>(Sub1Model, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> newsvRdz, <span class="at">labels =</span> labDZr, <span class="at">newlabels =</span> newlabrDZ)</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="co"># for some reason it&#39;s the wrong number of starting values so to choose randomly I&#39;ve set the below</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>Sub1Model <span class="ot">&lt;-</span> <span class="fu">omxAssignFirstParameters</span>(Sub1Model)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>Sub1Fit <span class="ot">&lt;-</span> <span class="fu">mxRun</span>(Sub1Model, <span class="at">intervals =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>(Sub1Summ   <span class="ot">&lt;-</span> <span class="fu">summary</span>(Sub1Fit))</span></code></pre></div>
+<p>Summary of Sub1</p>
+<p>free parameters: name matrix row col Estimate Std.Error A 1 m5 MZ.ExpMeanMZ 1 sisoe5 0.83192099 0.02777049<br />
+2 m7 MZ.ExpMeanMZ 1 sisoe7 0.84709597 0.02943890<br />
+3 m10 MZ.ExpMeanMZ 1 sisoe10 0.95577705 0.03242446<br />
+4 m12 MZ.ExpMeanMZ 1 sisoe12 0.95821486 0.03373931<br />
+5 sd5 MZ.sdMZ 1 1 1.14535328 0.01877452<br />
+6 sd7 MZ.sdMZ 2 2 1.19010919 0.01955806<br />
+7 sd10 MZ.sdMZ 3 3 1.30890870 0.02146838<br />
+8 sd12 MZ.sdMZ 4 4 1.38276806 0.02245679<br />
+9 rxph1 MZ.corMZ 1 2 0.49430163 0.01747086<br />
+10 rxph2 MZ.corMZ 1 3 0.36512632 0.02007466<br />
+11 rxph4 MZ.corMZ 2 3 0.50166737 0.01722414<br />
+12 rxph3 MZ.corMZ 1 4 0.32246616 0.02062373<br />
+13 rxph5 MZ.corMZ 2 4 0.41559538 0.01917806<br />
+14 rxph6 MZ.corMZ 3 4 0.58351499 0.01503894<br />
+15 MZrxt1 MZ.corMZ 1 5 0.61362644 0.02432056<br />
+16 MZrxtxph1 MZ.corMZ 2 5 0.33431833 0.02591213<br />
+17 MZrxtxph2 MZ.corMZ 3 5 0.29295734 0.02552871<br />
+18 MZrxtxph3 MZ.corMZ 4 5 0.27949244 0.02537456<br />
+19 MZrxt2 MZ.corMZ 2 6 0.51726912 0.03175022<br />
+20 MZrxtxph4 MZ.corMZ 3 6 0.38499758 0.02602662<br />
+21 MZrxtxph5 MZ.corMZ 4 6 0.30329708 0.02700132<br />
+22 MZrxt3 MZ.corMZ 3 7 0.50703825 0.03021923<br />
+23 MZrxtxph6 MZ.corMZ 4 7 0.41313438 0.02550948<br />
+24 MZrxt4 MZ.corMZ 4 8 0.47158545 0.03090698<br />
+25 DZrxt1 DZ.corDZ 1 5 0.05385703 0.04033642<br />
+26 DZrxtxph1 DZ.corDZ 2 5 0.08246045 0.03082892<br />
+27 DZrxtxph2 DZ.corDZ 3 5 0.06927512 0.03039158<br />
+28 DZrxtxph3 DZ.corDZ 4 5 0.06070762 0.03067409<br />
+29 DZrxt2 DZ.corDZ 2 6 0.16934065 0.03717709<br />
+30 DZrxtxph4 DZ.corDZ 3 6 0.11742856 0.03032439<br />
+31 DZrxtxph5 DZ.corDZ 4 6 0.09952729 0.03060210<br />
+32 DZrxt3 DZ.corDZ 3 7 0.16339936 0.03984079<br />
+33 DZrxtxph6 DZ.corDZ 4 7 0.11110835 0.03307787<br />
+34 DZrxt4 DZ.corDZ 4 8 0.11576113 0.04210533</p>
+<p>Model Statistics: | Parameters | Degrees of Freedom | Fit (-2lnL units) Model: 34 8659 25701.12 Saturated: NA NA NA Independence: NA NA NA Number of observations/statistics: 1116/8693</p>
+<p>Information Criteria: | df Penalty | Parameters Penalty | Sample-Size Adjusted AIC: 8383.125 25769.12 25771.33 BIC: -35063.461 25939.72 25831.73 CFI: NA TLI: 1 (also known as NNFI) RMSEA: 0 [95% CI (NA, NA)] Prob(RMSEA &lt;= 0.05): NA To get additional fit indices, see help(mxRefModels) timestamp: 2022-09-29 19:33:13 Wall clock time: 0.433563 secs optimizer: SLSQP OpenMx version number: 2.20.3 Need help? See help(mxSummary)</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>Sub1Fit<span class="sc">$</span>MZ.ExpCovMZ</span></code></pre></div>
+<p>mxAlgebra ‘ExpCovMZ’ $formula: sdMZ %<em>% corMZ %</em>% t(sdMZ) $result: [,1] [,2] [,3] [,4] [,5] [,6] [,7] [1,] 1.3118341 0.6737803 0.5473838 0.5107083 0.8049761 0.4557078 0.4391908 [2,] 0.6737803 1.4163599 0.7814695 0.6839224 0.4557078 0.7326392 0.5997278 [3,] 0.5473838 0.7814695 1.7132420 1.0561138 0.4391908 0.5997278 0.8686792 [4,] 0.5107083 0.6839224 1.0561138 1.9120475 0.4426484 0.4991193 0.7477390 [5,] 0.8049761 0.4557078 0.4391908 0.4426484 1.3118341 0.6737803 0.5473838 [6,] 0.4557078 0.7326392 0.5997278 0.4991193 0.6737803 1.4163599 0.7814695 [7,] 0.4391908 0.5997278 0.8686792 0.7477390 0.5473838 0.7814695 1.7132420 [8,] 0.4426484 0.4991193 0.7477390 0.9016938 0.5107083 0.6839224 1.0561138 [,8] [1,] 0.4426484 [2,] 0.4991193 [3,] 0.7477390 [4,] 0.9016938 [5,] 0.5107083 [6,] 0.6839224 [7,] 1.0561138 [8,] 1.9120475 dimnames: NULL</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>Sub1Fit<span class="sc">$</span>MZ.MZCor</span></code></pre></div>
+<p>NULL</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>Sub1Fit<span class="sc">$</span>DZ.ExpCovDZ</span></code></pre></div>
+<p>mxAlgebra ‘ExpCovDZ’ $formula: sdDZ %<em>% corDZ %</em>% t(sdDZ) $result: [,1] [,2] [,3] [,4] [,5] [,6] [,7] [1,] 1.31183413 0.6737803 0.5473838 0.51070833 0.07065149 0.1124015 0.1038547 [2,] 0.67378031 1.4163599 0.7814695 0.68392245 0.11240147 0.2398473 0.1829237 [3,] 0.54738382 0.7814695 1.7132420 1.05611379 0.10385469 0.1829237 0.2799426 [4,] 0.51070833 0.6839224 1.0561138 1.91204752 0.09614617 0.1637866 0.2010969 [5,] 0.07065149 0.1124015 0.1038547 0.09614617 1.31183413 0.6737803 0.5473838 [6,] 0.11240147 0.2398473 0.1829237 0.16378659 0.67378031 1.4163599 0.7814695 [7,] 0.10385469 0.1829237 0.2799426 0.20109690 0.54738382 0.7814695 1.7132420 [8,] 0.09614617 0.1637866 0.2010969 0.22134077 0.51070833 0.6839224 1.0561138 [,8] [1,] 0.09614617 [2,] 0.16378659 [3,] 0.20109690 [4,] 0.22134077 [5,] 0.51070833 [6,] 0.68392245 [7,] 1.05611379 [8,] 1.91204752 dimnames: NULL</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>Sub1Fit<span class="sc">$</span>DZ.DZCor</span></code></pre></div>
+<p>NULL</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mxCompare</span>(SatFit, Sub1Fit)</span></code></pre></div>
+<p>base comparison ep minus2LL df AIC diffLL diffdf p 1 Sat <NA> 88 25456.57 8605 25632.57 NA NA NA 2 Sat Sub1 34 25701.12 8659 25769.12 244.5563 54 4.606409e-26</p>
+<p>As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model. Now we will constrain different aspects here to see where the inequality in variance is coming up.</p>
+<p><strong>INSERT HERE THE STEPS IN THE SATURATED MODEL LECTURE TO INDEPENDENTLY CONSTRAIN DIFFERENT PARTS OF THE MODEL (6 STEPS)</strong></p>
+</div>
+</div>
+<div id="ace-model" class="section level2">
+<h2>ACE model</h2>
+<div id="matrices-to-estimate-a-c-and-e-path-coefficients" class="section level4">
+<h4>Matrices to estimate a, c, and e path coefficients</h4>
+<p>Here we have 4 variables (social isolation at ages 5, 7, 10, 12), so this will be a 4 by 4 matrix (I assume): a11 # path of genetic influence on time point 1 a21 a22 # path of genetic influence on time point 2 (a21) plus new genetic influence at time point 2 (a22) a31 a23 a33 a41 a24 a34 a44</p>
+<p>The structure of the matrix we need for the Cholesky decomposition, is one where the first latent A, C and E factors (A1, C1 and E1) influence both variables, but the second factors (A2, C2 and E2) only influence the second variable. The matrix type that represents a factor loading I have just described, is type ‘Lower’. As you can see below, the factor loadings a11 and a21 and a22 follow a pattern where the matrix has the diagonal and lower elements, but the upper diagonal element is zero.</p>
+<pre><code>                      A1    A2    A3    A4</code></pre>
+<p>Isolation age 5 Twin 1 a11 0 0 0 Isolation age 7 Twin 1 a21 a22 0 0 Isolation age 10 Twin 1 a31 a23 a33 0 Isolation age 12 Twin 1 a41 a23 a34 a44</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>pathA   <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Lower&quot;</span>, <span class="at">nrow =</span> nv, <span class="at">ncol =</span> nv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fl">0.5</span>, <span class="dv">10</span>)), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;a11&quot;</span>, <span class="st">&quot;a21&quot;</span>,<span class="st">&quot;a31&quot;</span>,<span class="st">&quot;a41&quot;</span>,<span class="st">&quot;a22&quot;</span>,<span class="st">&quot;a23&quot;</span>,<span class="st">&quot;a24&quot;</span>,<span class="st">&quot;a33&quot;</span>,<span class="st">&quot;a34&quot;</span>,<span class="st">&quot;a44&quot;</span>), <span class="at">name =</span> <span class="st">&quot;a&quot;</span>) </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>pathC   <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Lower&quot;</span>, <span class="at">nrow =</span> nv, <span class="at">ncol =</span> nv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fl">0.5</span>, <span class="dv">10</span>)), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;c11&quot;</span>, <span class="st">&quot;c21&quot;</span>,<span class="st">&quot;c31&quot;</span>,<span class="st">&quot;c41&quot;</span>,<span class="st">&quot;c22&quot;</span>,<span class="st">&quot;c23&quot;</span>,<span class="st">&quot;c24&quot;</span>,<span class="st">&quot;c33&quot;</span>,<span class="st">&quot;c34&quot;</span>,<span class="st">&quot;c44&quot;</span>), <span class="at">name=</span><span class="st">&quot;c&quot;</span> )</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>pathE   <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Lower&quot;</span>, <span class="at">nrow =</span> nv, <span class="at">ncol =</span> nv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="fl">0.5</span>, <span class="dv">10</span>)), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;e11&quot;</span>, <span class="st">&quot;e21&quot;</span>,<span class="st">&quot;e31&quot;</span>,<span class="st">&quot;e41&quot;</span>,<span class="st">&quot;e22&quot;</span>,<span class="st">&quot;e23&quot;</span>,<span class="st">&quot;e24&quot;</span>,<span class="st">&quot;e33&quot;</span>,<span class="st">&quot;e34&quot;</span>,<span class="st">&quot;e44&quot;</span>), <span class="at">name=</span><span class="st">&quot;e&quot;</span> )</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>MeanG   <span class="ot">&lt;-</span><span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Full&quot;</span>, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol =</span> ntv, <span class="at">free =</span> <span class="cn">TRUE</span>, <span class="at">values =</span> svM, <span class="at">labels =</span> newlabm, <span class="at">name =</span> <span class="st">&quot;ExpMean&quot;</span>)</span></code></pre></div>
+<p>Then we want to compute the covariance matrix (V) which is the sum of the ACE variance components. Using the row-by-col multiplication of a and a transpose, we get the 4x4 A variance covariance matrix of the four variables. We do this multiplication for c and e as well to get the C and E Var/Cov matrix. We can then standardise them to get h2, c2, and e2.</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Non-standardized variance components</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>covA    <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> a <span class="sc">%*%</span> <span class="fu">t</span>(a), <span class="at">name =</span> <span class="st">&quot;A&quot;</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>covC    <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> c <span class="sc">%*%</span> <span class="fu">t</span>(c), <span class="at">name =</span> <span class="st">&quot;C&quot;</span>) </span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>covE    <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> e <span class="sc">%*%</span> <span class="fu">t</span>(e), <span class="at">name =</span> <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardized variance components</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>covP    <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> A <span class="sc">+</span> C <span class="sc">+</span> E, <span class="at">name =</span> <span class="st">&quot;V&quot;</span> ) <span class="co"># total variance</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>StA <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> A<span class="sc">/</span>V, <span class="at">name =</span> <span class="st">&quot;h2&quot;</span>)</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>StC <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> C<span class="sc">/</span>V, <span class="at">name =</span> <span class="st">&quot;c2&quot;</span>)</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>StE <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> E<span class="sc">/</span>V, <span class="at">name =</span> <span class="st">&quot;e2&quot;</span>)</span></code></pre></div>
+<p>The I*V bit below extracts the variances from the diagonal of the covariance matrix V, by multiplying element by element.</p>
+<p>To get the phenotypic correlations, we use the same procedure :</p>
+<ul>
+<li>Extract the variances, take the square root and invert the resulting matrix</li>
+<li>pre-and-post multiply this matrix with V, to get the correlation matrix (you should pre-and-post multiply the matrix with its transpose, but because the matrix is symmetrical its transpose is equal to itself)</li>
+</ul>
+<p>For the A, C and E correlations it is the same process. Except this time we are multiplying the identity matrix with A (and then C and E), rather than V, and then pre-and-post multiply the resulting matrix with A (and then C and E) rather than V.</p>
+<p>Notes from Tim on when to hash these out: “Note that originally Ra and Rc were commented out, I think that’s because if you include them, it causes problems when you run the submodels when A and C are dropped. Since we have got rid of the CE model in this script, we can un-comment A to get the correlation, but leave C commented out. Note that you also have to modify the pars statement if you add/remove these”</p>
+<p>All chunks below with * are not included in Fruhling’s script.</p>
+<p>Below we use the genetic Var/Cov matrix A to get the genetic correlation matrix with rA21 indicating the correlation between the A1 and A2 factors in the Bivariate model - <strong>so does this give you the correlated factors solution? And not the Cholesky? Do we need this part of the script??</strong></p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>matI <span class="ot">&lt;-</span> <span class="fu">mxMatrix</span>(<span class="at">type =</span> <span class="st">&quot;Iden&quot;</span>, <span class="at">nrow =</span> nv, <span class="at">ncol =</span> nv, <span class="at">name =</span> <span class="st">&quot;I&quot;</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>matIsd <span class="ot">&lt;-</span><span class="fu">mxAlgebra</span>(<span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>V)), <span class="at">name =</span> <span class="st">&quot;isd&quot;</span>)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>rph <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>V)) <span class="sc">%*%</span> V <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>V)), <span class="at">name =</span> <span class="st">&quot;Rph&quot;</span>) <span class="co"># new identity matrix for standardising </span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>rA  <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>A)) <span class="sc">%*%</span> A <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>A)), <span class="at">name =</span> <span class="st">&quot;Ra&quot;</span>)</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>rC  <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>C)) <span class="sc">%*%</span> C <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>C)), <span class="at">name =</span> <span class="st">&quot;Rc&quot;</span>) <span class="co"># Hash this when running AE model</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>rE  <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>E)) <span class="sc">%*%</span> E <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">sqrt</span>(I<span class="sc">*</span>E)), <span class="at">name =</span> <span class="st">&quot;Re&quot;</span>)</span></code></pre></div>
+<p><strong>here we need to understand why to have squared and unsquared</strong></p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>Sta <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(isd<span class="sc">%*%</span>a, <span class="at">name =</span> <span class="st">&quot;sta&quot;</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>Stc <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(isd<span class="sc">%*%</span>c, <span class="at">name =</span> <span class="st">&quot;stc&quot;</span>)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>Ste <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(isd<span class="sc">%*%</span>e, <span class="at">name =</span> <span class="st">&quot;ste&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>Sta2 <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(sta<span class="sc">*</span>sta, <span class="at">name =</span> <span class="st">&quot;sta2&quot;</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>Stc2 <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(stc<span class="sc">*</span>stc, <span class="at">name =</span> <span class="st">&quot;stc2&quot;</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>Ste2 <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(ste<span class="sc">*</span>ste, <span class="at">name =</span> <span class="st">&quot;ste2&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>rowVars <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="st">&#39;Vars&#39;</span>, nv)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>colVars <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&#39;h2&#39;</span>, <span class="st">&#39;c2&#39;</span>, <span class="st">&#39;e2&#39;</span>), <span class="at">each =</span> nv)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>estVars <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">cbind</span>(h2,c2,e2), <span class="at">name =</span> <span class="st">&quot;Est&quot;</span>, <span class="at">dimnames =</span> <span class="fu">list</span>(rowVars,colVars))</span></code></pre></div>
+<p>If you want to work out the amount of the phenotypic correlation that is due to A, C or E, you can use this dataframe.</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>rphace <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">cbind</span>((<span class="fu">sqrt</span>(h2[<span class="dv">1</span>,<span class="dv">1</span>])<span class="sc">*</span>Ra[<span class="dv">2</span>,<span class="dv">1</span>]<span class="sc">*</span><span class="fu">sqrt</span>(h2[<span class="dv">2</span>,<span class="dv">2</span>])),</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>                            (<span class="fu">sqrt</span>(c2[<span class="dv">1</span>,<span class="dv">1</span>])<span class="sc">*</span>Rc[<span class="dv">2</span>,<span class="dv">1</span>]<span class="sc">*</span><span class="fu">sqrt</span>(c2[<span class="dv">2</span>,<span class="dv">2</span>])),</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>                            (<span class="fu">sqrt</span>(e2[<span class="dv">1</span>,<span class="dv">1</span>])<span class="sc">*</span>Re[<span class="dv">2</span>,<span class="dv">1</span>]<span class="sc">*</span><span class="fu">sqrt</span>(e2[<span class="dv">2</span>,<span class="dv">2</span>])) ), <span class="at">name =</span> <span class="st">&quot;RphACE&quot;</span> )</span></code></pre></div>
+<p>The A factors are correlated across twins either by 1 for MZ pairs or 0.5 for DZ pairs, whereas the C factors are correlated 1 for either type of pairs. In the univariate model we only had 1 A and C factors that correlated across twins, in the bivariate and above model we have to correlate both the A1 and A2 factors across twins and both the C1 and C2 factors across twins.</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>covMZ   <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">rbind</span>(<span class="fu">cbind</span>(A<span class="sc">+</span>C<span class="sc">+</span>E, A<span class="sc">+</span>C),</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>                                          <span class="fu">cbind</span>(A<span class="sc">+</span>C, A<span class="sc">+</span>C<span class="sc">+</span>E)), <span class="at">name =</span> <span class="st">&quot;expCovMZ&quot;</span> )</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>covDZ   <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> <span class="fu">rbind</span>(<span class="fu">cbind</span>(A<span class="sc">+</span>C<span class="sc">+</span>E, <span class="fl">0.5</span><span class="sc">%x%</span>A<span class="sc">+</span>C),</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>                                          <span class="fu">cbind</span>(<span class="fl">0.5</span><span class="sc">%x%</span>A<span class="sc">+</span>C, A<span class="sc">+</span>C<span class="sc">+</span>E)), <span class="at">name =</span> <span class="st">&quot;expCovDZ&quot;</span> )</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data objects </span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>dataMZ <span class="ot">&lt;-</span> <span class="fu">mxData</span>(<span class="at">observed =</span> dat.twin.MZ, <span class="at">type =</span> <span class="st">&quot;raw&quot;</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>dataDZ <span class="ot">&lt;-</span> <span class="fu">mxData</span>(<span class="at">observed =</span> dat.twin.DZ, <span class="at">type =</span> <span class="st">&quot;raw&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tim uses mxFIMLObjective() here</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>objMZ   <span class="ot">&lt;-</span> <span class="fu">mxExpectationNormal</span>(<span class="at">covariance =</span> <span class="st">&quot;expCovMZ&quot;</span>, <span class="at">means =</span> <span class="st">&quot;ExpMean&quot;</span>, <span class="at">dimnames =</span> selvars)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>objDZ   <span class="ot">&lt;-</span> <span class="fu">mxExpectationNormal</span>(<span class="at">covariance =</span> <span class="st">&quot;expCovDZ&quot;</span>, <span class="at">means =</span> <span class="st">&quot;ExpMean&quot;</span>, <span class="at">dimnames =</span> selvars)</span></code></pre></div>
+<hr />
+<p>No idea if how I am specifying the confidence intervals for the 4 variable model are correct???? ***</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all parameters to be estimated </span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>pars <span class="ot">&lt;-</span> <span class="fu">list</span>(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rE, MeanG, estVars, matIsd, Sta, Sta2, Stc, Stc2, Ste, Ste2)</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="co"># add these to the model for MZ and DZ with the matrices we have created</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>modelMZ <span class="ot">&lt;-</span> <span class="fu">mxModel</span>(pars, covMZ, dataMZ, objMZ, fitFunction, <span class="at">name =</span> <span class="st">&quot;MZ&quot;</span>)</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>modelDZ <span class="ot">&lt;-</span> <span class="fu">mxModel</span>(pars, covDZ, dataDZ, objDZ, fitFunction, <span class="at">name =</span> <span class="st">&quot;DZ&quot;</span>)</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a><span class="co"># fitting</span></span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>minus2ll <span class="ot">&lt;-</span> <span class="fu">mxAlgebra</span>(<span class="at">expression =</span> MZ.objective <span class="sc">+</span> DZ.objective, <span class="at">name =</span> <span class="st">&quot;m2LL&quot;</span>)</span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">mxFitFunctionAlgebra</span>(<span class="st">&quot;m2LL&quot;</span>)</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a><span class="co"># confidence intervals - not sure if this is the right adaptation for 4 variable model</span></span>
+<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a>Conf1 <span class="ot">&lt;-</span> <span class="fu">mxCI</span>(<span class="fu">c</span>(<span class="st">&#39;h2[1,1]&#39;</span>, <span class="st">&#39;h2[2,2]&#39;</span>,<span class="st">&#39;h2[3,3]&#39;</span>, <span class="st">&#39;h2[4,4]&#39;</span>, <span class="st">&#39;c2[1,1]&#39;</span>, <span class="st">&#39;c2[2,2]&#39;</span>, <span class="st">&#39;c2[3,3]&#39;</span>, <span class="st">&#39;c2[4,4]&#39;</span>, <span class="st">&#39;e2[1,1]&#39;</span>, <span class="st">&#39;e2[2,2]&#39;</span>, <span class="st">&#39;e2[3,3]&#39;</span>, <span class="st">&#39;e2[4,4]&#39;</span>)) <span class="co"># here you can see if you should drop C from the model</span></span>
+<span id="cb57-14"><a href="#cb57-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Conf2 &lt;- mxCI(c(&#39;Rph[2,1]&#39;, &#39;Ra[2,1]&#39;, &#39;Rc[2,1]&#39;, &#39;Re[2,1]&#39;)) # not sure how to label these?</span></span>
+<span id="cb57-15"><a href="#cb57-15" aria-hidden="true" tabindex="-1"></a><span class="co"># how am I supposed to know what the below need to be?</span></span>
+<span id="cb57-16"><a href="#cb57-16" aria-hidden="true" tabindex="-1"></a><span class="co">#Conf3  &lt;- mxCI(c(&#39;sta2[3,2]&#39;, &#39;stc2[3,2]&#39;, &#39;ste2[3,2]&#39;, &#39;sta2[3,1]&#39;, &#39;stc2[3,1]&#39;, &#39;ste2[3,1]&#39;, &#39;sta2[2,1]&#39;, &#39;stc2[2,1]&#39;, &#39;ste2[2,1]&#39;, &#39;sta2[4,2]&#39;, &#39;stc2[4,2]&#39;, &#39;ste2[4,2]&#39;), &#39;sta2[4,1]&#39;, &#39;stc2[4,1]&#39;, &#39;ste2[4,1]&#39;, &#39;sta2[4,3]&#39;, &#39;stc2[4,3]&#39;, &#39;ste2[4,3]&#39;)</span></span>
+<span id="cb57-17"><a href="#cb57-17" aria-hidden="true" tabindex="-1"></a>Conf4   <span class="ot">&lt;-</span> <span class="fu">mxCI</span>(<span class="fu">c</span>(<span class="st">&#39;sta2[1,1]&#39;</span>, <span class="st">&#39;stc2[1,1]&#39;</span>, <span class="st">&#39;ste2[1,1]&#39;</span>, <span class="st">&#39;sta2[2,2]&#39;</span>, <span class="st">&#39;stc2[2,2]&#39;</span>, <span class="st">&#39;ste2[2,2]&#39;</span>, <span class="st">&#39;sta2[3,3]&#39;</span>, <span class="st">&#39;stc2[3,3]&#39;</span>, <span class="st">&#39;ste2[3,3]&#39;</span>, <span class="st">&#39;sta2[4,4]&#39;</span>, <span class="st">&#39;stc2[4,4]&#39;</span>, <span class="st">&#39;ste2[4,4]&#39;</span>))</span>
+<span id="cb57-18"><a href="#cb57-18" aria-hidden="true" tabindex="-1"></a>Conf5   <span class="ot">&lt;-</span> <span class="fu">mxCI</span>(<span class="fu">c</span>(<span class="st">&#39;h2&#39;</span>, <span class="st">&#39;c2&#39;</span>, <span class="st">&#39;e2&#39;</span>))</span>
+<span id="cb57-19"><a href="#cb57-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-20"><a href="#cb57-20" aria-hidden="true" tabindex="-1"></a><span class="co"># full model</span></span>
+<span id="cb57-21"><a href="#cb57-21" aria-hidden="true" tabindex="-1"></a>AceModel <span class="ot">&lt;-</span> <span class="fu">mxModel</span>(<span class="st">&quot;ACE&quot;</span>, pars, modelMZ, modelDZ, minus2ll, obj </span>
+<span id="cb57-22"><a href="#cb57-22" aria-hidden="true" tabindex="-1"></a>                   <span class="co"># Conf1, Conf3</span></span>
+<span id="cb57-23"><a href="#cb57-23" aria-hidden="true" tabindex="-1"></a>                    )</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>AceFit <span class="ot">&lt;-</span> <span class="fu">mxRun</span>(AceModel, <span class="at">intervals =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>AceSumm  <span class="ot">&lt;-</span> <span class="fu">summary</span>(AceFit)</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>AceSumm</span></code></pre></div>
+<p>Summary of ACE</p>
+<p>free parameters: name matrix row col Estimate Std.Error A 1 a11 a 1 1 8.643569e-01 0.03171936<br />
+2 a21 a 2 1 5.267595e-01 0.04285239<br />
+3 a31 a 3 1 5.098095e-01 0.04826886<br />
+4 a41 a 4 1 5.121426e-01 0.05045538<br />
+5 a22 a 2 2 6.532339e-01 0.03700672<br />
+6 a23 a 3 2 4.864147e-01 0.07191173<br />
+7 a24 a 4 2 3.501336e-01 0.06231968<br />
+8 a33 a 3 3 5.881180e-01 0.09480751<br />
+9 a34 a 4 3 4.999926e-01 0.12083102<br />
+10 a44 a 4 4 4.744896e-01 0.12719094 ! 11 c11 c 1 1 -3.876873e-03 0.09368327 ! 12 c21 c 2 1 -3.205065e-02 0.23479315 ! 13 c31 c 3 1 6.002703e-02 0.37047587 ! 14 c41 c 4 1 -3.598797e-02 0.26217032 ! 15 c22 c 2 2 -3.557430e-05 0.66834051 ! 16 c23 c 3 2 6.248538e-05 1.41473573<br />
+17 c24 c 4 2 -3.004676e-05 0.82775693 ! 18 c33 c 3 3 2.904601e-06 0.35358357<br />
+19 c34 c 4 3 -2.084908e-06 0.21460964<br />
+20 c44 c 4 4 5.847025e-06 0.19174356 ! 21 e11 e 1 1 7.614034e-01 0.02260273<br />
+22 e21 e 2 1 3.018304e-01 0.03415487<br />
+23 e31 e 3 1 1.569588e-01 0.03833150<br />
+24 e41 e 4 1 1.060054e-01 0.04143494<br />
+25 e22 e 2 2 7.902905e-01 0.02278362<br />
+26 e23 e 3 2 1.981296e-01 0.03715302<br />
+27 e24 e 4 2 2.035019e-01 0.04070242<br />
+28 e33 e 3 3 9.013999e-01 0.02478941<br />
+29 e34 e 4 3 3.172898e-01 0.03803954<br />
+30 e44 e 4 4 9.529478e-01 0.02494218<br />
+31 m5 ExpMean 1 1 8.229887e-01 0.02909800<br />
+32 m7 ExpMean 1 2 8.418711e-01 0.02981478<br />
+33 m10 ExpMean 1 3 9.500144e-01 0.03295644<br />
+34 m12 ExpMean 1 4 9.520727e-01 0.03442141</p>
+<p>Model Statistics: | Parameters | Degrees of Freedom | Fit (-2lnL units) Model: 34 8659 25756.35 Saturated: NA NA NA Independence: NA NA NA Number of observations/statistics: 1116/8693</p>
+<p>Information Criteria: | df Penalty | Parameters Penalty | Sample-Size Adjusted AIC: 8438.346 25824.35 25826.55 BIC: -35008.239 25994.94 25886.95 CFI: NA TLI: 1 (also known as NNFI) RMSEA: 0 [95% CI (NA, NA)] Prob(RMSEA &lt;= 0.05): NA To get additional fit indices, see help(mxRefModels) timestamp: 2022-09-29 19:33:15 Wall clock time: 0.777874 secs optimizer: SLSQP OpenMx version number: 2.20.3 Need help? See help(mxSummary)</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(AceFit<span class="sc">@</span>output<span class="sc">$</span>estimate,<span class="dv">4</span>)</span></code></pre></div>
+<pre><code>a11     a21     a31     a41     a22     a23     a24     a33     a34     a44 </code></pre>
+<p>0.8644 0.5268 0.5098 0.5121 0.6532 0.4864 0.3501 0.5881 0.5000 0.4745 c11 c21 c31 c41 c22 c23 c24 c33 c34 c44 -0.0039 -0.0321 0.0600 -0.0360 0.0000 0.0001 0.0000 0.0000 0.0000 0.0000 e11 e21 e31 e41 e22 e23 e24 e33 e34 e44 0.7614 0.3018 0.1570 0.1060 0.7903 0.1981 0.2035 0.9014 0.3173 0.9529 m5 m7 m10 m12 0.8230 0.8419 0.9500 0.9521</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(AceFit<span class="sc">$</span>Est<span class="sc">@</span>result,<span class="dv">4</span>)</span></code></pre></div>
+<pre><code>     h2     h2     h2     h2     c2      c2      c2      c2     e2     e2</code></pre>
+<p>Vars 0.5631 0.6644 0.7870 0.8456 0e+00 0.0002 -0.0004 0.0003 0.4369 0.3354 Vars 0.6644 0.4956 0.7437 0.7199 2e-04 0.0007 -0.0024 0.0017 0.3354 0.5037 Vars 0.7870 0.7437 0.4891 0.6804 -4e-04 -0.0024 0.0021 -0.0020 0.2134 0.2587 Vars 0.8456 0.7199 0.6804 0.4473 3e-04 0.0017 -0.0020 0.0007 0.1542 0.2785 e2 e2 Vars 0.2134 0.1542 Vars 0.2587 0.2785 Vars 0.5088 0.3216 Vars 0.3216 0.5520</p>
+<p><strong>I don’t quite understand what output we need - need Tim to help explain this</strong></p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># proportion of individual differences explained by A, C, and E for each phenotype</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.h2 <span class="co"># heritability on the diagonal and then % of phenotypic that is genetic on off-diagonal</span></span></code></pre></div>
+<p>mxAlgebra ‘h2’ $formula: A/V $result: [,1] [,2] [,3] [,4] [1,] 0.5630671 0.6644438 0.7869814 0.8455619 [2,] 0.6644438 0.4956021 0.7437197 0.7198799 [3,] 0.7869814 0.7437197 0.4890767 0.6803762 [4,] 0.8455619 0.7198799 0.6803762 0.4472860 dimnames: NULL</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.c2</span></code></pre></div>
+<p>mxAlgebra ‘c2’ $formula: C/V $result: [,1] [,2] [,3] [,4] [1,] 1.132758e-05 0.0001813306 -0.0004156156 0.0002665019 [2,] 1.813306e-04 0.0007229651 -0.0024405139 0.0016656880 [3,] -4.156156e-04 -0.0024405139 0.0020919874 -0.0020260036 [4,] 2.665019e-04 0.0016656880 -0.0020260036 0.0006735865 dimnames: NULL</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.e2</span></code></pre></div>
+<p>mxAlgebra ‘e2’ $formula: E/V $result: [,1] [,2] [,3] [,4] [1,] 0.4369216 0.3353749 0.2134342 0.1541716 [2,] 0.3353749 0.5036750 0.2587208 0.2784544 [3,] 0.2134342 0.2587208 0.5088313 0.3216498 [4,] 0.1541716 0.2784544 0.3216498 0.5520404 dimnames: NULL</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation between the A, C, and E factors between the traits? Isn&#39;t this for the correlated factors solution?</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.Rph <span class="co"># total phenotypic correlation?</span></span></code></pre></div>
+<p>mxAlgebra ‘Rph’ $formula: solve(sqrt(I * V)) %<em>% V %</em>% solve(sqrt(I * V)) $result: [,1] [,2] [,3] [,4] [1,] 1.0000000 0.4990635 0.3703872 0.3277666 [2,] 0.4990635 1.0000000 0.5039146 0.4189495 [3,] 0.3703872 0.5039146 1.0000000 0.5859169 [4,] 0.3277666 0.4189495 0.5859169 1.0000000 dimnames: NULL</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.Ra <span class="co"># correlations between the a factors</span></span></code></pre></div>
+<p>mxAlgebra ‘Ra’ $formula: solve(sqrt(I * A)) %<em>% A %</em>% solve(sqrt(I * A)) $result: [,1] [,2] [,3] [,4] [1,] 1.0000000 0.6277221 0.5554588 0.5522522 [2,] 0.6277221 1.0000000 0.7612218 0.6405640 [3,] 0.5554588 0.7612218 1.0000000 0.8523226 [4,] 0.5522522 0.6405640 0.8523226 1.0000000 dimnames: NULL</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.Rc</span></code></pre></div>
+<p>NULL</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.Re</span></code></pre></div>
+<p>mxAlgebra ‘Re’ $formula: solve(sqrt(I * E)) %<em>% E %</em>% solve(sqrt(I * E)) $result: [,1] [,2] [,3] [,4] [1,] 1.0000000 0.3567873 0.1676607 0.1028921 [2,] 0.3567873 1.0000000 0.2575290 0.2212357 [3,] 0.1676607 0.2575290 1.0000000 0.3555878 [4,] 0.1028921 0.2212357 0.3555878 1.0000000 dimnames: NULL</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Are these the Cholesky paths? If so how do we interpret these? </span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.sta</span></code></pre></div>
+<p>mxAlgebra ‘sta’ $formula: isd %*% a $result: [,1] [,2] [,3] [,4] [1,] 0.7503780 0.0000000 0.0000000 0.0000000 [2,] 0.4419101 0.5480123 0.0000000 0.0000000 [3,] 0.3884547 0.3706288 0.4481227 0.0000000 [4,] 0.3693432 0.2525068 0.3605810 0.3421889 dimnames: NULL</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.sta2 <span class="co"># This is the cholesky diagonal path to a2 - can be interpreted as a % variance explained </span></span></code></pre></div>
+<p>mxAlgebra ‘sta2’ $formula: sta * sta $result: [,1] [,2] [,3] [,4] [1,] 0.5630671 0.00000000 0.0000000 0.0000000 [2,] 0.1952846 0.30031749 0.0000000 0.0000000 [3,] 0.1508970 0.13736570 0.2008139 0.0000000 [4,] 0.1364144 0.06375967 0.1300186 0.1170933 dimnames: NULL</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.stc</span></code></pre></div>
+<p>mxAlgebra ‘stc’ $formula: isd %*% c $result: [,1] [,2] [,3] [,4] [1,] -0.003365647 0.000000e+00 0.000000e+00 0.000000e+00 [2,] -0.026887994 -2.984406e-05 0.000000e+00 0.000000e+00 [3,] 0.045738224 4.761139e-05 2.213192e-06 0.000000e+00 [4,] -0.025953536 -2.166890e-05 -1.503579e-06 4.216714e-06 dimnames: NULL</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.stc2</span></code></pre></div>
+<p>mxAlgebra ‘stc2’ $formula: stc * stc $result: [,1] [,2] [,3] [,4] [1,] 1.132758e-05 0.000000e+00 0.000000e+00 0.000000e+00 [2,] 7.229642e-04 8.906681e-10 0.000000e+00 0.000000e+00 [3,] 2.091985e-03 2.266845e-09 4.898217e-12 0.000000e+00 [4,] 6.735861e-04 4.695413e-10 2.260749e-12 1.778068e-11 dimnames: NULL</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.ste</span></code></pre></div>
+<p>mxAlgebra ‘ste’ $formula: isd %*% e $result: [,1] [,2] [,3] [,4] [1,] 0.66100045 0.0000000 0.0000000 0.0000000 [2,] 0.25321214 0.6629921 0.0000000 0.0000000 [3,] 0.11959641 0.1509669 0.6868311 0.0000000 [4,] 0.07644821 0.1467600 0.2288207 0.6872399 dimnames: NULL</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>AceFit<span class="sc">$</span>ACE.ste2</span></code></pre></div>
+<p>mxAlgebra ‘ste2’ $formula: ste * ste $result: [,1] [,2] [,3] [,4] [1,] 0.436921592 0.00000000 0.00000000 0.0000000 [2,] 0.064116385 0.43955859 0.00000000 0.0000000 [3,] 0.014303301 0.02279102 0.47173702 0.0000000 [4,] 0.005844329 0.02153849 0.05235892 0.4722987 dimnames: NULL</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># output from Fruhling&#39;s code</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">mxEval</span>(ACE.h2, AceFit), ) </span></code></pre></div>
+<pre><code> [,1] [,2] [,3] [,4]</code></pre>
+<p>[1,] 1 1 1 1 [2,] 1 0 1 1 [3,] 1 1 0 1 [4,] 1 1 1 0</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mxEval</span>(ACE.c2, AceFit)</span></code></pre></div>
+<pre><code>          [,1]          [,2]          [,3]          [,4]</code></pre>
+<p>[1,] 1.132758e-05 0.0001813306 -0.0004156156 0.0002665019 [2,] 1.813306e-04 0.0007229651 -0.0024405139 0.0016656880 [3,] -4.156156e-04 -0.0024405139 0.0020919874 -0.0020260036 [4,] 2.665019e-04 0.0016656880 -0.0020260036 0.0006735865</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mxEval</span>(ACE.e2, AceFit)</span></code></pre></div>
+<pre><code>      [,1]      [,2]      [,3]      [,4]</code></pre>
+<p>[1,] 0.4369216 0.3353749 0.2134342 0.1541716 [2,] 0.3353749 0.5036750 0.2587208 0.2784544 [3,] 0.2134342 0.2587208 0.5088313 0.3216498 [4,] 0.1541716 0.2784544 0.3216498 0.5520404</p>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mxEval</span>(ACE.Rph, AceFit)</span></code></pre></div>
+<pre><code>      [,1]      [,2]      [,3]      [,4]</code></pre>
+<p>[1,] 1.0000000 0.4990635 0.3703872 0.3277666 [2,] 0.4990635 1.0000000 0.5039146 0.4189495 [3,] 0.3703872 0.5039146 1.0000000 0.5859169 [4,] 0.3277666 0.4189495 0.5859169 1.0000000</p>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mxEval</span>(ACE.Ra, AceFit)</span></code></pre></div>
+<pre><code>      [,1]      [,2]      [,3]      [,4]</code></pre>
+<p>[1,] 1.0000000 0.6277221 0.5554588 0.5522522 [2,] 0.6277221 1.0000000 0.7612218 0.6405640 [3,] 0.5554588 0.7612218 1.0000000 0.8523226 [4,] 0.5522522 0.6405640 0.8523226 1.0000000</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mxEval(ACE.Rc, AceFit) # THE OUTPUT COULDN&#39;T FIND THIS FOR SOME REASON</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mxEval</span>(ACE.Re, AceFit)</span></code></pre></div>
+<pre><code>      [,1]      [,2]      [,3]      [,4]</code></pre>
+<p>[1,] 1.0000000 0.3567873 0.1676607 0.1028921 [2,] 0.3567873 1.0000000 0.2575290 0.2212357 [3,] 0.1676607 0.2575290 1.0000000 0.3555878 [4,] 0.1028921 0.2212357 0.3555878 1.0000000</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mxEval(ACE.RphACE, AceFit) # THE OUTPUT COULDN&#39;T FIND THIS FOR SOME REASON</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare the ACE model and saturated model </span></span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mxCompare</span>(SatFit, AceFit)</span></code></pre></div>
+<p>base comparison ep minus2LL df AIC diffLL diffdf p 1 Sat <NA> 88 25456.57 8605 25632.57 NA NA NA 2 Sat ACE 34 25756.35 8659 25824.35 299.7777 54 8.922749e-36</p>
+<p>The ACE model fits significantly worse than the saturated model.</p>
+<p>h2 output mxEval(ACE.h2, AceFit)</p>
+<pre><code>  [,1]  [,2]  [,3]  [,4]</code></pre>
+<p>[1,] 0.563<br />
+[2,] 0.664 0.496<br />
+[3,] 0.787 0.744 0.489 [4,] 0.846 0.720 0.680 0.447</p>
+<p><strong>Is the above the same as the below?? Need to create the cholesky figure in powerpoint to see what this lokos like </strong></p>
+<pre><code>                       A1    A2    A3    A4</code></pre>
+<p>Isolation age 5 Twin 1 a11 0 0 0 Isolation age 7 Twin 1 a21 a22 0 0 Isolation age 10 Twin 1 a31 a23 a33 0 Isolation age 12 Twin 1 a41 a23 a34 a44</p>
+<hr />
+<p>NEXT STEPS</p>
+<ul>
+<li>Add in the 6 steps to see why the variance is not equal across zygosity and twin order</li>
+<li>Go through ACE and output - map out each of the matrices to see what each output is telling you - make a table for this and print off to have in the office.</li>
+<li>tidy up ACE model and make more notes from GED avout what each bit means - especially for cholesky.</li>
+<li>Cholesky matrices is the sta2 output - this is the diagnoal lines in the path tracing.</li>
+<li>Run AE model by removing the rC estimation indicated above, and set the parameters to 0 as seen in Tim’s script.</li>
+<li>Interpret the AE output *Email monika about getting the script for the overlap section of the paper</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- Add footer -->
+
+&nbsp;
+
+<hr />
+
+<center>
+
+<img src="kcl_logo.png" 
+
+     width="100" 
+
+     height="75" />
+
+</center>
+
+<br>
+
+<p style="text-align: center;">Work by <a href="https://github.com/knthompson26/">Katherine N Thompson</a></p>
+
+<p style="text-align: center;"><span style="color: #808080;"><em>katherine.n.thompson@kcl.ac.uk</em></span></p>
+
+
+
+<!-- Add icon library -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
+<!-- Add font awesome icons -->
+
+<p style="text-align: center;">
+
+    <a href="https://twitter.com/KTNThompson" class="fa fa-twitter"></a>
+
+    <a href="https://github.com/knthompson26/" class="fa fa-github"></a>
+
+</p>
+
+
+
+&nbsp;
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

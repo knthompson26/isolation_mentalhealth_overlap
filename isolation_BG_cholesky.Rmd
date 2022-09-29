@@ -257,7 +257,7 @@ VA = 2*0.59-0.056 = 1.068
 VC = 1- 1.068 + 0.41 = -0.4789
 VE = 1 - 0.59 = 0.41
 
-As C is negative here, it's likely that the OpenMX model will give a very small estimate for C and that C will be dropped from the ACE model
+As C is negative here, it's likely that the OpenMX model will give a very small estimate for C and that C will be dropped from the ACE model. The power to detect C is very low, to detect a C2 of 10% with a h2 of 60% requires 2200 MZ and DZ pairs. However, when deciding on an AE model, any C that does exist will fall into A and you will get an inflated heritability estimate. 
 
 ***
 
@@ -266,20 +266,16 @@ Below is not needed for analyses - but showing another way to get matrices.
 ```{r express covariance matrix using SD and correlations}
 # variances from covariance matrix - diagonal is one variable with itself
 var.mz <- diag(covar.mz) 
-round(var.mz, 3)
 
 # creating the standard deviation into a vector (sd is the square root of the variance) then put this into a matrix
 sd.mz <- diag(sqrt(var.mz))
-round(sd.mz, 3)
 
 # re-calculating variance of MZ 
 Smz <- sd.mz%*%cor.mz%*%t(sd.mz) 
-round(Smz, 3)
 round(covar.mz - Smz, 3) # compare with previous calculation
 
 # Therefore, we can also obtain the correlation matrix as follows
-rMZ = cov2cor(covar.mz)
-round(rMZ, 3)
+rMZ <- cov2cor(covar.mz)
 ```
 
 ***
@@ -416,10 +412,9 @@ SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj)
 
 #### Saturated model output
 
-The Saturated Model is represented by a path diagram and using path tracing rules we will derive the expected model for the variance-covariance structure of the data. The ultimate goal of the Saturated Model is to obtain the best possible (maximum likelihood) estimation of the ‘Twin Correlations’ and this is preferred over the correlations that you can typically get using R commands (also shown above). 
+The Saturated Model is represented by a path diagram. Using path tracing rules we will derive the expected model for the variance-covariance structure of the data. The goal of the saturated model is to obtain the best possible (maximum likelihood) estimation of the twin correlations and this is preferred over the correlations that you can typically get using R commands (also shown above). 
 
-The cross-twin correlations (rxt) are expected to be different, and the cross-twin cross-trait (rxtxph) are expected to be different.
-However, the wihtin-twin cross trait (rxph) are not supposed to differ for the elder and younger twins. 
+The cross-twin correlations (rxt) are expected to be different, and the cross-twin cross-trait (rxtxph) are expected to be different. However, the within-twin cross trait (rxph) are not supposed to differ for the elder and younger twins. 
 
 ```{r saturated model output}
 # Run the saturated model
@@ -433,9 +428,15 @@ SatFit$DZ.corDZ
 SatFit$DZ.ExpCovDZ
 ```
 
-Although the ultimate goal is to decompose the variance into components A, C and E, we first start with the Saturated Model. This Model simply estimates the variances of the variables in MZ and DZ twin pairs, as well as the covariance in each group. The model therefore provides a basis to *test certain assumptions* that are implicit in the ACE model, and that is: that **all variances should be alike or more precisely, non-significantly different**. This means that we don’t expect birth order nor zygosity effects on the variances so that  Var1=Var2=Var3=Var4. The correlations estimated by optimizing the Saturated Model using OpenMx, will also have the benefit that they will be corrected for missingness in the data and therefore representing the best possible estimates. The third reason for the Saturated Model is to obtain a baseline fit index (-2 * the likelihood, -2LL) for the observed data, to be used as a reference for comparison with the likelihood (-2LL) of the genetic models. 
+The saturated model estimates the variances for the variables in MZ and DZ twin pairs, as well as the covariance in each group. The model provides a basis to test assumptions that are implicit in the ACE model:
 
-### Specify saturated sub-model 1: Constrained correlation model (equal variances & means across twin order & zygosity group)
+- All variances should be non-significantly different
+- We do not expect birth order nor zygosity effects on the variances
+- Var1 = Var2 = Var3 = Var4 
+
+The correlations estimated by optimizing the saturated Model using OpenMx correct for missingness. The saturated model also gives a baseline fit index (-2 * the likelihood, -2LL) for the observed data, to be used as a reference for comparison with the likelihood (-2LL) of the genetic models. 
+
+### Saturated sub-model 1: Constrained correlation model (equal variances & means across twin order & zygosity group)
 
 To manipulate  the parameters in matrices we wish to change in the full model, we use the 'omxSetParameters' function with the original 'labels' and 'newlabels' to indicate the changes, i.e. specifying the same label effectively constraints the parameters to be the same. 
 
@@ -448,7 +449,7 @@ sisoe7  xph     1.000
 sisoy5  xt1     xtxph   1.000  
 sisoy7  xtxph   xt2     xph    1.000
 
-**For the full matrix:** 
+The full matrix
          sisoe5   sisoe7   sisoe10  sisoe12     sisoy5  sisoy7  sisoy10  sisoy12
 sisoe5   1.000   
 sisoe7   xph1    1.000   
@@ -509,8 +510,6 @@ Sub1Fit	<- mxRun(Sub1Model, intervals = TRUE)
 (Sub1Summ	<- summary(Sub1Fit))
 ```
 
-As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model - **what do I do with this? This happens a lot - can try constraining different things and see where the problems come up ** 
-
 ```{r submodel 1 output}
 Sub1Fit$MZ.ExpCovMZ
 Sub1Fit$MZ.MZCor
@@ -519,6 +518,10 @@ Sub1Fit$DZ.DZCor
 
 mxCompare(SatFit, Sub1Fit)
 ```
+
+As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model. Now we will constrain different aspects here to see where the inequality in variance is coming up. 
+
+**INSERT HERE THE STEPS IN THE SATURATED MODEL LECTURE TO INDEPENDENTLY CONSTRAIN DIFFERENT PARTS OF THE MODEL (6 STEPS)** 
 
 ## ACE model
 
@@ -705,9 +708,9 @@ mxEval(ACE.c2, AceFit)
 mxEval(ACE.e2, AceFit)
 mxEval(ACE.Rph, AceFit)
 mxEval(ACE.Ra, AceFit)
-mxEval(ACE.Rc, AceFit)
+# mxEval(ACE.Rc, AceFit) # THE OUTPUT COULDN'T FIND THIS FOR SOME REASON
 mxEval(ACE.Re, AceFit)
-mxEval(ACE.RphACE, AceFit)
+# mxEval(ACE.RphACE, AceFit) # THE OUTPUT COULDN'T FIND THIS FOR SOME REASON
 
 # Compare the ACE model and saturated model 
 mxCompare(SatFit, AceFit)
@@ -730,3 +733,30 @@ Isolation age 5 Twin 1    a11   0     0     0
 Isolation age 7 Twin 1    a21   a22   0     0
 Isolation age 10 Twin 1   a31   a23   a33   0 
 Isolation age 12 Twin 1   a41   a23   a34   a44
+
+
+***
+
+NEXT STEPS
+
+* Add in the 6 steps to see why the variance is not equal across zygosity and twin order
+* Go through ACE and output - map out each of the matrices to see what each output is telling you - make a table for this and print off to have in the office. 
+* tidy up ACE model and make more notes from GED avout what each bit means - especially for cholesky. 
+* Cholesky matrices is the sta2 output - this is the diagnoal lines in the path tracing. 
+* Run AE model by removing the rC estimation indicated above, and set the parameters to 0 as seen in Tim's script. 
+* Interpret the AE output
+*Email monika about getting the script for the overlap section of the paper
+* Once finished AE model, tidy up the knitted file so that it shows all code but only important output matrices
+
+
+
+
+
+
+
+
+
+
+
+
+
