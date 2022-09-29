@@ -194,62 +194,72 @@ selvars <- c("sisoe5", "sisoe7", "sisoe10", "sisoe12", "sisoy5", "sisoy7", "siso
 Need to check the within-twin MZ and DZ phenotypic correlations (rmz, rdz) of each phenotype (correlations between elder and younger twin for each phenotype)
 
 The rule of thumb is: 
+
  - if 2*rdz>rmz, choose an ACE model; 
  - if 2*rdz<rmz, choose a ADE model
  
+
+```{r MZ matrices}
+# covariance matrix
+covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
+
+# correlation matrix (standardized covariance)
+cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
+round(cor.mz, 3)
+```
+
+```{r DZ matrices}
+# covariance matrix
+covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
+
+# correlation matrix (standardized covariance)
+cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
+round(cor.dz, 3)
+```
+
 Social isolation age 5: 
+
 - rMZ = 0.585
 - rDZ = 0.056 *seems low?*
 - 2*rDZ = 0.112
 - 0.112<0.585 = ADE*?*
 
 Social isolation age 7: 
+
 - rMZ = 0.444
 - rDZ = 0.159 
 - 2*rDZ = 0.318
 - 0.318<0.444 = ADE*?*
 
 Social isolation age 10: 
+
 - rMZ = 0.453
 - rDZ = 0.174 
 - 2*rDZ = 0.348
 - 0.348<0.453 = ADE*?*
 
 Social isolation age 12: 
+
 - rMZ = 0.453
 - rDZ = 0.110 
 - 2*rDZ = 0.220
 - 0.220<0.453 = ADE*?*
 
-**surely this can't be right - ACE model would be the way to go here??**
+**As the MZ correlations are relatively low for a dominance effect, it suggests here that an AE would be the way to go - so that A captures all additive and dominant genetic effects.**
 
-Using Falconer's equations, we can obtain preliminary estimates of the standardized A, D, E variance components. 
+Using Falconer's equations, we can obtain preliminary estimates of the standardized A, C, E variance components. 
 
-For ADE:
-VA = 4*rdz-rmz 
-VD = 2*rmz-4*rdz
-VE = 1-VA-VD
-
-For ACE: *need to check this against my notes from boulder course*
 VA = 2*rmz-rdz
 VC = 1-VA+VE
 VE= 1-rmz
 
-```{r MZ matrices}
-covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
-round(covar.mz, 3)
+VA = 2*0.59-0.056 = 1.068
+VC = 1- 1.068 + 0.41 = -0.4789
+VE = 1 - 0.59 = 0.41
 
-cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
-round(cor.mz, 3)
-```
+As C is negative here, it's likely that the OpenMX model will give a very small estimate for C and that C will be dropped from the ACE model
 
-```{r DZ matrices}
-covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
-round(covar.dz, 3)
-
-cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
-round(cor.dz, 3)
-```
+***
 
 Below is not needed for analyses - but showing another way to get matrices. 
 
@@ -272,14 +282,9 @@ rMZ = cov2cor(covar.mz)
 round(rMZ, 3)
 ```
 
+***
 
 # Cholesky fitting
-
-**AT THE MOMENT I DONT UNDERSTAND HOW TO MAKE THIS A CHOLESKY AND NOT THE STANDARD BIVARIATE WITH CORRELATED FACTORS**
-
-```{r mx set up}
-# mxOption(NULL, "Default optimizer","CSOLNP") #what does this actually do???? 
-```
 
 ```{r number of variables (phenotypes)}
 nv	<- 4			# number of variables for a twin 
@@ -290,28 +295,22 @@ ntv	<- 2*nv		# number of variables for a pair
 
 #### Parameter labels
 
-First we need to specify the start values and labels to make the code less busy. 
-For the start values, I used the describe tables above to look for the approximate value the model should be looking for. 
-The list should reflect the same order that you have in selvars. 
+**Labels for variables:**
 
-*Labels for variables*
-The correlations should reflect all in the matrix that are not 1 and below/above the diagonal, an example of the labelling is below:
+The correlations should reflect all in the matrix that are not 1 and below/above the diagonal, an example of the labeling is below:
 
-Fruhling's labeling:
-        sisoe5   sisoe7   sisoy5  sisoy7
-sisoe5  1.000      
-sisoe7  rPhMZ1   1.000    
-sisoy5  rMZ1     MZxtxt2  1.000  
-sisoy7  MZxtxt1  rMZ2     rPhMZ2  1.000
+      xph   = cross phenotype/variable/trait
+      xt    = cross twin
+      xtxph = cross twin cross phenotype
 
-My labeling:
+2x2 matrix:
         sisoe5  sisoe7  sisoy5 sisoy7
 sisoe5  1.000      
 sisoe7  xph1    1.000    
 sisoy5  xt1     xtxph2  1.000  
 sisoy7  xtxph1  xt2     xph2   1.000
 
-**For the full correlation matrix:** 
+Full 4x4 correlation matrix:
          sisoe5   sisoe7   sisoe10  sisoe12  sisoy5  sisoy7  sisoy10  sisoy12
 sisoe5   1.000   
 sisoe7   xph1    1.000   
@@ -322,10 +321,7 @@ sisoy7   xtxph1  xt2      xtxph8   xtxph11  xph7   1.000
 sisoy10  xtxph2  xtxph5   xt3      xtxph12  xph8   xph10   1.000  
 sisoy12  xtxph3  xtxph6   xtxph9   xt4      xph9   xph11   xph12   1.000
 
-      xph   = cross phenotype/variable/trait
-      xt    = cross twin
-      xtxph = cross twin cross phenotype
-
+First we need to specify the start values and labels to make the code less busy. For the start values, I used the summary tables to check the approximate value the model should be looking for. The list should reflect the same order that you have in selvars. 
 
 ```{r specify saturated model}
 # start values
@@ -388,16 +384,10 @@ covMZ	<- mxAlgebra(expression = sdMZ %*% corMZ %*% t(sdMZ), name = "ExpCovMZ")
 covDZ	<- mxAlgebra(expression = sdDZ %*% corDZ %*% t(sdDZ), name = "ExpCovDZ")
 ```
 
-#### Data 
-
-We need to specify what data to populate the matrices with.
-
 ```{r specify saturated data objects to be saved in openMx format}
 datMZ <- mxData(observed = dat.twin.MZ, type = "raw")
 datDZ <- mxData(observed = dat.twin.DZ, type = "raw")
 ```
-
-#### Objectives 
 
 ```{r create saturated objectives}
 # Objective objects 
@@ -405,15 +395,11 @@ objMZ <- mxExpectationNormal(covariance = "ExpCovMZ", means = "ExpMeanMZ", dimna
 objDZ <- mxExpectationNormal(covariance = "ExpCovDZ", means = "ExpMeanDZ", dimnames = selvars)
 ```
 
-#### Specify fit function
-
-```{r fit function for saturated model}
+```{r fit function for all models}
 fitFunction <- mxFitFunctionML()
 ```
 
-#### Create the model
-
-*the confidence intervals here definitely need editing but I don't know how - maybe look at Tims scripts for this*. I have hashed out the confidence interval specification for now as I'm not sure how to update this. 
+#### Create the saturated model
 
 ```{r create saturated model}
 # models for MZ and DZ
@@ -424,27 +410,13 @@ modelDZ	<- mxModel(meanDZ, sdDZ, corDZ, covDZ, datDZ, objDZ, fitFunction, name =
 minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
 obj	<- mxFitFunctionAlgebra("m2LL")
 
-# confidence intervals
-# Conf1 <- mxCI(c('MZ.MZCor[2,1]', 'MZ.MZCor[3,1]', 'MZ.MZCor[4,1]', 'MZ.MZCor[4,2]')) # edit these???????????
-# Conf2 <- mxCI(c('DZ.DZCor[3,1]', 'DZ.DZCor[4,1]', 'DZ.DZCor[4,2]'))
-
 # Saturated model 
-SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj 
-                    #Conf1, Conf2
-                    )
+SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj)
 ```
 
 #### Saturated model output
 
 The Saturated Model is represented by a path diagram and using path tracing rules we will derive the expected model for the variance-covariance structure of the data. The ultimate goal of the Saturated Model is to obtain the best possible (maximum likelihood) estimation of the ‘Twin Correlations’ and this is preferred over the correlations that you can typically get using R commands (also shown above). 
-
-*** 
-THINK ABOUT THIS
-Estimating ACE based on the saturated model as an example:
-Falconer’s equations	a2 = 2*(rMZ-rDZ); c2= rMZ-a2; e2=1-a2-c2
-Social isolation at age 5 -> a2 = 2*
-rMZ = 
-***
 
 The cross-twin correlations (rxt) are expected to be different, and the cross-twin cross-trait (rxtxph) are expected to be different.
 However, the wihtin-twin cross trait (rxph) are not supposed to differ for the elder and younger twins. 
@@ -537,7 +509,7 @@ Sub1Fit	<- mxRun(Sub1Model, intervals = TRUE)
 (Sub1Summ	<- summary(Sub1Fit))
 ```
 
-As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model - **what do I do with this? Could this be because we are saying that the xtxph correlations are ** 
+As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model - **what do I do with this? This happens a lot - can try constraining different things and see where the problems come up ** 
 
 ```{r submodel 1 output}
 Sub1Fit$MZ.ExpCovMZ
@@ -586,7 +558,7 @@ covC	<- mxAlgebra(expression = c %*% t(c), name = "C")
 covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
 
 # Standardized variance components
-covP	<- mxAlgebra(expression = A + C + E, name="V" ) # total variance
+covP	<- mxAlgebra(expression = A + C + E, name = "V" ) # total variance
 StA	<- mxAlgebra(expression = A/V, name = "h2")
 StC	<- mxAlgebra(expression = C/V, name = "c2")
 StE	<- mxAlgebra(expression = E/V, name = "e2")
@@ -612,7 +584,7 @@ matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
 matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd")
 rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
 rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
-rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") # Tim had this one hashed out 
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") # Hash this when running AE model
 rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
 ```
 
@@ -636,11 +608,12 @@ colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
 estVars	<- mxAlgebra(expression = cbind(h2,c2,e2), name = "Est", dimnames = list(rowVars,colVars))
 ```
 
-Fruhling has this which is not in Tim's - I'm guessing this is how to make the correlated factors solution and not Cholesky:
+If you want to work out the amount of the phenotypic correlation that is due to A, C or E, you can use this dataframe. 
+
 ```{r algebra to compute Rph-A, Rph-C, and Rph-E between the two variables in a bivariate model (this would be different for more than two variables I guess)}
-# rphace<- mxAlgebra( expression= cbind ( 	(sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])),  
-# 							(sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])), 
-# 							(sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])) ), name="RphACE" )
+rphace <- mxAlgebra(expression = cbind((sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])),
+							(sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])),
+							(sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])) ), name = "RphACE" )
 ```
 
 The A factors are correlated across twins either by 1 for MZ pairs or 0.5 for DZ pairs, whereas the C factors are correlated 1 for either type of pairs. In the univariate model we only had 1 A and C factors that correlated across twins, in the bivariate and above model we have to correlate both the A1 and A2 factors across twins and both the C1 and C2 factors across twins.
@@ -681,16 +654,16 @@ minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
 obj <- mxFitFunctionAlgebra("m2LL")
 
 # confidence intervals - not sure if this is the right adaptation for 4 variable model
-Conf1 <- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]') )
-Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]') ) 
+Conf1 <- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]')) # here you can see if you should drop C from the model
+# Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]')) # not sure how to label these?
 # how am I supposed to know what the below need to be?
-Conf3	<- mxCI(c('sta2[3,2]', 'stc2[3,2]', 'ste2[3,2]', 'sta2[3,1]', 'stc2[3,1]', 'ste2[3,1]', 'sta2[2,1]', 'stc2[2,1]', 'ste2[2,1]'))
+#Conf3	<- mxCI(c('sta2[3,2]', 'stc2[3,2]', 'ste2[3,2]', 'sta2[3,1]', 'stc2[3,1]', 'ste2[3,1]', 'sta2[2,1]', 'stc2[2,1]', 'ste2[2,1]', 'sta2[4,2]', 'stc2[4,2]', 'ste2[4,2]'), 'sta2[4,1]', 'stc2[4,1]', 'ste2[4,1]', 'sta2[4,3]', 'stc2[4,3]', 'ste2[4,3]')
 Conf4	<- mxCI(c('sta2[1,1]', 'stc2[1,1]', 'ste2[1,1]', 'sta2[2,2]', 'stc2[2,2]', 'ste2[2,2]', 'sta2[3,3]', 'stc2[3,3]', 'ste2[3,3]', 'sta2[4,4]', 'stc2[4,4]', 'ste2[4,4]'))
 Conf5	<- mxCI(c('h2', 'c2', 'e2'))
 
 # full model
 AceModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj 
-                    #Conf1, Conf2
+                   # Conf1, Conf3
                     )
 ```
 
@@ -708,19 +681,19 @@ round(AceFit$Est@result,4)
 
 ```{r ACE model output}
 # proportion of individual differences explained by A, C, and E for each phenotype
-AceFit$ACE.h2
+AceFit$ACE.h2 # heritability on the diagonal and then % of phenotypic that is genetic on off-diagonal
 AceFit$ACE.c2
 AceFit$ACE.e2
 
 # correlation between the A, C, and E factors between the traits? Isn't this for the correlated factors solution?
 AceFit$ACE.Rph # total phenotypic correlation?
-AceFit$ACE.Ra
+AceFit$ACE.Ra # correlations between the a factors
 AceFit$ACE.Rc
 AceFit$ACE.Re
 
 # Are these the Cholesky paths? If so how do we interpret these? 
 AceFit$ACE.sta
-AceFit$ACE.sta2
+AceFit$ACE.sta2 # This is the cholesky diagonal path to a2 - can be interpreted as a % variance explained 
 AceFit$ACE.stc
 AceFit$ACE.stc2
 AceFit$ACE.ste
@@ -757,5 +730,3 @@ Isolation age 5 Twin 1    a11   0     0     0
 Isolation age 7 Twin 1    a21   a22   0     0
 Isolation age 10 Twin 1   a31   a23   a33   0 
 Isolation age 12 Twin 1   a41   a23   a34   a44
-
-
