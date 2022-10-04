@@ -1,5 +1,5 @@
 ---
-title: "Behavioural genetics analysis of social isolation (Cholesky)"
+title: "Behavioural genetics analysis of social isolation: Cholesky decomposition"
 output:  
   html_document:
     df_print: paged
@@ -10,7 +10,7 @@ output:
     number_sections: false
     highlight: monochrome
     theme: flatly
-    code_folding: hide
+    code_folding: show
     includes:
       after_body: footer.html
 ---
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       cache = FALSE,
                       message = FALSE,
                       warning = FALSE,
-                      results = 'asis')
+                      results = 'markup')
 
 options(bitmapType = 'quartz') # to render fonts better
 ```
@@ -46,7 +46,7 @@ library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
 source("../isolation_mentalhealth_data_path.R")
 ```
 
-```{r read in dta data file}
+```{r read in dta data file, include=FALSE}
 dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
 colnames(dat.raw)
 ```
@@ -54,6 +54,8 @@ colnames(dat.raw)
 **This is using the total score for social isolation (mother and teacher report combined). We will need to think about if this should be done for mother and teacher report separately.** 
 
 # Data prep
+
+## Column names
 
 ```{r select variables needed}
 dat <- dat.raw %>%
@@ -80,7 +82,9 @@ dat <- dat.raw %>%
 colnames(dat)
 ```
 
-## Recode variables into factors
+## Recode variables into factors {.tabset .tabset-fade}
+
+### Sex
 
 ```{r recode sex}
 dat <- dat %>%
@@ -92,6 +96,8 @@ dat <- dat %>%
 
 table(dat$sex)
 ```
+
+### SES
 
 ```{r recode SES}
 dat <- dat %>%
@@ -105,6 +111,8 @@ dat <- dat %>%
 table(dat$ses)
 ```
 
+### Zygosity
+
 ```{r recode zygosity}
 dat <- dat %>%
   mutate(
@@ -115,6 +123,8 @@ dat <- dat %>%
 
 table(dat$zygosity)
 ```
+
+### Ethnicity
 
 ```{r recode ethnicity variable}
 dat <- dat %>%
@@ -130,7 +140,7 @@ dat <- dat %>%
 table(dat$ethnicity)
 ```
 
-## Create variables as numeric versions
+## Convert variables to numeric
 
 ```{r create numeric isolation variables}
 dat <- dat %>%
@@ -144,7 +154,6 @@ dat <- dat %>%
     sisoy10 = as.numeric(sisoy10),
     sisoy12 = as.numeric(sisoy12)
   )
-colnames(dat)
 ```
 
 ## Creating the twin dataset
@@ -154,7 +163,6 @@ dat <- dat %>% select(
       -c(sampsex, 
          seswq35)
          )
-colnames(dat)
 ```
 
 To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
@@ -194,124 +202,117 @@ selvars <- c("sisoe5", "sisoe7", "sisoe10", "sisoe12", "sisoy5", "sisoy7", "siso
 Need to check the within-twin MZ and DZ phenotypic correlations (rmz, rdz) of each phenotype (correlations between elder and younger twin for each phenotype)
 
 The rule of thumb is: 
+
  - if 2*rdz>rmz, choose an ACE model; 
  - if 2*rdz<rmz, choose a ADE model
  
+
+```{r MZ matrices}
+# covariance matrix
+covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
+
+# correlation matrix (standardized covariance)
+cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
+round(cor.mz, 3)
+```
+
+```{r DZ matrices}
+# covariance matrix
+covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
+
+# correlation matrix (standardized covariance)
+cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
+round(cor.dz, 3)
+```
+
 Social isolation age 5: 
+
 - rMZ = 0.585
 - rDZ = 0.056 *seems low?*
 - 2*rDZ = 0.112
 - 0.112<0.585 = ADE*?*
 
 Social isolation age 7: 
+
 - rMZ = 0.444
 - rDZ = 0.159 
 - 2*rDZ = 0.318
 - 0.318<0.444 = ADE*?*
 
 Social isolation age 10: 
+
 - rMZ = 0.453
 - rDZ = 0.174 
 - 2*rDZ = 0.348
 - 0.348<0.453 = ADE*?*
 
 Social isolation age 12: 
+
 - rMZ = 0.453
 - rDZ = 0.110 
 - 2*rDZ = 0.220
 - 0.220<0.453 = ADE*?*
 
-**surely this can't be right - ACE model would be the way to go here??**
+**As the MZ correlations are relatively low for a dominance effect, it suggests here that an AE would be the way to go - so that A captures all additive and dominant genetic effects.**
 
-Using Falconer's equations, we can obtain preliminary estimates of the standardized A, D, E variance components. 
+Using Falconer's equations, we can obtain preliminary estimates of the standardized A, C, E variance components. 
 
-For ADE:
-VA = 4*rdz-rmz 
-VD = 2*rmz-4*rdz
-VE = 1-VA-VD
-
-For ACE: *need to check this against my notes from boulder course*
 VA = 2*rmz-rdz
 VC = 1-VA+VE
 VE= 1-rmz
 
-```{r MZ matrices}
-covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
-round(covar.mz, 3)
+VA = 2*0.59-0.056 = 1.068
+VC = 1- 1.068 + 0.41 = -0.4789
+VE = 1 - 0.59 = 0.41
 
-cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
-round(cor.mz, 3)
-```
+As C is negative here, it's likely that the OpenMX model will give a very small estimate for C and that C will be dropped from the ACE model. The power to detect C is very low, to detect a C2 of 10% with a h2 of 60% requires 2200 MZ and DZ pairs. However, when deciding on an AE model, any C that does exist will fall into A and you will get an inflated heritability estimate. 
 
-```{r DZ matrices}
-covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
-round(covar.dz, 3)
-
-cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
-round(cor.dz, 3)
-```
+***
 
 Below is not needed for analyses - but showing another way to get matrices. 
 
 ```{r express covariance matrix using SD and correlations}
 # variances from covariance matrix - diagonal is one variable with itself
 var.mz <- diag(covar.mz) 
-round(var.mz, 3)
 
 # creating the standard deviation into a vector (sd is the square root of the variance) then put this into a matrix
 sd.mz <- diag(sqrt(var.mz))
-round(sd.mz, 3)
 
 # re-calculating variance of MZ 
 Smz <- sd.mz%*%cor.mz%*%t(sd.mz) 
-round(Smz, 3)
 round(covar.mz - Smz, 3) # compare with previous calculation
 
 # Therefore, we can also obtain the correlation matrix as follows
-rMZ = cov2cor(covar.mz)
-round(rMZ, 3)
+rMZ <- cov2cor(covar.mz)
 ```
 
+***
 
-# Cholesky fitting
-
-**AT THE MOMENT I DONT UNDERSTAND HOW TO MAKE THIS A CHOLESKY AND NOT THE STANDARD BIVARIATE WITH CORRELATED FACTORS**
-
-```{r mx set up}
-# mxOption(NULL, "Default optimizer","CSOLNP") #what does this actually do???? 
-```
+# Saturated model
 
 ```{r number of variables (phenotypes)}
 nv	<- 4			# number of variables for a twin 
 ntv	<- 2*nv		# number of variables for a pair 
 ```
 
-## Saturated model
+### Parameter labels
 
-#### Parameter labels
+**Labels for variables:**
 
-First we need to specify the start values and labels to make the code less busy. 
-For the start values, I used the describe tables above to look for the approximate value the model should be looking for. 
-The list should reflect the same order that you have in selvars. 
+The correlations should reflect all in the matrix that are not 1 and below/above the diagonal, an example of the labeling is below:
 
-*Labels for variables*
-The correlations should reflect all in the matrix that are not 1 and below/above the diagonal, an example of the labelling is below:
+      xph   = cross phenotype/variable/trait
+      xt    = cross twin
+      xtxph = cross twin cross phenotype
 
-Fruhling's labeling:
-        sisoe5   sisoe7   sisoy5  sisoy7
-sisoe5  1.000      
-sisoe7  rPhMZ1   1.000    
-sisoy5  rMZ1     MZxtxt2  1.000  
-sisoy7  MZxtxt1  rMZ2     rPhMZ2  1.000
-
-My labeling:
+2x2 matrix:
         sisoe5  sisoe7  sisoy5 sisoy7
 sisoe5  1.000      
 sisoe7  xph1    1.000    
 sisoy5  xt1     xtxph2  1.000  
 sisoy7  xtxph1  xt2     xph2   1.000
 
-**For the full correlation matrix:** 
+Full 4x4 correlation matrix:
          sisoe5   sisoe7   sisoe10  sisoe12  sisoy5  sisoy7  sisoy10  sisoy12
 sisoe5   1.000   
 sisoe7   xph1    1.000   
@@ -322,10 +323,7 @@ sisoy7   xtxph1  xt2      xtxph8   xtxph11  xph7   1.000
 sisoy10  xtxph2  xtxph5   xt3      xtxph12  xph8   xph10   1.000  
 sisoy12  xtxph3  xtxph6   xtxph9   xt4      xph9   xph11   xph12   1.000
 
-      xph   = cross phenotype/variable/trait
-      xt    = cross twin
-      xtxph = cross twin cross phenotype
-
+First we need to specify the start values and labels to make the code less busy. For the start values, I used the summary tables to check the approximate value the model should be looking for. The list should reflect the same order that you have in selvars. 
 
 ```{r specify saturated model}
 # start values
@@ -357,7 +355,7 @@ labDZr	<- c("DZrxph1", "DZrxph2", "DZrxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2",
             "DZrxph12") 
 ```
 
-#### Matrices
+### Matrices
 
 ```{r matrices for saturated free parameters (means, sd, cor)}
 # MZ
@@ -371,7 +369,7 @@ sdDZ		<- mxMatrix(type = "Diag", nrow = ntv, ncol = ntv, free = TRUE, values = s
 corDZ		<- mxMatrix(type = "Stand", nrow = ntv, ncol = ntv, free = TRUE, values = svRdz, labels = labDZr,	name = "corDZ") 
 ```
 
-#### Alegbra 
+### Alegbra 
 
 This is the same matrix algebra that is calculated above from the Boulder workshop code:
 
@@ -388,16 +386,10 @@ covMZ	<- mxAlgebra(expression = sdMZ %*% corMZ %*% t(sdMZ), name = "ExpCovMZ")
 covDZ	<- mxAlgebra(expression = sdDZ %*% corDZ %*% t(sdDZ), name = "ExpCovDZ")
 ```
 
-#### Data 
-
-We need to specify what data to populate the matrices with.
-
 ```{r specify saturated data objects to be saved in openMx format}
 datMZ <- mxData(observed = dat.twin.MZ, type = "raw")
 datDZ <- mxData(observed = dat.twin.DZ, type = "raw")
 ```
-
-#### Objectives 
 
 ```{r create saturated objectives}
 # Objective objects 
@@ -405,15 +397,11 @@ objMZ <- mxExpectationNormal(covariance = "ExpCovMZ", means = "ExpMeanMZ", dimna
 objDZ <- mxExpectationNormal(covariance = "ExpCovDZ", means = "ExpMeanDZ", dimnames = selvars)
 ```
 
-#### Specify fit function
-
-```{r fit function for saturated model}
+```{r fit function for all models}
 fitFunction <- mxFitFunctionML()
 ```
 
-#### Create the model
-
-*the confidence intervals here definitely need editing but I don't know how - maybe look at Tims scripts for this*. I have hashed out the confidence interval specification for now as I'm not sure how to update this. 
+### Create the saturated model
 
 ```{r create saturated model}
 # models for MZ and DZ
@@ -424,30 +412,15 @@ modelDZ	<- mxModel(meanDZ, sdDZ, corDZ, covDZ, datDZ, objDZ, fitFunction, name =
 minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
 obj	<- mxFitFunctionAlgebra("m2LL")
 
-# confidence intervals
-# Conf1 <- mxCI(c('MZ.MZCor[2,1]', 'MZ.MZCor[3,1]', 'MZ.MZCor[4,1]', 'MZ.MZCor[4,2]')) # edit these???????????
-# Conf2 <- mxCI(c('DZ.DZCor[3,1]', 'DZ.DZCor[4,1]', 'DZ.DZCor[4,2]'))
-
 # Saturated model 
-SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj 
-                    #Conf1, Conf2
-                    )
+SatModel <- mxModel("Sat", modelMZ, modelDZ, minus2ll, obj)
 ```
 
-#### Saturated model output
+### Saturated model output
 
-The Saturated Model is represented by a path diagram and using path tracing rules we will derive the expected model for the variance-covariance structure of the data. The ultimate goal of the Saturated Model is to obtain the best possible (maximum likelihood) estimation of the ‘Twin Correlations’ and this is preferred over the correlations that you can typically get using R commands (also shown above). 
+The Saturated Model is represented by a path diagram. Using path tracing rules we will derive the expected model for the variance-covariance structure of the data. The goal of the saturated model is to obtain the best possible (maximum likelihood) estimation of the twin correlations and this is preferred over the correlations that you can typically get using R commands (also shown above). 
 
-*** 
-THINK ABOUT THIS
-Estimating ACE based on the saturated model as an example:
-Falconer’s equations	a2 = 2*(rMZ-rDZ); c2= rMZ-a2; e2=1-a2-c2
-Social isolation at age 5 -> a2 = 2*
-rMZ = 
-***
-
-The cross-twin correlations (rxt) are expected to be different, and the cross-twin cross-trait (rxtxph) are expected to be different.
-However, the wihtin-twin cross trait (rxph) are not supposed to differ for the elder and younger twins. 
+The cross-twin correlations (rxt) are expected to be different, and the cross-twin cross-trait (rxtxph) are expected to be different. However, the within-twin cross trait (rxph) are not supposed to differ for the elder and younger twins. 
 
 ```{r saturated model output}
 # Run the saturated model
@@ -461,22 +434,29 @@ SatFit$DZ.corDZ
 SatFit$DZ.ExpCovDZ
 ```
 
-Although the ultimate goal is to decompose the variance into components A, C and E, we first start with the Saturated Model. This Model simply estimates the variances of the variables in MZ and DZ twin pairs, as well as the covariance in each group. The model therefore provides a basis to *test certain assumptions* that are implicit in the ACE model, and that is: that **all variances should be alike or more precisely, non-significantly different**. This means that we don’t expect birth order nor zygosity effects on the variances so that  Var1=Var2=Var3=Var4. The correlations estimated by optimizing the Saturated Model using OpenMx, will also have the benefit that they will be corrected for missingness in the data and therefore representing the best possible estimates. The third reason for the Saturated Model is to obtain a baseline fit index (-2 * the likelihood, -2LL) for the observed data, to be used as a reference for comparison with the likelihood (-2LL) of the genetic models. 
+## Saturated sub models
 
-### Specify saturated sub-model 1: Constrained correlation model (equal variances & means across twin order & zygosity group)
+The saturated model estimates the variances for the variables in MZ and DZ twin pairs, as well as the covariance in each group. The model provides a basis to test assumptions that are implicit in the ACE model:
 
-To manipulate  the parameters in matrices we wish to change in the full model, we use the 'omxSetParameters' function with the original 'labels' and 'newlabels' to indicate the changes, i.e. specifying the same label effectively constraints the parameters to be the same. 
+- All variances should be non-significantly different
+- We do not expect birth order nor zygosity effects on the variances
+- Var1 = Var2 = Var3 = Var4 
 
-Here we have equated means and variances across twin order and zygosity. Then created *one overall set of within-person cross-trait correlations and symmetric xtwin-xtrait correlation matrices in MZ and DZ groups*.  
+To manipulate the parameters in matrices we wish to change in the full model, we use the 'omxSetParameters' function with the original 'labels' and 'newlabels' to indicate the changes i.e. specifying the same label effectively constraints the parameters to be the same. The correlations estimated by optimizing the saturated Model using OpenMx correct for missingness. The saturated model also gives a baseline fit index (-2 * the likelihood, -2LL) for the observed data, to be used as a reference for comparison with the likelihood (-2LL) of the genetic models. 
 
-Labeling:
+### Saturated **sub-model 1**: Equal means and variances across twin order and zygosity with one set of cross-phenotype correlations and symettric xtwin-xpheno correlations. 
+
+Here we have equated means and variances across twin order and zygosity. Then created one overall set of within-person cross-trait correlations and symmetric xtwin-xtrait correlation matrices in MZ and DZ groups. 
+
+*Labeling*
+2x2:
         sisoe5  sisoe7  sisoy5 sisoy7
 sisoe5  1.000      
 sisoe7  xph     1.000    
 sisoy5  xt1     xtxph   1.000  
 sisoy7  xtxph   xt2     xph    1.000
 
-**For the full matrix:** 
+The full matrix:
          sisoe5   sisoe7   sisoe10  sisoe12     sisoy5  sisoy7  sisoy10  sisoy12
 sisoe5   1.000   
 sisoe7   xph1    1.000   
@@ -490,21 +470,21 @@ sisoy12  xtxph3  xtxph5   xtxph6   xt4          xph3   xph5   xph6   1.000
 
 ```{r specify saturday submodel 1 new labels}
 # start values
-newsvRmz <- c(rep(0.3, 16))                    # correlations for MZ - 16 distinct correlations in total
-newsvRdz <- c(rep(0.15, 16))                   # correlations for DZ 
+sub1svRmz <- c(rep(0.3, 16))                    # correlations for MZ - 16 distinct correlations in total
+sub1svRdz <- c(rep(0.15, 16))                   # correlations for DZ 
 
 # labels
-newlabm	<- c("m5", "m7", "m10", "m12", "m5", "m7", "m10", "m12")	         # means       
-newlabsd	<- c("sd5", "sd7", "sd10", "sd12", "sd5", "sd7", "sd10", "sd12") # standard deviations
+sub1labm	<- c("m5", "m7", "m10", "m12", "m5", "m7", "m10", "m12")	         # means       
+sub1labsd	<- c("sd5", "sd7", "sd10", "sd12", "sd5", "sd7", "sd10", "sd12") # standard deviations
 
-newlabrMZ	<- c("rxph1", "rxph2", "rxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
+sub1labrMZ	<- c("rxph1", "rxph2", "rxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
             "rxph4", "rxph5", "MZrxtxph1", "MZrxt2", "MZrxtxph4", "MZrxtxph5", 
             "rxph6", "MZrxtxph2", "MZrxtxph4", "MZrxt3", "MZrxtxph6",
             "MZrxtxph3", "MZrxtxph5", "MZrxtxph6", "MZrxt4",
             "rxph1", "rxph2", "rxph3", 
             "rxph4", "rxph5",
             "rxph6")  
-newlabrDZ	<- c("rxph1", "rxph2", "rxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
+sub1labrDZ	<- c("rxph1", "rxph2", "rxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
             "rxph4", "rxph5", "DZrxtxph1", "DZrxt2", "DZrxtxph4", "DZrxtxph5", 
             "rxph6", "DZrxtxph2", "DZrxtxph4", "DZrxt3", "DZrxtxph6",
             "DZrxtxph3", "DZrxtxph5", "DZrxtxph6", "DZrxt4",
@@ -517,16 +497,15 @@ newlabrDZ	<- c("rxph1", "rxph2", "rxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "D
 # create model 
 Sub1Model	<- mxModel(SatModel, name = "Sub1")
 
-# set parameters to be the same across 
 # equal means
-Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svM, labels = labMZm, newlabels = newlabm)
-Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svM, labels = labDZm, newlabels = newlabm)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svM, labels = labMZm, newlabels = sub1labm)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svM, labels = labDZm, newlabels = sub1labm)
 # equal variances
-Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svSD, labels = labMZsd, newlabels = newlabsd)
-Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svSD, labels = labDZsd, newlabels = newlabsd)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svSD, labels = labMZsd, newlabels = sub1labsd)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = svSD, labels = labDZsd, newlabels = sub1labsd)
 # equal correlations
-Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = newsvRmz, labels = labMZr, newlabels = newlabrMZ)
-Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = newsvRdz, labels = labDZr, newlabels = newlabrDZ)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = sub1svRmz, labels = labMZr, newlabels = sub1labrMZ)
+Sub1Model	<- omxSetParameters(Sub1Model, free = TRUE, values = sub1svRdz, labels = labDZr, newlabels = sub1labrDZ)
 
 # for some reason it's the wrong number of starting values so to choose randomly I've set the below
 Sub1Model <- omxAssignFirstParameters(Sub1Model)
@@ -537,47 +516,138 @@ Sub1Fit	<- mxRun(Sub1Model, intervals = TRUE)
 (Sub1Summ	<- summary(Sub1Fit))
 ```
 
-As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model - **what do I do with this? Could this be because we are saying that the xtxph correlations are ** 
-
 ```{r submodel 1 output}
 Sub1Fit$MZ.ExpCovMZ
 Sub1Fit$MZ.MZCor
 Sub1Fit$DZ.ExpCovDZ
 Sub1Fit$DZ.DZCor
 
+# compare the fit to the saturated model
 mxCompare(SatFit, Sub1Fit)
 ```
 
-## ACE model
+As the p-value is significant, the sub-model is significantly worse fit compared to the saturated model. Now we will constrain different aspects here to see where the inequality in variance is coming up. 
 
-#### Matrices to estimate a, c, and e path coefficients
+### Saturated **sub-model 2**: equal variances/sd across twin order
 
-Here we have 4 variables (social isolation at ages 5, 7, 10, 12), so this will be a 4 by 4 matrix (I assume):
-a11                            # path of genetic influence on time point 1
-a21     a22                    # path of genetic influence on time point 2 (a21) plus new genetic influence at time point 2 (a22)
-a31     a23     a33
-a41     a24     a34      a44
+We will run equal variances across twin order only. 
+
+```{r specify submodel 2 new labels - only changing sd values to be equal across elder and younger twins}
+sub2labMZsd	<- c("MZsd5", "MZsd7", "MZsd10", "MZsd12", "MZsd5", "MZsd7", "MZsd10", "MZsd12")   # MZ standard deviations
+sub2labDZsd	<- c("DZsd5", "DZsd7", "DZsd10", "DZsd12", "DZsd5", "DZsd7", "DZsd10", "DZsd12")   # DZ standard deviations
+```
+
+```{r sub model 2 - equal variances across twin order}
+Sub2Model <- mxModel(SatModel, name = "Sub2")
+Sub2Model <- omxSetParameters(Sub2Model, free = TRUE, values = svSD, labels = labMZsd, newlabels = sub2labMZsd)
+Sub2Model <- omxSetParameters(Sub2Model, free = TRUE, values = svSD, labels = labDZsd, newlabels = sub2labDZsd)
+
+# fit model
+Sub2Fit	<- mxRun(Sub2Model, intervals = TRUE)
+(Sub2Summ	<- summary(Sub2Fit))
+
+# compare to saturated
+mxCompare(SatFit, Sub2Fit)
+```
+
+This is significant, suggesting that the variance is not equal across elder and younger twins within MZ and DZ groups separately. 
+
+### Saturated *sub-model 3*: equal variances/sd across zygosity
+
+We will run equal variances across zygosity only (as the twin order test was significant). 
+
+```{r specify saturday submodel 3 new labels}
+sub3labMZsd	<- c("sde5", "sde7", "sde10", "sde12", "sdy5", "sdy7", "sdy10", "sdy12")   # MZ standard deviations
+sub3labDZsd	<- c("sde5", "sde7", "sde10", "sde12", "sdy5", "sdy7", "sdy10", "sdy12")   # DZ standard deviations
+```
+
+```{r sub model 3 - equal variances zygosity}
+sub3Model <- mxModel(SatModel, name = "sub3")
+sub3Model <- omxSetParameters(sub3Model, free = TRUE, values = svSD, labels = labMZsd, newlabels = sub3labMZsd)
+sub3Model <- omxSetParameters(sub3Model, free = TRUE, values = svSD, labels = labDZsd, newlabels = sub3labDZsd)
+
+# fit model
+sub3Fit	<- mxRun(sub3Model, intervals = TRUE)
+(sub3Summ	<- summary(sub3Fit))
+
+# compare to saturated
+mxCompare(SatFit, sub3Fit)
+```
+
+This is also significant, suggesting that the variance is not equal across MZ and DZ groups, even when not restricting to twin-order. 
+
+### Saturated *sub-model 4*: equal means across twin order
+
+We will run equal means across twin order only. 
+
+```{r specify saturday submodel 4 new labels}
+sub4labMZm	<- c("MZm5", "MZm7", "MZm10", "MZm12", "MZm5", "MZm7", "MZm10", "MZm12")	         # MZ means       
+sub4labDZm	<- c("DZm5", "DZm7", "DZm10", "DZm12", "DZm5", "DZm7", "DZm10", "DZm12")           # DZ means
+```
+
+```{r sub model 4 - equal means across twin order}
+sub4Model <- mxModel(SatModel, name = "sub4")
+sub4Model <- omxSetParameters(sub4Model, free = TRUE, values = svM, labels = labMZm, newlabels = sub4labMZm)
+sub4Model <- omxSetParameters(sub4Model, free = TRUE, values = svM, labels = labDZm, newlabels = sub4labDZm)
+
+# fit model
+sub4Fit	<- mxRun(sub4Model, intervals = TRUE)
+(sub4Summ	<- summary(sub4Fit))
+
+# compare to saturated
+mxCompare(SatFit, sub4Fit)
+```
+
+This p value would round to p = 0.05 so I would interpret this as not significant. This suggests there are equal means across twin order (elder and younger variables). 
+
+### Saturated *sub-model 5*: equal means across twin order and zygosity
+
+We will run equal variances across twin order and zygosity. The labels for these have already been done in the sub1 model (which constrains everything at once). 
+
+```{r sub model 5 - equal means across twin order and zygosity}
+sub4Model <- mxModel(SatModel, name = "sub4")
+sub4Model <- omxSetParameters(sub4Model, free = TRUE, values = svM, labels = labMZm, newlabels = sub1labm)
+sub4Model <- omxSetParameters(sub4Model, free = TRUE, values = svM, labels = labDZm, newlabels = sub1labm)
+
+# fit model
+sub4Fit	<- mxRun(sub4Model, intervals = TRUE)
+(sub4Summ	<- summary(sub4Fit))
+
+# compare to saturated
+mxCompare(SatFit, sub4Fit)
+```
+
+This is significant, which suggests that although the means are equal across twin order, they are not equal across twin order and zygosity. 
+
+# ACE model - need to add in headings here
+
+### Matrices to estimate a, c, and e path coefficients
 
 The structure of the matrix we need for the Cholesky decomposition, is one where the first latent A, C and E factors (A1, C1 and E1) influence both variables, but the second factors (A2, C2 and E2) only influence the second variable. The matrix type that represents a factor loading I have just described, is type ‘Lower’. As you can see below, the factor loadings a11 and a21 and a22 follow a pattern where the matrix has the diagonal and lower elements, but the upper diagonal element is zero. 
 
+**Matrices are always (row, column)**
+
+Here we have 4 variables (social isolation at ages 5, 7, 10, 12), so this will be a 4x4 matrix: 
                           A1    A2    A3    A4
-Isolation age 5 Twin 1    a11   0     0     0
-Isolation age 7 Twin 1    a21   a22   0     0
-Isolation age 10 Twin 1   a31   a23   a33   0 
-Isolation age 12 Twin 1   a41   a23   a34   a44
+Isolation age 5 Twin 1    a11   0     0     0     # genetic influence on time point 1
+Isolation age 7 Twin 1    a21   a22   0     0     # genetic influence on time point 2 (a21) plus new genetic influence at time point 2 (a22)
+Isolation age 10 Twin 1   a31   a32   a33   0 
+Isolation age 12 Twin 1   a41   a42   a43   a44
 
 ```{r ace matrices}
-pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = c("a11", "a21","a31","a41","a22","a23","a24","a33","a34","a44"), name = "a") 
-pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = c("c11", "c21","c31","c41","c22","c23","c24","c33","c34","c44"), name="c" )
-pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = c("e11", "e21","e31","e41","e22","e23","e24","e33","e34","e44"), name="e" )
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), 
+                  labels = c("a11", "a21","a31","a41","a22","a32","a42","a33","a43","a44"), name = "a") 
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), 
+                  labels = c("c11", "c21","c31","c41","c22","c32","c42","c33","c43","c44"), name = "c")
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), 
+                  labels = c("e11", "e21","e31","e41","e22","e32","e42","e33","e43","e44"), name = "e")
 ```
 
 ```{r matrix for the expected means}
-MeanG	<-mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM, labels = newlabm, name = "ExpMean")
+MeanG	<-mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM, labels = sub1labm, name = "ExpMean")
 ```
 
-Then we want to compute the covariance matrix (V) which is the sum of the ACE variance components. 
-Using the row-by-col multiplication of a and a transpose, we get the 4x4 A variance covariance matrix of the four variables. We do this multiplication for c and e as well to get the C and E Var/Cov matrix. We can then standardise them to get h2, c2, and e2. 
+Compute the covariance matrix (V) which is the sum of the ACE variance components. Using  row-by-col multiplication of a and a transpose, we get the 4x4 A variance covariance matrix of the four variables. We do this multiplication for c and e as well to get the C and E Var/Cov matrix. We can then standardise them to get h2, c2, and e2. 
 
 ```{r algebra to generate A, C, E variance components}
 # Non-standardized variance components
@@ -586,45 +656,32 @@ covC	<- mxAlgebra(expression = c %*% t(c), name = "C")
 covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
 
 # Standardized variance components
-covP	<- mxAlgebra(expression = A + C + E, name="V" ) # total variance
-StA	<- mxAlgebra(expression = A/V, name = "h2")
-StC	<- mxAlgebra(expression = C/V, name = "c2")
-StE	<- mxAlgebra(expression = E/V, name = "e2")
+covP <- mxAlgebra(expression = A + C + E, name = "V" ) # total variance in the phenotype
+StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
+StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
+StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
 ```
 
-The I*V bit below extracts the variances from the diagonal of the covariance matrix V, by multiplying element by element. 
-
-To get the phenotypic correlations, we use the same procedure :
-
-* Extract the variances, take the square root and invert the resulting matrix
-* pre-and-post multiply this matrix with V, to get the correlation matrix (you should pre-and-post multiply the matrix with its transpose, but because the matrix is symmetrical its transpose is equal to itself)
-
-For the A, C and E correlations it is the same process. Except this time we are multiplying the identity matrix with A (and then C and E), rather than V, and then pre-and-post multiply the resulting matrix with A (and then C and E) rather than V. 
-
-Notes from Tim on when to hash these out: "Note that originally Ra and Rc were commented out, I think that's because if you include them, it causes problems when you run the submodels when A and C are dropped. Since we have got rid of the CE model in this script, we can un-comment A to get the correlation, but leave C commented out. Note that you also have to modify the pars statement if you add/remove these"
-
-All chunks below with * are not included in Fruhling's script. 
-
-Below we use the genetic Var/Cov matrix A to get the genetic correlation matrix with rA21 indicating the correlation between the A1 and A2 factors in the Bivariate model - **so does this give you the correlated factors solution? And not the Cholesky? Do we need this part of the script??**
+Below we use the genetic Var/Cov matrix A to get the genetic correlation matrix with rA21 indicating the correlation between the A1 and A2 factors in the Bivariate model.  When running an AE model, make sure to had out the Rc. 
 
 ```{r algebra to compute phenotypic ACE correlations}
 matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
-matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd")
+matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
 rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
 rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
-rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") # Tim had this one hashed out 
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") # Hash this when running AE model
 rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
 ```
 
-**here we need to understand why to have squared and unsquared**
+As well as the correlations between the A, C, and E factors, the below computes the Cholesky parameters. 
 
-```{r standardised cholesky parameters (unsquared) *}
+```{r cholesky parameters}
+# path estimates
 Sta <- mxAlgebra(isd%*%a, name = "sta")
 Stc <- mxAlgebra(isd%*%c, name = "stc")
 Ste <- mxAlgebra(isd%*%e, name = "ste")
-```
 
-```{r standardised cholesky parameters (squared) *}
+# path estimates squared
 Sta2 <- mxAlgebra(sta*sta, name = "sta2")
 Stc2 <- mxAlgebra(stc*stc, name = "stc2")
 Ste2 <- mxAlgebra(ste*ste, name = "ste2")
@@ -636,14 +693,15 @@ colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
 estVars	<- mxAlgebra(expression = cbind(h2,c2,e2), name = "Est", dimnames = list(rowVars,colVars))
 ```
 
-Fruhling has this which is not in Tim's - I'm guessing this is how to make the correlated factors solution and not Cholesky:
+If you want to work out the amount of the phenotypic correlation that is due to A, C or E, you can use the below: 
+
 ```{r algebra to compute Rph-A, Rph-C, and Rph-E between the two variables in a bivariate model (this would be different for more than two variables I guess)}
-# rphace<- mxAlgebra( expression= cbind ( 	(sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])),  
-# 							(sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])), 
-# 							(sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])) ), name="RphACE" )
+rphace <- mxAlgebra(expression = cbind((sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])),
+							(sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])),
+							(sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])) ), name = "RphACE" )
 ```
 
-The A factors are correlated across twins either by 1 for MZ pairs or 0.5 for DZ pairs, whereas the C factors are correlated 1 for either type of pairs. In the univariate model we only had 1 A and C factors that correlated across twins, in the bivariate and above model we have to correlate both the A1 and A2 factors across twins and both the C1 and C2 factors across twins.
+The A factors are correlated across twins either by 1 for MZ pairs or 0.5 for DZ pairs, whereas the C factors are correlated 1 for either type of pairs. For the bivariate + model we have to correlate both the A1 and A2 factors across twins and both the C1 and C2 factors across twins.
 
 ```{r algebra for expected variance/covariance matrices in MZ and DZ twins}
 covMZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
@@ -658,19 +716,29 @@ dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
 dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
 ```
 
-```{r objective objects - here this is a different mx command to Tim - this is repetition from earlier?}
+```{r objective objects - is this is repetition from earlier?}
 # Tim uses mxFIMLObjective() here
 objMZ	<- mxExpectationNormal(covariance = "expCovMZ", means = "ExpMean", dimnames = selvars)
 objDZ	<- mxExpectationNormal(covariance = "expCovDZ", means = "ExpMean", dimnames = selvars)
 ```
 
-***
-No idea if how I am specifying the confidence intervals for the 4 variable model are correct????
-***
+```{r ACE confidence intervals}
+# h2, c2, e2 
+Conf1 <- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]')) # drop C if non-sig
+# factor correlation - off-diagonal
+Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]', 'Rph[3,1]', 'Ra[3,1]', 'Rc[3,1]', 'Re[3,1]', 'Rph[4,1]', 'Ra[4,1]', 'Rc[4,1]', 'Re[4,1]', 'Rph[3,2]', 'Ra[3,2]', 'Rc[3,2]', 'Re[3,2]', 'Rph[4,2]', 'Ra[4,2]', 'Rc[4,2]', 'Re[4,2]', 'Rph[4,3]', 'Ra[4,3]', 'Rc[4,3]', 'Re[4,3]')) 
+# Cholesky paths - off-diagonal
+Conf3	<- mxCI(c('sta2[2,1]', 'stc2[2,1]', 'ste2[2,1]', 'sta2[3,1]', 'stc2[3,1]', 'ste2[3,1]', 'sta2[4,1]', 'stc2[4,1]', 'ste2[4,1]', 'sta2[3,2]', 'stc2[3,2]', 'ste2[3,2]', 'sta2[4,2]', 'stc2[4,2]', 'ste2[4,2]', 'sta2[4,3]', 'stc2[4,3]', 'ste2[4,3]')) 
+# Cholesky paths - diagonal
+Conf4	<- mxCI(c('sta2[1,1]', 'stc2[1,1]', 'ste2[1,1]', 'sta2[2,2]', 'stc2[2,2]', 'ste2[2,2]', 'sta2[3,3]', 'stc2[3,3]', 'ste2[3,3]', 'sta2[4,4]', 'stc2[4,4]', 'ste2[4,4]')) 
+Conf5	<- mxCI(c('h2', 'c2', 'e2'))
+```
 
 ```{r ACE model estimation}
 # all parameters to be estimated 
-pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rE, MeanG, estVars, matIsd, Sta, Sta2, Stc, Stc2, Ste, Ste2)
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rE, MeanG, estVars, matIsd, Sta, Sta2, Stc, Stc2, Ste, Ste2
+              , rC # remember to include when running ACE
+             )
 
 # add these to the model for MZ and DZ with the matrices we have created
 modelMZ	<- mxModel(pars, covMZ, dataMZ, objMZ, fitFunction, name = "MZ")
@@ -680,82 +748,257 @@ modelDZ	<- mxModel(pars, covDZ, dataDZ, objDZ, fitFunction, name = "DZ")
 minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
 obj <- mxFitFunctionAlgebra("m2LL")
 
-# confidence intervals - not sure if this is the right adaptation for 4 variable model
-Conf1 <- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]') )
-Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]') ) 
-# how am I supposed to know what the below need to be?
-Conf3	<- mxCI(c('sta2[3,2]', 'stc2[3,2]', 'ste2[3,2]', 'sta2[3,1]', 'stc2[3,1]', 'ste2[3,1]', 'sta2[2,1]', 'stc2[2,1]', 'ste2[2,1]'))
-Conf4	<- mxCI(c('sta2[1,1]', 'stc2[1,1]', 'ste2[1,1]', 'sta2[2,2]', 'stc2[2,2]', 'ste2[2,2]', 'sta2[3,3]', 'stc2[3,3]', 'ste2[3,3]', 'sta2[4,4]', 'stc2[4,4]', 'ste2[4,4]'))
-Conf5	<- mxCI(c('h2', 'c2', 'e2'))
-
 # full model
-AceModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj 
-                    #Conf1, Conf2
-                    )
+AceModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1, Conf3, Conf4)
 ```
+
+*I still don't really understand here why you estimate the correlated factors solution as well as the choesky paths?*
 
 ```{r run ACE model}
+# run ACE
 AceFit <- mxRun(AceModel, intervals = TRUE)
 
-AceSumm  <- summary(AceFit)
+# summary - this shows the position in the cells for each matrix 
+AceSumm <- summary(AceFit)
 AceSumm
 
-round(AceFit@output$estimate,4)
-round(AceFit$Est@result,4)
+# full list of A, C, and E estimates - these two outputs show different things - why is that?
+round(AceFit@output$estimate, 3)
 ```
 
-**I don't quite understand what output we need - need Tim to help explain this**
+## ACE output
 
-```{r ACE model output}
-# proportion of individual differences explained by A, C, and E for each phenotype
-AceFit$ACE.h2
-AceFit$ACE.c2
-AceFit$ACE.e2
+### Estimates of A, C, and E, for each time point 
 
-# correlation between the A, C, and E factors between the traits? Isn't this for the correlated factors solution?
-AceFit$ACE.Rph # total phenotypic correlation?
-AceFit$ACE.Ra
-AceFit$ACE.Rc
-AceFit$ACE.Re
+First we have the h^2^, c^2^, and e^2^ matrices. This is the proportion of individual differences explained by A, C, and E for each phenotype, so you can view these as percentages. 
 
-# Are these the Cholesky paths? If so how do we interpret these? 
+These matrices are set up like this: 
+
+|                  | age 5 | age 7 | age 10  | age 12 |
+| ---------------- | ----- | ----- | ------- | ------ |
+| Isolation age 5  |   a11 |    0  |     0   |     0  |   # genetic influence on time point 1
+| Isolation age 7  |   a21 |  a22  |     0   |     0  |   # genetic influence on time point 2 (a21) plus new genetic influence at time point 2 (a22)
+| Isolation age 10 |   a31 |  a32  |   a33   |     0  |
+| Isolation age 12 |   a41 |  a42  |   a43   |   a44  |
+
+For the h2 matrix:
+
+* Heritability is on the diagonal
+* % of the phenotypic correlation that is due to genetics is on the off-diagonal
+* The bivariate A, C, and E are on the off-diagonal
+* Therefore, the off-diagonals are the contribution of ACE to the covariance between each time point **need to check this is right**
+
+```{r ACE model output h2, c2, e2}
+# All h2, c2, e2 in one matrix 
+round(AceFit$Est@result, 3)
+
+# h2 
+round(mxEval(ACE.h2, AceFit), 3) 
+
+# c2
+round(mxEval(ACE.c2, AceFit), 3) 
+
+# e2
+round(mxEval(ACE.e2, AceFit), 3) 
+```
+
+**Estimates of full ACE model at each time point (diagonal estimates):**
+
+|                         |  Heritability  | Shared environment | Individual environment |
+| ----------------------- | -------------- | ------------------ | ---------------------- |
+| Social isolation age 5  | 0.563          |     0              |  0.437                 |
+| Social isolation age 7  | 0.496          | 0.001              |  0.504                 |
+| Social isolation age 10 | 0.489          | 0.002              |  0.509                 |
+| Social isolation age 12 | 0.447          | 0.001              |  0.552                 |
+
+* The C estimates here are all almost 0, this will probably mean that an AE model will be the best fit
+
+**Shared effect estimates for ACE across time (off-diagonal estimates):**
+
+* The % of the total variance that is due to shared genetic and environmental effects 
+
+|                |  % Shared genetic effects  | 
+| -------------- | -------------------------- | 
+| Age 5 and 7    | 66%   (0.664)              |
+| Age 5 and 10   | 79%   (0.787)              |  
+| Age 5 and 12   | 85%   (0.846)              |  
+| Age 7 and 10   | 74%   (0.744)              |  
+| Age 7 and 12   | 72%   (0.720)              |  
+| Age 10 and 12  | 68%   (0.680)              |
+
+### Correlations between A, C, and E factors across all time points
+
+* Ra = the correlation between A1, A2, A3, and A4 - correlations between all the genetic factors
+* Rc = the correlation between C1, C2, C3, and C4 - correlations between all shared environmental factors
+* Re = the correlation between E1, E2, E3, and E4 - correlations between all individual environmental factors
+
+For example:
+![](RA.jpg) 
+
+```{r ACE phenotypic correlations output}
+# correlation between the A, C, and E factors - to what extend is variable one the same as variable two 
+AceFit$ACE.Rph # total phenotypic correlation (including A, C, and E)
+AceFit$ACE.Ra  # correlations between the a factors
+AceFit$ACE.Rc  # correlations between the c factors
+AceFit$ACE.Re  # correlations between the e factors
+```
+
+* The Rc estimate here is NULL - I'm assuming this is because the original estimates are 0 so this algebra would not work?
+
+
+### Cholesky paths
+
+Cholesky paths are directed for longitudinal data. A1 directly influences the next time point, and so on. 
+
+For example:
+![](sta2.jpg) 
+The squared paths can be interpreted as the % of variance explained. This is equivalent to the correlations between factors, but now you are assuming that age 5 came before age 7 etc. All these paths are written in terms of square roots - so we have to square them in order to interpret them. This is the same for the A C and E paths, always interpreted as a^2^, c^2^ and e^2^. 
+
+* In this case, the diagonal in the a^2^ matrix represents *new* genetic effects
+
+```{r ACE cholesky paths output}
+# A
 AceFit$ACE.sta
-AceFit$ACE.sta2
+round(mxEval(ACE.sta2, AceFit), 3)
+
+# C
 AceFit$ACE.stc
-AceFit$ACE.stc2
+round(mxEval(ACE.stc2, AceFit), 3)
+
+# E
 AceFit$ACE.ste
-AceFit$ACE.ste2
+round(mxEval(ACE.ste2, AceFit), 3)
+```
 
-# output from Fruhling's code
-round(mxEval(ACE.h2, AceFit), ) 
-mxEval(ACE.c2, AceFit)
-mxEval(ACE.e2, AceFit)
-mxEval(ACE.Rph, AceFit)
-mxEval(ACE.Ra, AceFit)
-mxEval(ACE.Rc, AceFit)
-mxEval(ACE.Re, AceFit)
-mxEval(ACE.RphACE, AceFit)
+The diagonal of the sta^2^ matrix represents:
 
-# Compare the ACE model and saturated model 
+|         |  % new genetic effects  | 
+| ------- | ----------------------- | 
+| Age 5   |          56%   (0.563)  |
+| Age 7   |          30%   (0.300)  |  
+| Age 10  |          20%   (0.201)  |  
+| Age 12  |          12%   (0.117)  |  
+
+The off-diagonal of the sta^2^ matrix represents:
+
+|                |  % Shared genetic effects  | 
+| -------------- | -------------------------- | 
+| Age 5 to 7     |             20%   (0.195)  |
+| Age 5 to 10    |             15%   (0.151)  |  
+| Age 5 to 12    |             14%   (0.136)  |  
+| Age 7 to 10    |             14%   (0.137)  |  
+| Age 7 to 12    |              6%   (0.064)  |  
+| Age 10 to 12   |             13%   (0.130)  |
+
+### Compare the ACE model fit to the saturated model fit 
+
+```{r compare the ACE and saturated model}
 mxCompare(SatFit, AceFit)
 ```
 
-The ACE model fits significantly worse than the saturated model. 
+**The ACE model fits significantly worse than the saturated model**. This may be because we are estimating C when this doesn't actually fit to our data. The next step is to run the AE model.  
 
-h2 output mxEval(ACE.h2, AceFit)
+***
 
-      [,1]  [,2]  [,3]  [,4]
-[1,] 0.563   
-[2,] 0.664 0.496  
-[3,] 0.787 0.744 0.489 
-[4,] 0.846 0.720 0.680 0.447
+# AE model 
 
-**Is the above the same as the below?? Need to create the cholesky figure in powerpoint to see what this lokos like ** 
+As C was almost zero in our model, we can consider dropping this to see if it improves model fit. 
 
-                           A1    A2    A3    A4
-Isolation age 5 Twin 1    a11   0     0     0
-Isolation age 7 Twin 1    a21   a22   0     0
-Isolation age 10 Twin 1   a31   a23   a33   0 
-Isolation age 12 Twin 1   a41   a23   a34   a44
+Labels for the c parameters are:
+
+|                  | age 5 | age 7 | age 10  | age 12 |
+| ---------------- | ----- | ----- | ------- | ------ |
+| Isolation age 5  |   c11 |    0  |     0   |     0  |   
+| Isolation age 7  |   c21 |  c22  |     0   |     0  |  
+| Isolation age 10 |   c31 |  c32  |   c33   |     0  |
+| Isolation age 12 |   c41 |  c42  |   c43   |   c44  |
+
+
+```{r specify AE model}
+# create the new model
+AEModel	<-mxModel(AceFit, name = "AE"
+                  , Conf3, Conf4
+                   )
+
+# set the C parameters to 0
+AEModel	<- omxSetParameters(AEModel, 
+                            labels = c("c11", "c22", "c33", "c44",
+                                       "c21", "c32", "c43",
+                                       "c31", "c42",
+                                       "c41"), # labels ordered by diagonal (see above)
+                            free = FALSE, 
+                            values = 0) 
+```
+
+```{r run AE model output}
+# run the model
+AEFit <- mxRun(AEModel, intervals = TRUE)
+
+AESumm <- summary(AEFit)
+AESumm
+
+# estimates
+round(AEFit@output$estimate, 4)
+```
+
+```{r AE model output h2, c2, e2}
+# All h2, c2, e2 in one matrix 
+round(AEFit$Est@result, 3)
+
+# h2 
+round(mxEval(AE.h2, AEFit), 3) 
+
+# c2
+round(mxEval(AE.c2, AEFit), 3)  # check that these are all now zero
+
+# e2
+round(mxEval(AE.e2, AEFit), 3) 
+```
+
+```{r AE phenotypic correlations output}
+# total phenotypic correlation (including A, C, and E)
+AEFit$AE.Rph 
+
+# correlations between the a factors
+AEFit$AE.Ra  
+
+# correlations between the c factors - check this is zero
+AEFit$AE.Rc  
+
+# correlations between the e factors
+AEFit$AE.Re  
+```
+
+```{r AE cholesky paths output}
+# A
+AEFit$AE.sta
+round(mxEval(AE.sta2, AEFit), 3)
+
+# C
+AEFit$AE.stc
+round(mxEval(AE.stc2, AEFit), 3)
+
+# E
+AEFit$AE.ste
+round(mxEval(AE.ste2, AEFit), 3)
+```
+
+```{r compare the AE fit to ACE and Sat}
+mxCompare(AceFit, AEFit)
+mxCompare(SatFit, AEFit)
+```
+
+The AE model still fits significantly worse than the saturated model. 
+
+***
+
+NEXT STEPS
+
+* Check if the AE output is different when hashing out rC compared to when you dont
+* Make a note clearly highlighted about hashing out the rC (if needed)
+* Interpret the AE output
+* Check ACE output in the markdown tables matches after rerunning
+* Email monika about getting the script for the overlap section of the paper
+* Once finished AE model, tidy up the knitted file so that it shows all code but only important output matrices
 
 
