@@ -408,14 +408,14 @@ SatFit	<- mxRun(SatModel, intervals = FALSE)
 ### MZ 
 
 ```{r saturated model output MZ}
-SatFit$MZ.corMZ     # correlations
-SatFit$MZ.ExpCovMZ  # covariance
+round(SatFit$MZ.corMZ$values, 3)     # correlations
+SatFit$MZ.ExpCovMZ                   # covariance
 ```
 
 ### DZ 
 
 ```{r saturated model output DZ}
-SatFit$DZ.corDZ     # correlations
+round(SatFit$DZ.corDZ$values, 3)     # correlations
 SatFit$DZ.ExpCovDZ  # covariance
 ```
 
@@ -590,16 +590,16 @@ This p value would round to p = 0.05 so I would interpret this as not significan
 The labels for these have already been done in the sub1 model (which constrains everything at once). 
 
 ```{r sub model 5 - equal means across twin order and zygosity}
-sub4Model <- mxModel(SatModel, name = "sub4")
-sub4Model <- omxSetParameters(sub4Model, free = TRUE, values = svM, labels = labMZm, newlabels = sub1labm)
-sub4Model <- omxSetParameters(sub4Model, free = TRUE, values = svM, labels = labDZm, newlabels = sub1labm)
+sub5Model <- mxModel(SatModel, name = "sub5")
+sub5Model <- omxSetParameters(sub5Model, free = TRUE, values = svM, labels = labMZm, newlabels = sub1labm)
+sub5Model <- omxSetParameters(sub5Model, free = TRUE, values = svM, labels = labDZm, newlabels = sub1labm)
 
 # fit model
-sub4Fit	<- mxRun(sub4Model, intervals = TRUE)
-(sub4Summ	<- summary(sub4Fit))
+sub5Fit	<- mxRun(sub5Model, intervals = TRUE)
+(sub5Summ	<- summary(sub5Fit))
 
 # compare to saturated
-mxCompare(SatFit, sub4Fit)
+mxCompare(SatFit, sub5Fit)
 ```
 
 This is significant, which suggests that although the means are equal across twin order, they are not equal across twin order and zygosity.
