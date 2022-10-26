@@ -1,0 +1,1543 @@
+---
+title: "The overlap between social isolation and mental health problems: independent pathway model" 
+output:  
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    number_sections: false
+    highlight: monochrome
+    theme: flatly
+    code_folding: show
+    includes:
+      after_body: footer.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      prompt = FALSE,
+                      cache = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      results = 'markup')
+
+options(bitmapType = 'quartz') # to render fonts better
+```
+
+```{r Clear global environment, include=FALSE}
+remove(list = ls())
+```
+
+```{r Load packages, include=FALSE}
+library(knitr)
+library(haven)
+library(psych) 
+library(bestNormalize)
+library(OpenMx)
+library(tidyr)
+library(tidyverse)
+library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
+```
+
+```{r source the data file path, include=FALSE}
+# source raw data directory
+source("../isolation_mentalhealth_data_path.R")
+```
+
+```{r read in dta data file, include=FALSE}
+dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
+colnames(dat.raw)
+```
+
+# Data prep
+
+### Column names
+
+```{r select variables needed}
+dat <- dat.raw %>%
+  dplyr::select(
+         atwinid,
+         btwinid,
+         familyid,
+         rorderp5,
+         torder,
+         zygosity,
+         sampsex,
+         sisoe12,
+         sisoy12,
+         masce12,     # anxiety
+         mascy12,   
+         cdie12,      # depression
+         cdiy12,
+         conec12,     # antisocial behaviour / conduct disorder
+         conyc12,
+         psysympe12,  # psychosis - why is this not the tot scale variable - to give more variation?
+         psysympy12,
+         socisoe18,
+         socisoy18,
+         gadsxe18,    # anxiety
+         gadsxy18,
+         mdesxe18,    # depression
+         mdesxy18,
+         cdsxe18,     # antisocial behaviour / conduct disorder
+         cdsxy18,
+         psyexpe18,   # psychotic experiences
+         psyexpy18
+  )
+
+colnames(dat)
+```
+
+### Recode variables into factors {.tabset .tabset-fade}
+
+#### Sex
+
+```{r recode sex}
+dat <- dat %>%
+  mutate(
+    sex = 
+      recode_factor(as_factor(sampsex),
+        "1" = "Male",
+        "2" = "Female"))
+
+table(dat$sex)
+```
+
+#### Zygosity
+
+```{r recode zygosity}
+dat <- dat %>%
+  mutate(
+    zygosity = 
+      recode_factor(as_factor(zygosity),
+        "1" = "MZ",
+        "2" = "DZ"))
+table(dat$zygosity)
+```
+
+### Convert variables to numeric
+
+```{r create numeric isolation variables}
+dat <- dat %>%
+  mutate(
+    sisoe12 = as.numeric(sisoe12),
+    sisoy12 = as.numeric(sisoy12),
+    masce12 = as.numeric(masce12),       # anxiety
+    mascy12 = as.numeric(mascy12),   
+    cdie12 = as.numeric(cdie12),         # depression
+    cdiy12 = as.numeric(cdiy12),
+    conec12 = as.numeric(conec12),       # antisocial behaviour / conduct disorder
+    conyc12 = as.numeric(conyc12),
+    psysympe12 = as.numeric(psysympe12), # psychosis - why is this not the tot scale variable - to give more variation?
+    psysympy12 = as.numeric(psysympy12),
+    socisoe18 = as.numeric(socisoe18),
+    socisoy18 = as.numeric(socisoy18),
+    gadsxe18 = as.numeric(gadsxe18),     # anxiety
+    gadsxy18 = as.numeric(gadsxy18),
+    mdesxe18 = as.numeric(mdesxe18),     # depression
+    mdesxy18 = as.numeric(mdesxy18),
+    cdsxe18 = as.numeric(cdsxe18),       # antisocial behaviour / conduct disorder
+    cdsxy18 = as.numeric(cdsxy18),
+    psyexpe18 = as.numeric(psyexpe18),   # psychotic experiences
+    psyexpy18 = as.numeric(psyexpy18)
+  ) %>%
+  select(                                # remove variables not needed
+    -c(sampsex)
+  )
+```
+
+# Variables lists
+
+```{r select variables - raw}
+# anxiety
+selvars_anxe <- c("sisoe12", "masce12", "socisoe18", "gadsxe18")
+selvars_anx <- c("sisoe12", "masce12", "socisoe18", "gadsxe18", 
+                 "sisoy12", "mascy12", "socisoy18", "gadsxy18")
+
+# depression
+selvars_depe <- c("sisoe12", "cdie12", "socisoe18", "mdesxe18")
+selvars_dep <- c("sisoe12", "cdie12", "socisoe18", "mdesxe18", 
+                 "sisoy12", "cdiy12", "socisoy18", "mdesxy18")
+
+# conduct
+selvars_cone <- c("sisoe12", "conec12", "socisoe18", "cdsxe18")
+selvars_con <- c("sisoe12", "conec12", "socisoe18", "cdsxe18", 
+                 "sisoy12", "conyc12", "socisoy18", "cdsxy18")
+
+# psychosis
+selvars_psye <- c("sisoe12", "psysympe12", "socisoe18", "psyexpe18")
+selvars_psy <- c("sisoe12", "psysympe12", "socisoe18", "psyexpe18",
+                 "sisoy12", "psysympy12", "socisoy18", "psyexpy18")
+
+# all 
+selvars_anx_dep <- c("sisoe12", "masce12", "cdie12", "socisoe18", "gadsxe18", "mdesxe18",
+                     "sisoy12", "mascy12", "cdiy12", "socisoy18", "gadsxy18", "mdesxy18")
+
+selvars <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18",
+             "sisoy12", "mascy12", "cdiy12", "conyc12", "psysympy12", "socisoy18", "gadsxy18", "mdesxy18", "cdsxy18", "psyexpy18")
+```
+
+```{r select variables - normalised}
+# anxiety
+selvars_anxe_norm <- c("sisoe12norm", "masce12norm", "socisoe18norm", "gadsxe18norm")
+selvars_anx_norm <- c("sisoe12norm", "masce12norm", "socisoe18norm", "gadsxe18norm", 
+                 "sisoy12norm", "mascy12norm", "socisoy18norm", "gadsxy18norm")
+
+# depression
+selvars_depe_norm <- c("sisoe12norm", "cdie12norm", "socisoe18norm", "mdesxe18norm")
+selvars_dep_norm <- c("sisoe12norm", "cdie12norm", "socisoe18norm", "mdesxe18norm", 
+                 "sisoy12norm", "cdiy12norm", "socisoy18norm", "mdesxy18norm")
+
+# conduct
+selvars_cone_norm <- c("sisoe12norm", "conec12norm", "socisoe18norm", "cdsxe18norm")
+selvars_con_norm <- c("sisoe12norm", "conec12norm", "socisoe18norm", "cdsxe18norm", 
+                 "sisoy12norm", "conyc12norm", "socisoy18norm", "cdsxy18norm")
+
+# psychosis
+selvars_psye_norm <- c("sisoe12norm", "psysympe12norm", "socisoe18norm", "psyexpe18norm")
+selvars_psy_norm <- c("sisoe12norm", "psysympe12norm", "socisoe18norm", "psyexpe18norm",
+                 "sisoy12norm", "psysympy12norm", "socisoy18norm", "psyexpy18norm")
+
+# all 
+selvars_anx_dep_norm <- c("sisoe12_norm", "masce12_norm", "cdie12_norm", "socisoe18_norm", "gadsxe18_norm", "mdesxe18_norm",
+                          "sisoy12_norm", "mascy12_norm", "cdiy12_norm", "socisoy18_norm", "gadsxy18_norm", "mdesxy18_norm")
+
+selvars_norm <- c("sisoe12norm", "masce12norm", "cdie12norm", "conec12norm", "psysympe12norm", "socisoe18norm", "gadsxe18norm", "mdesxe18norm", "cdsxe18norm", "psyexpe18norm",
+             "sisoy12norm", "mascy12norm", "cdiy12norm", "conyc12norm", "psysympy12norm", "socisoy18norm", "gadsxy18norm", "mdesxy18norm", "cdsxy18norm", "psyexpy18norm")
+
+# all with non-normalised - not in the twin modelling specific order here only used to standardise all variables at once
+selvars_norm_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdiy12", "conec12", "conyc12", "psysympe12", "psysympy12", 
+                      "socisoe18", "socisoy18", "gadsxe18", "gadsxy18", "mdesxe18", "mdesxy18", "cdsxe18", "cdsxy18", "psyexpe18", "psyexpy18",
+                      "sisoe12norm", "sisoy12norm", "masce12norm", "mascy12norm", "cdie12norm", "cdiy12norm", "conec12norm", "conyc12norm", "psysympe12norm", "psysympy12norm", 
+                      "socisoe18norm", "socisoy18norm", "gadsxe18norm", "gadsxy18norm", "mdesxe18norm", "mdesxy18norm", "cdsxe18norm", "cdsxy18norm", "psyexpe18norm", "psyexpy18norm")
+```
+
+```{r select variables - standardised}
+# anxiety
+selvars_anxe_z_score <- c("z_score_sisoe12", "z_score_masce12", "z_score_socisoe18", "z_score_gadsxe18")
+selvars_anx_z_score <- c("z_score_sisoe12", "z_score_masce12", "z_score_socisoe18", "z_score_gadsxe18", 
+                 "z_score_sisoy12", "z_score_mascy12", "z_score_socisoy18", "z_score_gadsxy18")
+
+# depression
+selvars_depe_z_score <- c("z_score_sisoe12", "z_score_cdie12", "z_score_socisoe18", "z_score_mdesxe18")
+selvars_dep_z_score <- c("z_score_sisoe12", "z_score_cdie12", "z_score_socisoe18", "z_score_mdesxe18", 
+                 "z_score_sisoy12", "z_score_cdiy12", "z_score_socisoy18", "z_score_mdesxy18")
+
+# conduct
+selvars_cone_z_score <- c("z_score_sisoe12", "z_score_conec12", "z_score_socisoe18", "z_score_cdsxe18")
+selvars_con_z_score <- c("z_score_sisoe12", "z_score_conec12", "z_score_socisoe18", "z_score_cdsxe18", 
+                 "z_score_sisoy12", "z_score_conyc12", "z_score_socisoy18", "z_score_cdsxy18")
+
+# psychosis
+selvars_psye_z_score <- c("z_score_sisoe12", "z_score_psysympe12", "z_score_socisoe18", "z_score_psyexpe18")
+selvars_psy_z_score <- c("z_score_sisoe12", "z_score_psysympe12", "z_score_socisoe18", "z_score_psyexpe18",
+                 "z_score_sisoy12", "z_score_psysympy12", "z_score_socisoy18", "z_score_psyexpy18")
+
+# all 
+selvars_z_score <- c("z_score_sisoe12", "z_score_masce12", "z_score_cdie12", "z_score_conec12", "z_score_psysympe12", "z_score_socisoe18", "z_score_gadsxe18", "z_score_mdesxe18", "z_score_cdsxe18", "z_score_psyexpe18",
+             "z_score_sisoy12", "z_score_mascy12", "z_score_cdiy12", "z_score_conyc12", "z_score_psysympy12", "z_score_socisoy18", "z_score_gadsxy18", "z_score_mdesxy18", "z_score_cdsxy18", "z_score_psyexpy18")
+```
+
+```{r select variables - normalised then standardised}
+# anxiety
+selvars_anxe_norm_z_score <- c("z_score_sisoe12_norm", "z_score_masce12_norm", "z_score_socisoe18_norm", "z_score_gadsxe18_norm")
+selvars_anx_norm_z_score <- c("z_score_sisoe12_norm", "z_score_masce12_norm", "z_score_socisoe18_norm", "z_score_gadsxe18_norm", 
+                 "z_score_sisoy12_norm", "z_score_mascy12_norm", "z_score_socisoy18_norm", "z_score_gadsxy18_norm")
+
+# depression
+selvars_depe_norm_z_score <- c("z_score_sisoe12_norm", "z_score_cdie12_norm", "z_score_socisoe18_norm", "z_score_mdesxe18_norm")
+selvars_dep_norm_z_score <- c("z_score_sisoe12_norm", "z_score_cdie12_norm", "z_score_socisoe18_norm", "z_score_mdesxe18_norm", 
+                 "z_score_sisoy12_norm", "z_score_cdiy12_norm", "z_score_socisoy18_norm", "z_score_mdesxy18_norm")
+
+# conduct
+selvars_cone_norm_z_score <- c("z_score_sisoe12_norm", "z_score_conec12_norm", "z_score_socisoe18_norm", "z_score_cdsxe18_norm")
+selvars_con_norm_z_score <- c("z_score_sisoe12_norm", "z_score_conec12_norm", "z_score_socisoe18_norm", "z_score_cdsxe18_norm", 
+                 "z_score_sisoy12_norm", "z_score_conyc12_norm", "z_score_socisoy18_norm", "z_score_cdsxy18_norm")
+
+# psychosis
+selvars_psye_norm_z_score <- c("z_score_sisoe12_norm", "z_score_psysympe12_norm", "z_score_socisoe18_norm", "z_score_psyexpe18_norm")
+selvars_psy_norm_z_score <- c("z_score_sisoe12_norm", "z_score_psysympe12_norm", "z_score_socisoe18_norm", "z_score_psyexpe18_norm",
+                 "z_score_sisoy12_norm", "z_score_psysympy12_norm", "z_score_socisoy18_norm", "z_score_psyexpy18_norm")
+
+# all 
+selvars_norm_z_score <- c("z_score_sisoe12_norm", "z_score_masce12_norm", "z_score_cdie12_norm", "z_score_conec12_norm", "z_score_psysympe12_norm", "z_score_socisoe18_norm", "z_score_gadsxe18_norm", "z_score_mdesxe18_norm", "z_score_cdsxe18_norm", "z_score_psyexpe18_norm",
+             "z_score_sisoy12_norm", "z_score_mascy12_norm", "z_score_cdiy12_norm", "z_score_conyc12_norm", "z_score_psysympy12_norm", "z_score_socisoy18_norm", "z_score_gadsxy18_norm", "z_score_mdesxy18_norm", "z_score_cdsxy18_norm", "z_score_psyexpy18_norm")
+```
+
+## Rank transformation
+
+```{r rank transform variables elder variables}
+# isolation age 12
+sisoe12_n <- bestNormalize(dat$sisoe12)    # select the type of transformation needed
+dat$sisoe12norm <- predict(sisoe12_n)      # create normalised variable
+hist(dat$sisoe12norm)                  
+summary(dat$sisoe12norm)
+
+# isolation age 18
+socisoe18_n <- bestNormalize(dat$socisoe18)    
+dat$socisoe18norm <- predict(socisoe18_n)  
+hist(dat$socisoe18norm)                  
+summary(dat$socisoe18norm)
+
+# anxiety age 12 - wont actually use this as it's already normally distributed
+masce12_n <- bestNormalize(dat$masce12)    
+dat$masce12norm <- predict(masce12_n)  
+hist(dat$masce12norm)                  
+summary(dat$masce12norm)
+
+# anxiety age 18
+gadsxe18_n <- bestNormalize(dat$gadsxe18)    
+dat$gadsxe18norm <- predict(gadsxe18_n)  
+hist(dat$gadsxe18norm)                  
+summary(dat$gadsxe18norm)
+
+# depression age 12
+cdie12_n <- bestNormalize(dat$cdie12)    
+dat$cdie12norm <- predict(cdie12_n)  
+hist(dat$cdie12norm)                  
+summary(dat$cdie12norm)
+
+# depression age 18
+mdesxe18_n <- bestNormalize(dat$mdesxe18)    
+dat$mdesxe18norm <- predict(mdesxe18_n)  
+hist(dat$mdesxe18norm)                  
+summary(dat$mdesxe18norm)
+
+# conduct age 12
+conec12_n <- bestNormalize(dat$conec12)    
+dat$conec12norm <- predict(conec12_n)  
+hist(dat$conec12norm)                  
+summary(dat$conec12norm)
+
+# conduct age 18
+cdsxe18_n <- bestNormalize(dat$cdsxe18)    
+dat$cdsxe18norm <- predict(cdsxe18_n)  
+hist(dat$cdsxe18norm)                  
+summary(dat$cdsxe18norm)
+
+# psychosis age 12
+psysympe12_n <- bestNormalize(dat$psysympe12)    
+dat$psysympe12norm <- predict(psysympe12_n)  
+hist(dat$psysympe12norm)                  
+summary(dat$psysympe12norm)
+
+# psychosis age 18
+psyexpe18_n <- bestNormalize(dat$psyexpe18)    
+dat$psyexpe18norm <- predict(psyexpe18_n)  
+hist(dat$psyexpe18norm)                  
+summary(dat$psyexpe18norm)
+```
+
+```{r rank transform variables younger variables}
+# isolation age 12
+sisoy12_n <- bestNormalize(dat$sisoy12)    # select the type of transformation needed
+dat$sisoy12norm <- predict(sisoy12_n)  # create normalised variable
+hist(dat$sisoy12norm)                  
+summary(dat$sisoy12norm)
+
+# isolation age 18
+socisoy18_n <- bestNormalize(dat$socisoy18)    
+dat$socisoy18norm <- predict(socisoy18_n)  
+hist(dat$socisoy18norm)                  
+summary(dat$socisoy18norm)
+
+# anxiety age 12 - wont actually use this as it's already normally distributed
+mascy12_n <- bestNormalize(dat$mascy12)    
+dat$mascy12norm <- predict(mascy12_n)  
+hist(dat$mascy12norm)                  
+summary(dat$mascy12norm)
+
+# anxiety age 18
+gadsxy18_n <- bestNormalize(dat$gadsxy18)    
+dat$gadsxy18norm <- predict(gadsxy18_n)  
+hist(dat$gadsxy18norm)                  
+summary(dat$gadsxy18norm)
+
+# depression age 12
+cdiy12_n <- bestNormalize(dat$cdiy12)    
+dat$cdiy12norm <- predict(cdiy12_n)  
+hist(dat$cdiy12norm)                  
+summary(dat$cdiy12norm)
+
+# depression age 18
+mdesxy18_n <- bestNormalize(dat$mdesxy18)    
+dat$mdesxy18norm <- predict(mdesxy18_n)  
+hist(dat$mdesxy18norm)                  
+summary(dat$mdesxy18norm)
+
+# conduct age 12
+conyc12_n <- bestNormalize(dat$conyc12)    
+dat$conyc12norm <- predict(conyc12_n)  
+hist(dat$conyc12norm)                  
+summary(dat$conyc12norm)
+
+# conduct age 18
+cdsxy18_n <- bestNormalize(dat$cdsxy18)    
+dat$cdsxy18norm <- predict(cdsxy18_n)  
+hist(dat$cdsxy18norm)                  
+summary(dat$cdsxy18norm)
+
+# psychosis age 12
+psysympy12_n <- bestNormalize(dat$psysympy12)    
+dat$psysympy12norm <- predict(psysympy12_n)  
+hist(dat$psysympy12norm)                  
+summary(dat$psysympy12norm)
+
+# psychosis age 18
+psyexpy18_n <- bestNormalize(dat$psyexpy18)    
+dat$psyexpy18norm <- predict(psyexpy18_n)  
+hist(dat$psyexpy18norm)                  
+summary(dat$psyexpy18norm)
+```
+
+## Standardising
+
+Create *z scores* for all variables. 
+
+```{r scale variables and combine to MZ dataset}
+# create a scaled version of the continuous variables - z scores for all variables
+scaled_continuous_data <- as.data.frame(scale(dat[selvars_norm_all], center = TRUE, scale = TRUE))
+
+# rename variables to show that they are z scores 
+colnames(scaled_continuous_data) <- paste0("z_score_", colnames(scaled_continuous_data))
+
+# combine the scaled data to the main dataset for  and DZ twins
+dat <- cbind(dat, scaled_continuous_data)
+
+colnames(dat)
+```
+
+### Create twin dataset
+
+To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
+
+```{r remove one twin pair row}
+dat.twin <- dat %>% filter(rorderp5 == "1")
+```
+
+```{r datasets for MZ and DZ}
+dat.twin.MZ <- dat.twin %>% filter(zygosity == "MZ")
+dat.twin.DZ <- dat.twin %>% filter(zygosity == "DZ")
+
+# male only
+dat.twin.MZm <- dat.twin.MZ %>% filter(sex == "Male")
+dat.twin.DZm <- dat.twin.DZ %>% filter(sex == "Male")
+# female only
+dat.twin.MZf <- dat.twin.MZ %>% filter(sex == "Female")
+dat.twin.DZf <- dat.twin.DZ %>% filter(sex == "Female")
+```
+
+### Summary of MZ and DZ data
+
+```{r describe MZ and DZ data}
+MZ_summary <- describe(dat.twin.MZ, 
+                       skew = FALSE, 
+                       range = FALSE)
+
+DZ_summary <- describe(dat.twin.DZ, 
+                       skew = FALSE, 
+                       range = FALSE)
+```
+
+# Correlation matrices
+
+```{r pheno correlations}
+cor(dat[, selvars_anxe], use = "complete")
+cor(dat[, selvars_depe], use = "complete")
+cor(dat[, selvars_cone], use = "complete")
+cor(dat[, selvars_psye], use = "complete")
+```
+
+## MZ
+
+```{r MZ matrices}
+# covariance matrix
+covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
+# correlation matrix (standardized covariance)
+cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
+# round(cor.mz, 3)
+```
+
+## DZ
+
+```{r DZ matrices}
+# covariance matrix
+covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
+# correlation matrix (standardized covariance)
+cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
+# round(cor.dz, 3)
+```
+
+****
+
+# Independent pathway model 
+
+* Adapted from Waszczuk et al 2021 code
+* 2A, 2C, and 2E Factor Model
+* Variables ending in "norm" have applied normaily correction from the package bestNormalize
+* Standardised variables have been computed in case there are problems with different measures. The standardised estimates should be identical to the non-standardised. 
+
+In Waszczuk (2021) : "There were scalar (variance) sex differences in all variables except self-report time 1 depression, and time 2 self-report hyperactivity and parent-report conduct. Scalar models were fitted to account for these differences. Furthermore, there were quantitative sex differences in self-report depression at time 2, as previously reported in Waszczuk et al. [62]." 
+
+* Therefore, I think Monika corrected for sex differences by estimating means for males and females. 
+* We need to decode if we are going to do this too or not 
+* Still not quite sure makes these "scalar variance sex differences"
+* In the scalar correction, I'm not sure what the difference is between `Scalar` and `oScalar` - The `oScalar` is for siblings of opposite sex. So this is not needed for our script. 
+* The `Scalar` correction is `TRUE` only for the variables that need sex correction. In our case this would be all variables apart from social isolation at age 12. **This is only based on linear regressions, rather than estimating sex differences in OpenMx**. 
+* mxBounds() creates bounds for the objects, but I'm not entirely sure what these are??
+* Monika ran univariate ACE models for all her variables and tested for sex differences that way before applying the IPM. She also said that multivariate analyses were conducted separately for self and parent-report data due to significantly different univari- ate estimates for corresponding symptoms across raters. **We need to think if we should separate the reporters of social isolation - I think it would be doing weird things to the model**. 
+* TO DO NEXT:
+  + Interpret the output of this model - are there negative variances?? Do the h2, c2, e2 line up with the univariate ACE models (they probably wont because of the inclusion of separate means by sex). Do the overlap estimates look weird? 
+  + Need to look at running univariate ACE models for all variables 
+  + Look at how to test for sex differences officially through univariate twin models
+  + Abandon boulder scripts???? Because we actually do want the Cholesky parameters in this case as we have the same constructs over time, we know that the first 2 variables come before the second 2 variables. 
+  + Can we run an "all-encompassing" model with he 4 constructs at 12 then 18? 
+  + Also run all IPM separately too
+  + Decide on the sex correction based on univariate models 
+  + Try and distinguish between Monika's "no sex diffs" script and the normal one
+  + Think about running this separately based on reporter - the other constructs are self report?? 
+  + Make really clear notes on what each part of the model does - especially the bits I didn't initially understand 
+  + IS IT A PROBLEM BECAUSE IT'S ESTIMATED IN ONE CHUNK????????
+
+```{r number of variables (phenotypes)}
+# number of variables
+nv <- 4    					      # number of variables - 2 at age 12 and 2 at age 18
+ntv <- nv*2 				      # number of twin variables
+nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
+
+# number of factors A (common)
+nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
+
+# default optimiser 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+```
+
+#### Start values
+
+* For `Ac2Free`, we want to indicate `TRUE` for the first 4 variables (all variables), then for the **second** A factor, we want this to be only for the second set of 2 variables (at age 18), so for this we want the first two variables (age 12) set to `FALSE`. 
+* Similarly, we then want to set the second common start values to be 0 using `Ac2Values`. 
+
+```{r start values - think about renaming these to be consistent with start values for Cholesky}
+# Set if the parameters are estimated (TRUE) or not (FALSE) 
+Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
+
+# Create start values for 2 common ACE Factors - set the start values for common 
+Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
+Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+```
+
+# Anxiety
+
+**First, select which variable list to use: raw, standardised, normalised, or standardised and normalised**
+
+```{r select which variables to use}
+# selvars_anx_chosen <- selvars_anx                 # raw
+# selvars_anx_chosen <- selvars_anx_z_score         # standardised
+selvars_anx_chosen <- selvars_anx_norm             # normalised
+# selvars_anx_chosen <- selvars_anx_z_score_norm    # standardised and normalised
+```
+
+## No sex differences
+
+### ACE
+
+```{r ACE model for anxiety}
+IPM_anxiety_nosex <- mxModel("IPM_anxiety_nosex",
+	mxModel("ACE",
+    # Common ace paths
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    		
+    # Specific ace paths
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+		
+		# ACE variance components
+    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
+    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
+    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
+    mxAlgebra(A + C + E, name = "V"),
+		
+		# Calculate standard deviation for standardization
+    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
+    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
+		
+		# Expected means vector
+    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), # is this for males?
+
+    # Genetic and environmental correlations (correlated factor solution)
+    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
+    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
+    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
+    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
+
+    # Standardised components of variance
+    mxAlgebra(A/V, name = "h2"),
+    mxAlgebra(C/V, name = "c2"),
+    mxAlgebra(E/V, name = "e2"),
+    
+    # Standardise common parameters (unsquared)
+    mxAlgebra(iSD %*% ac, name = "stac"),
+    mxAlgebra(iSD %*% cc, name = "stcc"),
+    mxAlgebra(iSD %*% ec, name = "stec"),
+    
+    # Standardise common parameters (Squared)
+    mxAlgebra(stac*stac, name = "stac2"),
+    mxAlgebra(stcc*stcc, name = "stcc2"),
+    mxAlgebra(stec*stec, name = "stec2"),
+    
+    # Standardise specific parameters (unsquared)
+    mxAlgebra(iSD %*% as, name = "stas"),
+    mxAlgebra(iSD %*% cs, name = "stcs"),
+    mxAlgebra(iSD %*% es, name = "stes"),
+    
+    # Standardise specific parameters (Squared)
+    mxAlgebra(stas*stas, name = "stas2"),
+    mxAlgebra(stcs*stcs, name = "stcs2"),
+    mxAlgebra(stes*stes, name = "stes2"),	
+	
+		# MZ expected covariance matrix
+		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
+		
+		# DZ expected covariance matrix
+		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
+		
+	),
+	
+	mxModel("MZ",
+		mxData(observed = dat.twin.MZ, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_anx_chosen),
+		mxFitFunctionML()
+	),
+	mxModel("DZ",
+		mxData(observed = dat.twin.DZ, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_anx_chosen),
+		mxFitFunctionML()
+	),
+
+	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
+	mxFitFunctionAlgebra("m2LL"),
+	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
+)
+```
+
+```{r run ACE mdoel for anxiety}
+IPM_anxiety_nosex_fit <- mxTryHard(IPM_anxiety_nosex, intervals = TRUE)
+summary(IPM_anxiety_nosex_fit, verbose = TRUE)
+```
+
+```{r parameter estimates ACE anxiety}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.stcc2, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.stec2, IPM_anxiety_nosex_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.stcs2, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.stes2, IPM_anxiety_nosex_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.Ra, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.Rc, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.Re, IPM_anxiety_nosex_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.c2, IPM_anxiety_nosex_fit),3)
+round(mxEval(ACE.e2, IPM_anxiety_nosex_fit),3)
+```
+
+### AE 
+
+```{r fit AE model}
+# specify AE IPM
+IPM_anxiety_nosex_AE <- mxModel(IPM_anxiety_nosex, name = "IPM_anxiety_nosex_AE",
+     mxModel(IPM_anxiety_nosex_fit$ACE,
+     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
+     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
+    )
+)
+
+# run AE IPM
+IPM_anxiety_nosex_AE_fit <- mxTryHard(IPM_anxiety_nosex_AE, intervals = TRUE)
+
+# Summary and comparison to ACE
+AE_sum <- summary(IPM_anxiety_nosex_AE_fit, verbose = TRUE)
+AE_sum
+mxCompare(IPM_anxiety_nosex_fit, IPM_anxiety_nosex_AE_fit)
+```
+
+```{r AE model output}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.stcc2, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.stec2, IPM_anxiety_nosex_AE_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.stcs2, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.stes2, IPM_anxiety_nosex_AE_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph,IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.Ra, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.Rc, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.Re, IPM_anxiety_nosex_AE_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.c2, IPM_anxiety_nosex_AE_fit),3)
+round(mxEval(ACE.e2, IPM_anxiety_nosex_AE_fit),3)
+```
+
+
+**make function for the below tables**
+
+```{r AE confidence intervals}
+# create dataframe with all the confidence intervals 
+AE_CI <- as.data.frame(AE_sum$CI)
+AE_CI <- AE_CI %>%
+  mutate(parameter = rownames(AE_CI)) %>%
+  as.tibble()
+
+# common factors
+AE_CI.common <- AE_CI %>%
+  filter(grepl('ACE.stac2|ACE.stec2', parameter)) 
+
+# specific factors
+AE_CI.specific <- AE_CI %>%
+  filter(grepl('ACE.stas2|ACE.stes2', parameter) & estimate>0.00000000)
+
+AE_CI.common <- AE_CI.common %>%
+  mutate(AE = c(rep("A1",4), rep("A2",4), rep("E1",4), rep("E2",4))) %>%
+  mutate(variable = rep(c("Isolation12", "Anxiety12", "Isolation18", "Anxiety18"),4)) %>%
+  select(AE, variable, lbound, estimate, ubound)
+
+AE_CI.specific <- AE_CI.specific %>%
+  mutate(AE = c(rep("A",4), rep("E",4))) %>%
+  mutate(variable = rep(c("Isolation12", "Anxiety12", "Isolation18", "Anxiety18"),2)) %>%
+  select(AE, variable, lbound, estimate, ubound)
+```
+
+## Sex differences 
+
+Check sex as a covariate
+
+```{r check for sex as a covariate - isolation}
+# regression analyses in elder twin members (MZ and DZ)
+risoe12_sex <- summary(lm(sisoe12 ~ sex, data = dat.twin))
+risoe18_sex <- summary(lm(socisoe18 ~ sex, data = dat.twin))
+# regression analyses in younger twin members (MZ and DZ)
+risoy12_sex <- summary(lm(sisoy12 ~ sex, data = dat.twin))
+risoy18_sex <- summary(lm(socisoy18 ~ sex, data = dat.twin))
+# see the R2 – proportion of explained variance using print(riso12_sex$r.squared)
+```
+
+```{r check for sex as a covariate - anxiety}
+# regression analyses in elder twin members (MZ and DZ)
+ranxe12_sex <- summary(lm(masce12 ~ sex, data = dat.twin))
+ranxe18_sex <- summary(lm(gadsxe18 ~ sex, data = dat.twin))
+# regression analyses in younger twin members (MZ and DZ)
+ranxy12_sex <- summary(lm(mascy12 ~ sex, data = dat.twin))
+ranxy18_sex <- summary(lm(gadsxy18 ~ sex, data = dat.twin))
+```
+
+Based on these R squared estimates, we can see that the explained variances range from 0.2% to 2.2% of the variance in this association.  
+
+Sex significantly predicts all variables, apart from social isolation at age 12.
+
+**Do we want to control for sex based on this?**
+
+### ACE 
+
+```{r ACE model for anxiety sex}
+IPM_anxiety <- mxModel("IPM_anxiety",
+	mxModel("ACE",
+    # Common ace paths
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    		
+    # Specific ace paths
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+		
+		# ACE variance components
+    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
+    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
+    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
+    mxAlgebra(A + C + E, name = "V"),
+		
+		# Calculate standard deviation for standardization
+    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
+    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
+		
+		# Expected means vector
+    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # is this for males?
+    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
+    
+    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # and this for females??
+    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
+
+    # Genetic and environmental correlations (correlated factor solution)
+    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
+    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
+    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
+    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
+
+    # Standardised components of variance
+    mxAlgebra(A/V, name = "h2"),
+    mxAlgebra(C/V, name = "c2"),
+    mxAlgebra(E/V, name = "e2"),
+    
+    # Standardise common parameters (unsquared)
+    mxAlgebra(iSD %*% ac, name = "stac"),
+    mxAlgebra(iSD %*% cc, name = "stcc"),
+    mxAlgebra(iSD %*% ec, name = "stec"),
+    
+    # Standardise common parameters (Squared)
+    mxAlgebra(stac*stac, name = "stac2"),
+    mxAlgebra(stcc*stcc, name = "stcc2"),
+    mxAlgebra(stec*stec, name = "stec2"),
+    
+    # Standardise specific parameters (unsquared)
+    mxAlgebra(iSD %*% as, name = "stas"),
+    mxAlgebra(iSD %*% cs, name = "stcs"),
+    mxAlgebra(iSD %*% es, name = "stes"),
+    
+    # Standardise specific parameters (Squared)
+    mxAlgebra(stas*stas, name = "stas2"),
+    mxAlgebra(stcs*stcs, name = "stcs2"),
+    mxAlgebra(stes*stes, name = "stes2"),	
+		
+    # Scalar multiplier - sex differences? 
+    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( F, T, T, T, F, T, T, T), # TRUE for sex difference variables (not isolation age 12)
+             values = 1,
+             label  = c("sc1", "sc2", "sc3", "sc4", "sc1", "sc2", "sc3", "sc4"), 
+             name   = "Scalar"),
+
+    mxBounds(c("sc2", "sc3", "sc4"), 0, NA), # creates bounds for these objects - what are these? Only ones that are sex correated (not isolated age 12)
+	
+		# MZ expected covariance matrix
+		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"),
+		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
+		
+		# DZ expected covariance matrix
+		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"),
+		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
+		
+	),
+	
+	mxModel("MZM",
+		mxData(observed = dat.twin.MZm, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_anx_chosen),
+		mxFitFunctionML()
+	),
+	mxModel("MZF",
+		mxData(observed = dat.twin.MZf, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_anx_chosen),
+		mxFitFunctionML()
+	),
+	mxModel("DZM",
+		mxData(observed = dat.twin.DZm, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_anx_chosen),
+		mxFitFunctionML()
+	),
+	mxModel("DZF",
+		mxData(observed = dat.twin.DZf, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_anx_chosen),
+		mxFitFunctionML()
+	),
+
+	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
+	mxFitFunctionAlgebra("m2LL"),
+	mxCI(c("ACE.stac2", 
+	       "ACE.stcc2", 
+	       "ACE.stec2", 
+	       "ACE.stas2", 
+	       "ACE.stcs2", 
+	       "ACE.stes2", 
+	       "ACE.Rph",
+	       "ACE.h2", 
+	       "ACE.c2", 
+	       "ACE.e2"))
+)
+```
+
+```{r run ACE mdoel for anxiety}
+IPM_anxiety_fit <- mxTryHard(IPM_anxiety, intervals = TRUE)
+summary(IPM_anxiety_fit, verbose = TRUE)
+```
+
+This model shows "infeasible" confidence intervals - perhaps without C would be better?
+
+```{r parameter estimates ACE anxiety}
+# common standardised squared parameters
+mxEval(ACE.stac2, IPM_anxiety_fit)
+mxEval(ACE.stcc2, IPM_anxiety_fit)
+mxEval(ACE.stec2, IPM_anxiety_fit)
+
+# specific standardised squared parameters
+mxEval(ACE.stas2, IPM_anxiety_fit)
+mxEval(ACE.stcs2, IPM_anxiety_fit)
+mxEval(ACE.stes2, IPM_anxiety_fit)
+
+# phenotypic correlations
+mxEval(ACE.Rph, IPM_anxiety_fit)
+mxEval(ACE.Ra, IPM_anxiety_fit)
+mxEval(ACE.Rc, IPM_anxiety_fit)
+mxEval(ACE.Re, IPM_anxiety_fit)
+
+# ACE estimates
+mxEval(ACE.h2, IPM_anxiety_fit)
+mxEval(ACE.c2, IPM_anxiety_fit)
+mxEval(ACE.e2, IPM_anxiety_fit)
+```
+
+### AE 
+
+```{r fit AE model}
+# specify AE IPM
+IPM_anxiety_AE <- mxModel(IPM_anxiety, name = "IPM_anxiety_AE",
+     mxModel(IPM_anxiety_fit$ACE,
+     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
+     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
+    )
+)
+
+# run AE IPM
+IPM_anxiety_AE_fit <- mxTryHard(IPM_anxiety_AE, intervals = FALSE)
+
+# Summary and comparison to ACE
+summary(IPM_anxiety_AE_fit, verbose = TRUE)
+mxCompare(IPM_anxiety_fit, IPM_anxiety_AE_fit)
+```
+
+```{r AE model output}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.stcc2, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.stec2, IPM_anxiety_AE_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.stcs2, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.stes2, IPM_anxiety_AE_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph,IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.Ra, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.Rc, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.Re, IPM_anxiety_AE_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.c2, IPM_anxiety_AE_fit),3)
+round(mxEval(ACE.e2, IPM_anxiety_AE_fit),3)
+```
+
+# Depression
+
+## No sex differences
+
+### ACE
+
+```{r ACE model for depression}
+IPM_depression_nosex <- mxModel("IPM_depression_nosex",
+	mxModel("ACE",
+    # Common ace paths
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    		
+    # Specific ace paths
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+		
+		# ACE variance components
+    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
+    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
+    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
+    mxAlgebra(A + C + E, name = "V"),
+		
+		# Calculate standard deviation for standardization
+    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
+    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
+		
+		# Expected means vector
+    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), # is this for males?
+
+    # Genetic and environmental correlations (correlated factor solution)
+    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
+    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
+    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
+    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
+
+    # Standardised components of variance
+    mxAlgebra(A/V, name = "h2"),
+    mxAlgebra(C/V, name = "c2"),
+    mxAlgebra(E/V, name = "e2"),
+    
+    # Standardise common parameters (unsquared)
+    mxAlgebra(iSD %*% ac, name = "stac"),
+    mxAlgebra(iSD %*% cc, name = "stcc"),
+    mxAlgebra(iSD %*% ec, name = "stec"),
+    
+    # Standardise common parameters (Squared)
+    mxAlgebra(stac*stac, name = "stac2"),
+    mxAlgebra(stcc*stcc, name = "stcc2"),
+    mxAlgebra(stec*stec, name = "stec2"),
+    
+    # Standardise specific parameters (unsquared)
+    mxAlgebra(iSD %*% as, name = "stas"),
+    mxAlgebra(iSD %*% cs, name = "stcs"),
+    mxAlgebra(iSD %*% es, name = "stes"),
+    
+    # Standardise specific parameters (Squared)
+    mxAlgebra(stas*stas, name = "stas2"),
+    mxAlgebra(stcs*stcs, name = "stcs2"),
+    mxAlgebra(stes*stes, name = "stes2"),	
+	
+		# MZ expected covariance matrix
+		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
+		
+		# DZ expected covariance matrix
+		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
+		
+	),
+	
+	mxModel("MZ",
+		mxData(observed = dat.twin.MZ, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_dep),
+		mxFitFunctionML()
+	),
+	mxModel("DZ",
+		mxData(observed = dat.twin.DZ, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_dep),
+		mxFitFunctionML()
+	),
+
+	mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL"),
+	mxFitFunctionAlgebra("m2LL"),
+	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
+)
+```
+
+```{r run ACE mdoel for depression}
+IPM_depression_nosex_fit <- mxTryHard(IPM_depression_nosex, intervals = TRUE)
+summary(IPM_depression_nosex_fit, verbose = TRUE)
+```
+
+```{r parameter estimates ACE depression}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.stcc2, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.stec2, IPM_depression_nosex_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.stcs2, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.stes2, IPM_depression_nosex_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.Ra, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.Rc, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.Re, IPM_depression_nosex_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.c2, IPM_depression_nosex_fit),3)
+round(mxEval(ACE.e2, IPM_depression_nosex_fit),3)
+```
+
+### AE 
+
+```{r fit AE model}
+# specify AE IPM
+IPM_depression_nosex_AE <- mxModel(IPM_depression_nosex, name = "IPM_depression_nosex_AE",
+     mxModel(IPM_depression_nosex_fit$ACE,
+     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
+     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
+    )
+)
+
+# run AE IPM
+IPM_depression_nosex_AE_fit <- mxTryHard(IPM_depression_nosex_AE, intervals = TRUE)
+
+# Summary and comparison to ACE
+AE_sum <- summary(IPM_depression_nosex_AE_fit, verbose = TRUE)
+AE_sum
+mxCompare(IPM_depression_nosex_fit, IPM_depression_nosex_AE_fit)
+```
+
+```{r AE model output}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stcc2, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stec2, IPM_depression_nosex_AE_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stcs2, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stes2, IPM_depression_nosex_AE_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph,IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.Ra, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.Rc, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.Re, IPM_depression_nosex_AE_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.c2, IPM_depression_nosex_AE_fit),3)
+round(mxEval(ACE.e2, IPM_depression_nosex_AE_fit),3)
+```
+
+```{r AE confidence intervals}
+# create dataframe with all the confidence intervals 
+AE_CI <- as.data.frame(AE_sum$CI)
+AE_CI <- AE_CI %>%
+  mutate(parameter = rownames(AE_CI)) %>%
+  as.tibble()
+
+# common factors
+AE_CI.common <- AE_CI %>%
+  filter(grepl('ACE.stac2|ACE.stec2', parameter)) 
+
+# specific factors
+AE_CI.specific <- AE_CI %>%
+  filter(grepl('ACE.stas2|ACE.stes2', parameter) & estimate>0.00000000)
+
+AE_CI.common <- AE_CI.common %>%
+  mutate(AE = c(rep("A1",4), rep("A2",4), rep("E1",4), rep("E2",4))) %>%
+  mutate(variable = rep(c("Isolation12", "depression12", "Isolation18", "depression18"),4)) %>%
+  select(AE, variable, lbound, estimate, ubound)
+
+AE_CI.specific <- AE_CI.specific %>%
+  mutate(AE = c(rep("A",4), rep("E",4))) %>%
+  mutate(variable = rep(c("Isolation12", "depression12", "Isolation18", "depression18"),2)) %>%
+  select(AE, variable, lbound, estimate, ubound)
+```
+
+## Sex differences
+
+```{r check for sex as a covariate - depression}
+# regression analyses in elder twin members (MZ and DZ)
+rdepe12_sex <- summary(lm(cdie12 ~ sex, data = dat.twin))
+rdepe18_sex <- summary(lm(mdesxe18 ~ sex, data = dat.twin))
+# regression analyses in younger twin members (MZ and DZ)
+rdepy12_sex <- summary(lm(cdiy12 ~ sex, data = dat.twin))
+rdepy18_sex <- summary(lm(mdesxy18 ~ sex, data = dat.twin))
+```
+
+Therefore, sex significantly predicts all variables at age 18.
+
+**Do we want to control for sex based on this?**
+
+### ACE
+
+```{r ACE model for depression}
+IPM_depression <- mxModel("IPM_depression",
+	mxModel("ACE",
+    # Common ace paths
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    		
+    # Specific ace paths
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+		
+		# ACE variance components
+    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
+    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
+    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
+    mxAlgebra(A + C + E, name = "V"),
+		
+		# Calculate standard deviation for standardization
+    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
+    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
+		
+		# Expected means vector
+    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # is this for males?
+    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
+    
+    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # and this for females??
+    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
+
+    # Genetic and environmental correlations (correlated factor solution)
+    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
+    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
+    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
+    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
+
+    # Standardised components of variance
+    mxAlgebra(A/V, name = "h2"),
+    mxAlgebra(C/V, name = "c2"),
+    mxAlgebra(E/V, name = "e2"),
+    
+    # Standardise common parameters (unsquared)
+    mxAlgebra(iSD %*% ac, name = "stac"),
+    mxAlgebra(iSD %*% cc, name = "stcc"),
+    mxAlgebra(iSD %*% ec, name = "stec"),
+    
+    # Standardise common parameters (Squared)
+    mxAlgebra(stac*stac, name = "stac2"),
+    mxAlgebra(stcc*stcc, name = "stcc2"),
+    mxAlgebra(stec*stec, name = "stec2"),
+    
+    # Standardise specific parameters (unsquared)
+    mxAlgebra(iSD %*% as, name = "stas"),
+    mxAlgebra(iSD %*% cs, name = "stcs"),
+    mxAlgebra(iSD %*% es, name = "stes"),
+    
+    # Standardise specific parameters (Squared)
+    mxAlgebra(stas*stas, name = "stas2"),
+    mxAlgebra(stcs*stcs, name = "stcs2"),
+    mxAlgebra(stes*stes, name = "stes2"),	
+		
+    # Scalar multiplier - sex differences? 
+    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( F, F, T, T, F, F, T, T), # TRUE for sex difference variables (not isolation age 12)
+             values = 1,
+             label  = c("sc1", "sc2", "sc3", "sc4", "sc1", "sc2", "sc3", "sc4"), 
+             name   = "Scalar"),
+
+    mxBounds(c("sc3", "sc4"), 0, NA), # creates bounds for these objects - what are these? Only ones that are sex corrected (not age 12)
+	
+		# MZ expected covariance matrix
+		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"),
+		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
+		
+		# DZ expected covariance matrix
+		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"),
+		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
+		
+	),
+	
+	mxModel("MZM",
+		mxData(observed = dat.twin.MZm, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_dep),
+		mxFitFunctionML()
+	),
+	mxModel("MZF",
+		mxData(observed = dat.twin.MZf, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_dep),
+		mxFitFunctionML()
+	),
+	mxModel("DZM",
+		mxData(observed = dat.twin.DZm, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_dep),
+		mxFitFunctionML()
+	),
+	mxModel("DZF",
+		mxData(observed = dat.twin.DZf, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_dep),
+		mxFitFunctionML()
+	),
+
+	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
+	mxFitFunctionAlgebra("m2LL"),
+	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
+)
+```
+
+```{r run ACE mdoel for depression}
+IPM_depression_fit <- mxRun(IPM_depression, intervals = TRUE)
+summary(IPM_depression_fit, verbose = TRUE)
+```
+
+```{r parameter estimates ACE depression}
+# common standardised squared parameters
+mxEval(ACE.stac2, IPM_depression_fit)
+mxEval(ACE.stcc2, IPM_depression_fit)
+mxEval(ACE.stec2, IPM_depression_fit)
+
+# specific standardised squared parameters
+mxEval(ACE.stas2, IPM_depression_fit)
+mxEval(ACE.stcs2, IPM_depression_fit)
+mxEval(ACE.stes2, IPM_depression_fit)
+
+# phenotypic correlations
+mxEval(ACE.Rph, IPM_depression_fit)
+mxEval(ACE.Ra, IPM_depression_fit)
+mxEval(ACE.Rc, IPM_depression_fit)
+mxEval(ACE.Re, IPM_depression_fit)
+
+# ACE estimates
+mxEval(ACE.h2, IPM_depression_fit)
+mxEval(ACE.c2, IPM_depression_fit)
+mxEval(ACE.e2, IPM_depression_fit)
+```
+
+### AE
+
+```{r fit AE model}
+# specify AE IPM
+IPM_depression_AE <- mxModel(IPM_depression, name = "IPM_depression_AE",
+     mxModel(IPM_depression_fit$ACE,
+     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
+     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
+    )
+)
+
+# run AE IPM
+IPM_depression_AE_fit <- mxRun(IPM_depression_AE, intervals = FALSE)
+
+# Summary and comparison to ACE
+summary(IPM_depression_AE_fit, verbose = TRUE)
+mxCompare(IPM_depression_fit, IPM_depression_AE_fit)
+```
+
+Significantly worse fit when run without C. 
+
+```{r AE model output}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_depression_AE_fit),3)
+round(mxEval(ACE.stcc2, IPM_depression_AE_fit),3)
+round(mxEval(ACE.stec2, IPM_depression_AE_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_depression_AE_fit),3)
+round(mxEval(ACE.stcs2, IPM_depression_AE_fit),3)
+round(mxEval(ACE.stes2, IPM_depression_AE_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph,IPM_depression_AE_fit),3)
+round(mxEval(ACE.Ra, IPM_depression_AE_fit),3)
+round(mxEval(ACE.Rc, IPM_depression_AE_fit),3)
+round(mxEval(ACE.Re, IPM_depression_AE_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_depression_AE_fit),3)
+round(mxEval(ACE.c2, IPM_depression_AE_fit),3)
+round(mxEval(ACE.e2, IPM_depression_AE_fit),3)
+```
+
+
+# Anxiety & Depression
+
+```{r number of variables (phenotypes)}
+# number of variables
+nv <- 6    					      # number of variables - 2 at age 12 and 2 at age 18
+ntv <- nv*2 				      # number of twin variables
+nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
+
+# number of factors A (common)
+nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
+
+# default optimiser 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+
+# Set if the parameters are estimated (TRUE) or not (FALSE) 
+Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
+
+# Create start values for 2 common ACE Factors - set the start values for common 
+Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
+Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+```
+
+## No sex differences
+
+### ACE
+
+```{r ACE model for anxiety and depression}
+IPM_anxiety_depression_nosex <- mxModel("IPM_anxiety_depression_nosex",
+	mxModel("ACE",
+    # Common ace paths
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    		
+    # Specific ace paths
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+		
+		# ACE variance components
+    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
+    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
+    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
+    mxAlgebra(A + C + E, name = "V"),
+		
+		# Calculate standard deviation for standardization
+    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
+    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
+		
+		# Expected means vector
+    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), # is this for males?
+
+    # Genetic and environmental correlations (correlated factor solution)
+    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
+    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
+    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
+    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
+
+    # Standardised components of variance
+    mxAlgebra(A/V, name = "h2"),
+    mxAlgebra(C/V, name = "c2"),
+    mxAlgebra(E/V, name = "e2"),
+    
+    # Standardise common parameters (unsquared)
+    mxAlgebra(iSD %*% ac, name = "stac"),
+    mxAlgebra(iSD %*% cc, name = "stcc"),
+    mxAlgebra(iSD %*% ec, name = "stec"),
+    
+    # Standardise common parameters (Squared)
+    mxAlgebra(stac*stac, name = "stac2"),
+    mxAlgebra(stcc*stcc, name = "stcc2"),
+    mxAlgebra(stec*stec, name = "stec2"),
+    
+    # Standardise specific parameters (unsquared)
+    mxAlgebra(iSD %*% as, name = "stas"),
+    mxAlgebra(iSD %*% cs, name = "stcs"),
+    mxAlgebra(iSD %*% es, name = "stes"),
+    
+    # Standardise specific parameters (Squared)
+    mxAlgebra(stas*stas, name = "stas2"),
+    mxAlgebra(stcs*stcs, name = "stcs2"),
+    mxAlgebra(stes*stes, name = "stes2"),	
+	
+		# MZ expected covariance matrix
+		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
+		
+		# DZ expected covariance matrix
+		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
+		
+	),
+	
+	mxModel("MZ",
+		mxData(observed = dat.twin.MZ, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_anx_dep),
+		mxFitFunctionML()
+	),
+	mxModel("DZ",
+		mxData(observed = dat.twin.DZ, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_anx_dep),
+		mxFitFunctionML()
+	),
+
+	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
+	mxFitFunctionAlgebra("m2LL"),
+	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
+)
+```
+
+Changed:
+* mxAlgebraObjective("neg2ll") to mxFitFunctionAlgebra("m2LL")
+* mxFIMLObjective() to mxExpectationNormal
+
+```{r run ACE mdoel for anxiety}
+IPM_anxiety_depression_nosex_fit <- mxTryHard(IPM_anxiety_depression_nosex, intervals = TRUE)
+summary(IPM_anxiety_depression_nosex_fit, verbose = TRUE)
+```
+
+```{r parameter estimates ACE anxiety}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.stcc2, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.stec2, IPM_anxiety_depression_nosex_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.stcs2, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.stes2, IPM_anxiety_depression_nosex_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.Ra, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.Rc, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.Re, IPM_anxiety_depression_nosex_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.c2, IPM_anxiety_depression_nosex_fit),3)
+round(mxEval(ACE.e2, IPM_anxiety_depression_nosex_fit),3)
+```
+
+### AE
+
+```{r fit AE model}
+# specify AE IPM
+IPM_anxiety_depression_nosex_AE <- mxModel(IPM_anxiety_depression_nosex, name = "IPM_anxiety_depression_nosex_AE",
+     mxModel(IPM_anxiety_depression_nosex_fit$ACE,
+     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
+     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
+    )
+)
+
+# run AE IPM
+IPM_anxiety_depression_nosex_AE_fit <- mxTryHard(IPM_anxiety_depression_nosex_AE, intervals = TRUE)
+
+# Summary and comparison to ACE
+AE_sum <- summary(IPM_anxiety_depression_nosex_AE_fit, verbose = TRUE)
+AE_sum
+mxCompare(IPM_anxiety_depression_nosex_fit, IPM_anxiety_depression_nosex_AE_fit)
+```
+
+```{r AE model output}
+# common standardised squared parameters
+round(mxEval(ACE.stac2, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stcc2, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stec2, IPM_anxiety_depression_nosex_AE_fit),3)
+
+# specific standardised squared parameters
+round(mxEval(ACE.stas2, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stcs2, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.stes2, IPM_anxiety_depression_nosex_AE_fit),3)
+
+# phenotypic correlations
+round(mxEval(ACE.Rph,IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.Ra, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.Rc, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.Re, IPM_anxiety_depression_nosex_AE_fit),3)
+
+# ACE estimates
+round(mxEval(ACE.h2, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.c2, IPM_anxiety_depression_nosex_AE_fit),3)
+round(mxEval(ACE.e2, IPM_anxiety_depression_nosex_AE_fit),3)
+```
+
+```{r AE confidence intervals}
+# create dataframe with all the confidence intervals 
+AE_CI <- as.data.frame(AE_sum$CI)
+AE_CI <- AE_CI %>%
+  mutate(parameter = rownames(AE_CI)) %>%
+  as.tibble()
+
+# common factors
+AE_CI.common <- AE_CI %>%
+  filter(grepl('ACE.stac2|ACE.stec2', parameter)) 
+
+# specific factors
+AE_CI.specific <- AE_CI %>%
+  filter(grepl('ACE.stas2|ACE.stes2', parameter) & estimate>0.00000000)
+
+AE_CI.common <- AE_CI.common %>%
+  mutate(AE = c(rep("A1",4), rep("A2",4), rep("E1",4), rep("E2",4))) %>%
+  mutate(variable = rep(c("Isolation12", "Anxiety12", "Isolation18", "Anxiety18"),4)) %>%
+  select(AE, variable, lbound, estimate, ubound)
+
+AE_CI.specific <- AE_CI.specific %>%
+  mutate(AE = c(rep("A",4), rep("E",4))) %>%
+  mutate(variable = rep(c("Isolation12", "Anxiety12", "Isolation18", "Anxiety18"),2)) %>%
+  select(AE, variable, lbound, estimate, ubound)
+```
+
+
+
+
+
+

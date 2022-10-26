@@ -150,18 +150,111 @@ dat <- dat %>%
     sisoy5 = as.numeric(sisoy5),      # isolation younger
     sisoy7 = as.numeric(sisoy7),
     sisoy10 = as.numeric(sisoy10),
-    sisoy12 = as.numeric(sisoy12)
-  )
-```
-
-### Create twin dataset
-
-```{r remove variables not needed}
-dat <- dat %>% select(
+    sisoy12 = as.numeric(sisoy12) 
+  ) %>%
+    select(
       -c(sampsex, 
          seswq35)
          )
 ```
+
+# Variable lists
+
+```{r select variables for correlations}
+selvars <- c("sisoe5", "sisoe7", "sisoe10", "sisoe12", "sisoy5", "sisoy7", "sisoy10", "sisoy12")
+selvars_norm <- c("sisoe5norm", "sisoe7norm", "sisoe10norm", "sisoe12norm", "sisoy5norm", "sisoy7norm", "sisoy10norm", "sisoy12norm")
+selvars_stand <- c("z_score_sisoe5", "z_score_sisoe7", "z_score_sisoe10", "z_score_sisoe12", "z_score_sisoy5", "z_score_sisoy7", "z_score_sisoy10", "z_score_sisoy12")
+selvars_norm_all <- c("sisoe5", "sisoe7", "sisoe10", "sisoe12", "sisoy5", "sisoy7", "sisoy10", "sisoy12", "sisoe5norm", "sisoe7norm", "sisoe10norm", "sisoe12norm", "sisoy5norm", "sisoy7norm", "sisoy10norm", "sisoy12norm")
+```
+
+# Data prep
+
+## Skewness
+
+```{r histograms}
+# isolation - all not normal
+hist(dat$sisoe5)    
+hist(dat$sisoe7)  
+hist(dat$sisoe10)
+hist(dat$sisoe12)   
+```
+
+## Rank transformation
+
+Almost all variables are non-normal, therefore, we will use the van der Waerden's rank-based transformation in Kaili's paper [here](https://acamh.onlinelibrary.wiley.com/doi/full/10.1002/jcv2.12053), where for analyses using transformed data, they conducted the van der Waerden transformation prior to residualizing for age and sex as has been recommended by [Pain et al. 2018](https://www.nature.com/articles/s41431-018-0159-6).  
+
+I will transform all variables to get the normalised estimate, but will use the raw anxiety at age 12 as it's already normal. 
+
+```{r rank transform variables elder variables}
+# elder variables
+# isolation age 5
+sisoe5_n <- bestNormalize(dat$sisoe5)    # select the type of transformation needed
+dat$sisoe5norm <- predict(sisoe5_n)      # create normalised variable
+hist(dat$sisoe5norm)                  
+summary(dat$sisoe5norm)
+
+# isolation age 7
+sisoe7_n <- bestNormalize(dat$sisoe7)   
+dat$sisoe7norm <- predict(sisoe7_n)      
+hist(dat$sisoe7norm)                  
+summary(dat$sisoe7norm)
+
+# isolation age 10
+sisoe10_n <- bestNormalize(dat$sisoe10)   
+dat$sisoe10norm <- predict(sisoe10_n)      
+hist(dat$sisoe10norm)                  
+summary(dat$sisoe10norm)
+
+# isolation age 12
+sisoe12_n <- bestNormalize(dat$sisoe12)   
+dat$sisoe12norm <- predict(sisoe12_n)      
+hist(dat$sisoe12norm)                  
+summary(dat$sisoe12norm)
+
+# younger variables
+# isolation age 5
+sisoy5_n <- bestNormalize(dat$sisoy5)   
+dat$sisoy5norm <- predict(sisoy5_n)     
+hist(dat$sisoy5norm)                  
+summary(dat$sisoy5norm)
+
+# isolation age 7
+sisoy7_n <- bestNormalize(dat$sisoy7)   
+dat$sisoy7norm <- predict(sisoy7_n)      
+hist(dat$sisoy7norm)                  
+summary(dat$sisoy7norm)
+
+# isolation age 10
+sisoy10_n <- bestNormalize(dat$sisoy10)   
+dat$sisoy10norm <- predict(sisoy10_n)      
+hist(dat$sisoy10norm)                  
+summary(dat$sisoy10norm)
+
+# isolation age 12
+sisoy12_n <- bestNormalize(dat$sisoy12)   
+dat$sisoy12norm <- predict(sisoy12_n)      
+hist(dat$sisoy12norm)                  
+summary(dat$sisoy12norm)
+```
+
+## Standardising
+
+Create *z scores* for all variables. 
+
+```{r scale variables and combine to MZ dataset}
+# create a scaled version of the continuous variables - z scores for all variables
+scaled_continuous_data <- as.data.frame(scale(dat[selvars_norm_all], center = TRUE, scale = TRUE))
+
+# rename variables to show that they are z scores 
+colnames(scaled_continuous_data) <- paste0("z_score_", colnames(scaled_continuous_data))
+
+# combine the scaled data to the main dataset for  and DZ twins
+dat <- cbind(dat, scaled_continuous_data)
+
+colnames(dat)
+```
+
+### Create twin dataset
 
 To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
 
@@ -185,19 +278,13 @@ dat.twin.DZ <- dat.twin %>% filter (zygosity == "DZ")
 MZ_summary <- describe(dat.twin.MZ, 
                        skew = FALSE, 
                        range = FALSE)
-MZ_summary
 
 DZ_summary <- describe(dat.twin.DZ, 
                        skew = FALSE, 
                        range = FALSE)
-DZ_summary
 ```
 
 # Correlation matrices
-
-```{r select variables for correlations}
-selvars <- c("sisoe5", "sisoe7", "sisoe10", "sisoe12", "sisoy5", "sisoy7", "sisoy10", "sisoy12")
-```
 
 The rule of thumb for choosing an ACE or ADE model is: 
 
@@ -210,7 +297,7 @@ covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
 
 # correlation matrix (standardized covariance)
 cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
-round(cor.mz, 3)
+#round(cor.mz, 3)
 ```
 
 ```{r DZ matrices}
@@ -219,7 +306,7 @@ covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
 
 # correlation matrix (standardized covariance)
 cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
-round(cor.dz, 3)
+#round(cor.dz, 3)
 ```
 
 ADE vs ACE estimation:
@@ -249,27 +336,6 @@ VE = 1 - 0.59 = 0.41
 
 As C is negative here, it's likely that the OpenMX model will give a very small estimate for C and that C will be dropped from the ACE model. The power to detect C is very low, to detect a C2 of 10% with a h2 of 60% requires 2200 MZ and DZ pairs. However, when deciding on an AE model, any C that does exist will fall into A and you will get an inflated heritability estimate. 
 
-***
-
-Below is not needed for the analyses - but showing another way to compute matrices in R. 
-
-```{r express covariance matrix using SD and correlations}
-# variances from covariance matrix - diagonal is one variable with itself
-var.mz <- diag(covar.mz) 
-
-# creating the standard deviation into a vector (sd is the square root of the variance) then put this into a matrix
-sd.mz <- diag(sqrt(var.mz))
-
-# re-calculating variance of MZ 
-Smz <- sd.mz%*%cor.mz%*%t(sd.mz) 
-round(covar.mz - Smz, 3) # compare with previous calculation
-
-# Therefore, we can also obtain the correlation matrix as follows
-rMZ <- cov2cor(covar.mz)
-```
-
-***
-
 # Saturated model
 
 ## Parameter labels
@@ -286,12 +352,12 @@ Full correlation matrix:
 ------------ | ------- | -------- | -------- | -------- | ------ | ------- | -------- | ------  |        
 **sisoe5**   | 1.000   |          |          |          |        |         |          |         | 
 **sisoe7**   | xph1    | 1.000    |          |          |        |         |          |         |
-**sisoe10**  | xph2    | xph4     | 1.000    |          |        |         |          |         |    
-**sisoe12**  | xph3    | xph5     | xph6     | 1.000    |        |         |          |         |            
-**sisoy5**   | xt1     | xtxph4   | xtxph7   | xtxph10  | 1.000  |         |          |         |                             
-**sisoy7**   | xtxph1  | xt2      | xtxph8   | xtxph11  | xph7   | 1.000   |          |         |                     
-**sisoy10**  | xtxph2  | xtxph5   | xt3      | xtxph12  | xph8   | xph10   | 1.000    |         |                        
-**sisoy12**  | xtxph3  | xtxph6   | xtxph9   | xt4      | xph9   | xph11   | xph12    | 1.000   |
+**sisoe10**  | xph2    | xph3     | 1.000    |          |        |         |          |         |    
+**sisoe12**  | xph4    | xph5     | xph6     | 1.000    |        |         |          |         |            
+**sisoy5**   | xt1     | xtxph1   | xtxph2   | xtxph3   | 1.000  |         |          |         |                             
+**sisoy7**   | xtxph4  | xt2      | xtxph5   | xtxph6   | xph7   | 1.000   |          |         |                     
+**sisoy10**  | xtxph7  | xtxph8   | xt3      | xtxph9   | xph8   | xph9    | 1.000    |         |                        
+**sisoy12**  | xtxph10 | xtxph11  | xtxph12  | xt4      | xph10  | xph11   | xph12    | 1.000   |
 
 
 We first specify the start values and labels to make the code less busy. For the start values, I used the summary tables to check the approximate value the model should be looking for. The list should reflect the same order as in `selvars`. 
@@ -315,20 +381,36 @@ labDZm	<- c("DZme5", "DZme7", "DZme10", "DZme12", "DZmy5", "DZmy7", "DZmy10", "D
 labMZsd	<- c("MZsde5", "MZsde7", "MZsde10", "MZsde12", "MZsdy5", "MZsdy7", "MZsdy10", "MZsdy12")   # MZ standard deviations
 labDZsd	<- c("DZsde5", "DZsde7", "DZsde10", "DZsde12", "DZsdy5", "DZsdy7", "DZsdy10", "DZsdy12")   # DZ standard deviations
 
-labMZr	<- c("MZrxph1", "MZrxph2", "MZrxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
-            "MZrxph4", "MZrxph5", "MZrxtxph4", "MZrxt2", "MZrxtxph5", "MZrxtxph6", 
-            "MZrxph6", "MZrxtxph7", "MZrxtxph8", "MZrxt3", "MZrxtxph9",
-            "MZrxtxph10", "MZrxtxph11", "MZrxtxph12", "MZrxt4",
-            "MZrxph7", "MZrxph8", "MZrxph9", 
-            "MZrxph10", "MZrxph11",
-            "MZrxph12")     
-labDZr	<- c("DZrxph1", "DZrxph2", "DZrxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
-            "DZrxph4", "DZrxph5", "DZrxtxph4", "DZrxt2", "DZrxtxph5", "DZrxtxph6", 
-            "DZrxph6", "DZrxtxph7", "DZrxtxph8", "DZrxt3", "DZrxtxph9",
-            "DZrxtxph10", "DZrxtxph11", "DZrxtxph12", "DZrxt4",
-            "DZrxph7", "DZrxph8", "DZrxph9", 
-            "DZrxph10", "DZrxph11",
-            "DZrxph12") 
+labMZr	<- c("r21MZ1"  ,
+				     "r31MZ1"  ,"r32MZ1",
+				     "r41MZ1"  ,"r42MZ1","r43MZ1",
+				     "rMZ1"    ,"MZxtxt12","MZxtxt13","MZxtxt14",
+				     "MZxtxt21","rMZ2","MZxtxt23","MZxtxt24","r21MZ2",
+				     "MZxtxt31","MZxtxt32","rMZ3","MZxtxt34","r31MZ2", "r32MZ2",
+				     "MZxtxt41","MZxtxt42","MZxtxt43","rMZ4", "r41MZ2","r42MZ2","r43MZ2")
+
+labDZr	<- c("r21DZ1",
+				  "r31DZ1","r32DZ1",
+				  "r41DZ1","r42DZ1","r43DZ1",
+				  "rDZ1","DZxtxt12","DZxtxt13","DZxtxt14",
+				  "DZxtxt21","rDZ2","DZxtxt23","DZxtxt24","r21DZ2",
+				  "DZxtxt31","DZxtxt32","rDZ3","DZxtxt34","r31DZ2", "r32DZ2",
+				  "DZxtxt41","DZxtxt42","DZxtxt43","rDZ4", "r41DZ2","r42DZ2","r43DZ2")
+
+# labMZr	<- c("MZrxph1", "MZrxph2", "MZrxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
+#             "MZrxph4", "MZrxph5", "MZrxtxph4", "MZrxt2", "MZrxtxph5", "MZrxtxph6", 
+#             "MZrxph6", "MZrxtxph7", "MZrxtxph8", "MZrxt3", "MZrxtxph9",
+#             "MZrxtxph10", "MZrxtxph11", "MZrxtxph12", "MZrxt4",
+#             "MZrxph7", "MZrxph8", "MZrxph9", 
+#             "MZrxph10", "MZrxph11",
+#             "MZrxph12")     
+# labDZr	<- c("DZrxph1", "DZrxph2", "DZrxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
+#             "DZrxph4", "DZrxph5", "DZrxtxph4", "DZrxt2", "DZrxtxph5", "DZrxtxph6", 
+#             "DZrxph6", "DZrxtxph7", "DZrxtxph8", "DZrxt3", "DZrxtxph9",
+#             "DZrxtxph10", "DZrxtxph11", "DZrxtxph12", "DZrxt4",
+#             "DZrxph7", "DZrxph8", "DZrxph9", 
+#             "DZrxph10", "DZrxph11",
+#             "DZrxph12") 
 ```
 
 ## Matrices
@@ -458,20 +540,39 @@ sub1svRdz <- c(rep(0.15, 16))                   # correlations for DZ
 sub1labm	<- c("m5", "m7", "m10", "m12", "m5", "m7", "m10", "m12")	         # means       
 sub1labsd	<- c("sd5", "sd7", "sd10", "sd12", "sd5", "sd7", "sd10", "sd12") # standard deviations
 
-sub1labrMZ	<- c("rxph1", "rxph2", "rxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
-            "rxph4", "rxph5", "MZrxtxph1", "MZrxt2", "MZrxtxph4", "MZrxtxph5", 
-            "rxph6", "MZrxtxph2", "MZrxtxph4", "MZrxt3", "MZrxtxph6",
-            "MZrxtxph3", "MZrxtxph5", "MZrxtxph6", "MZrxt4",
-            "rxph1", "rxph2", "rxph3", 
-            "rxph4", "rxph5",
-            "rxph6")  
-sub1labrDZ	<- c("rxph1", "rxph2", "rxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
-            "rxph4", "rxph5", "DZrxtxph1", "DZrxt2", "DZrxtxph4", "DZrxtxph5", 
-            "rxph6", "DZrxtxph2", "DZrxtxph4", "DZrxt3", "DZrxtxph6",
-            "DZrxtxph3", "DZrxtxph5", "DZrxtxph6", "DZrxt4",
-            "rxph1", "rxph2", "rxph3", 
-            "rxph4", "rxph5",
-            "rxph6") 
+## CHANGE LATER - read across rather than down
+sub1labrMZ	<- c("r21",
+				  "r31","r32",
+				  "r41","r42","r43",
+				  "rMZ1","MZxtxt12","MZxtxt13","MZxtxt14",
+				  "MZxtxt12","rMZ2","MZxtxt23","MZxtxt24","r21",
+				  "MZxtxt13","MZxtxt23","rMZ3","MZxtxt34","r31", "r32",
+				  "MZxtxt14","MZxtxt24","MZxtxt34","rMZ4", "r41","r42","r43")
+
+sub1labrDZ	<- c("r21",
+				  "r31","r32",
+				  "r41","r42","r43",
+				  "rDZ1","DZxtxt12","DZxtxt13","DZxtxt14",
+				  "DZxtxt12","rDZ2","DZxtxt23","DZxtxt24","r21",
+				  "DZxtxt13","DZxtxt23","rDZ3","DZxtxt34","r31", "r32",
+				  "DZxtxt14","DZxtxt24","DZxtxt34","rDZ4", "r41","r42","r43")
+
+
+# 
+# sub1labrMZ	<- c("rxph1", "rxph2", "rxph3", "MZrxt1",	"MZrxtxph1", "MZrxtxph2", "MZrxtxph3",     # MZ correlations
+#             "rxph4", "rxph5", "MZrxtxph1", "MZrxt2", "MZrxtxph4", "MZrxtxph5", 
+#             "rxph6", "MZrxtxph2", "MZrxtxph4", "MZrxt3", "MZrxtxph6",
+#             "MZrxtxph3", "MZrxtxph5", "MZrxtxph6", "MZrxt4",
+#             "rxph1", "rxph2", "rxph3", 
+#             "rxph4", "rxph5",
+#             "rxph6")  
+# sub1labrDZ	<- c("rxph1", "rxph2", "rxph3", "DZrxt1",	"DZrxtxph1", "DZrxtxph2", "DZrxtxph3",     # DZ correlations
+#             "rxph4", "rxph5", "DZrxtxph1", "DZrxt2", "DZrxtxph4", "DZrxtxph5", 
+#             "rxph6", "DZrxtxph2", "DZrxtxph4", "DZrxt3", "DZrxtxph6",
+#             "DZrxtxph3", "DZrxtxph5", "DZrxtxph6", "DZrxt4",
+#             "rxph1", "rxph2", "rxph3", 
+#             "rxph4", "rxph5",
+#             "rxph6") 
 ```
 
 ```{r specify saturated submodel 1}
@@ -763,7 +864,7 @@ AceModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1, Conf3, 
 AceFit <- mxRun(AceModel, intervals = TRUE)
 
 # summary - this shows the position in the cells for each matrix 
-AceSumm <- summary(AceFit)
+AceSumm <- summary(AceFit, verbose = TRUE)
 AceSumm
 
 # full list of A, C, and E estimates 
@@ -941,13 +1042,14 @@ AEModel	<- omxSetParameters(AEModel,
 # run the model
 AEFit <- mxRun(AEModel, intervals = TRUE)
 
-AESumm <- summary(AEFit)
+AESumm <- summary(AEFit, verbose = TRUE)
 AESumm
 
 # estimates
 round(AEFit@output$estimate, 4)
 ```
 
+**All confidence intervals look good here - all significant paths and 
 ## Output
 
 ### Estimates of A, C, and E, for each time point 
