@@ -39,8 +39,16 @@ library(bestNormalize)
 library(OpenMx)
 library(tidyr)
 library(tidyverse)
-library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
+library(dplyr)     # conflicts with tidyverse for e.g. rename and row_number
 ```
+
+# Source functions
+
+```{r source functions, include=FALSE}
+source("isolation_mhealth_functions.R")
+```
+
+# Read in data
 
 ```{r source the data file path, include=FALSE}
 # source raw data directory
@@ -51,24 +59,6 @@ source("../isolation_mentalhealth_data_path.R")
 dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
 colnames(dat.raw)
 ```
-
-# Functions
-
-```{r function}
-# table for ACE estimates
-ACE_esitmates_table <- function(data, variable, age){
-  table <- as.tibble(data$CI) %>%
-  mutate(ACE = c("h2", "c2", "e2")) %>%
-  mutate(Variable = variable) %>%
-  mutate(Age = age) %>%
-  select(Variable, Age, ACE, estimate, lbound, ubound) %>%
-  mutate(across(is.numeric, round, digits = 3))
-  
-  return(table)
-}
-```
- 
-# Data prep
 
 ### Column names
 
@@ -269,6 +259,38 @@ selvars_psy12norm_z_score_norm <- c("z_score_psysympe12norm", "z_score_psysympy1
 selvars_psy18norm_z_score_norm <- c("z_score_psyexpe18norm", "z_score_psyexpy18norm")
 ```
 
+```{r select variables - normalised and regressed sex}
+# social isolation
+selvars_si12norm_reg <- c("sisoe12norm_reg", "sisoy12norm_reg")
+selvars_si18norm_reg <- c("socisoe18norm_reg", "socisoy18norm_reg")
+
+# anxiety
+selvars_anx12norm_reg <- c("masce12norm_reg", "mascy12norm_reg")
+selvars_anx18norm_reg <- c("gadsxe18norm_reg", "gadsxy18norm_reg")
+
+# depression
+selvars_dep12norm_reg <- c("cdie12norm_reg", "cdiy12norm_reg")
+selvars_dep18norm_reg <- c("mdesxe18norm_reg", "mdesxy18norm_reg")
+
+# conduct
+selvars_con12norm_reg <- c("conec12norm_reg", "conyc12norm_reg")
+selvars_con18norm_reg <- c("cdsxe18norm_reg", "cdsxy18norm_reg")
+
+# psychosis
+selvars_psy12norm_reg <- c("psysympe12norm_reg", "psysympy12norm_reg")
+selvars_psy18norm_reg <- c("psyexpe18norm_reg", "psyexpy18norm_reg")
+
+# all 
+selvars_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                  "sisoy12norm_reg", "mascy12norm_reg", "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg", "socisoy18norm_reg", "gadsxy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+# all with non-norm_regalised - not in the twin modelling specific order here only used to standardise all variables at once
+selvars_norm_reg_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdiy12", "conec12", "conyc12", "psysympe12", "psysympy12", 
+                      "socisoe18", "socisoy18", "gadsxe18", "gadsxy18", "mdesxe18", "mdesxy18", "cdsxe18", "cdsxy18", "psyexpe18", "psyexpy18",
+                      "sisoe12norm_reg", "sisoy12norm_reg", "masce12norm_reg", "mascy12norm_reg", "cdie12norm_reg", "cdiy12norm_reg", "conec12norm_reg", "conyc12norm_reg", "psysympe12norm_reg", "psysympy12norm_reg", 
+                      "socisoe18norm_reg", "socisoy18norm_reg", "gadsxe18norm_reg", "gadsxy18norm_reg", "mdesxe18norm_reg", "mdesxy18norm_reg", "cdsxe18norm_reg", "cdsxy18norm_reg", "psyexpe18norm_reg", "psyexpy18norm_reg")
+```
+
 # Data prep
 
 ## Skewness
@@ -291,34 +313,11 @@ hist(dat$psysympe12) # not normal
 hist(dat$psyexpe18)  # not normal
 ```
 
-
-## Regress out age and sex
-
-*** 
-NEED TO GET TWIN AGE VARIABLES?
-***
-
-```{r Regress out age and sex}
-# # twin 1
-# dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ tagee12 * sex, na.action = na.exclude))) # The * operator denotes factor crossing: a*b interpreted as a+b+a:b
-# dat$socisoe18_reg <- (resid(lm(data = dat, socisoe18 ~ tagee18 * sex, na.action = na.exclude)))
-# dat$masce12_reg <- (resid(lm(data = dat, masce12 ~ tagee12 * sex, na.action = na.exclude)))
-# dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ tagee12 * sex, na.action = na.exclude)))
-# dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ tagee12 * sex, na.action = na.exclude)))
-# 
-# #Twin 2
-# dat$sisoy12_reg <- (resid(lm(data = dat, sisoy12 ~ tagey12 * sex, na.action = na.exclude)))
-# dat$socisoy18_reg <- (resid(lm(data = dat, socisoy18 ~ tagey18 * sex, na.action = na.exclude)))
-# dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ tagee12 * sex, na.action = na.exclude)))
-# dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ tagee12 * sex, na.action = na.exclude)))
-# dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ tagee12 * sex, na.action = na.exclude)))
-```
-
 ## Rank transformation
 
-Almost all variables are non-normal, therefore, we will use the van der Waerden's rank-based transformation in Kaili's paper [here](https://acamh.onlinelibrary.wiley.com/doi/full/10.1002/jcv2.12053), where for analyses using transformed data, they conducted the van der Waerden transformation prior to residualizing for age and sex as has been recommended by [Pain et al. 2018](https://www.nature.com/articles/s41431-018-0159-6).  
+Almost all variables are non-normal. We will use the van der Waerden's rank-based transformation as used in [Rimfeld et al 2021](https://acamh.onlinelibrary.wiley.com/doi/full/10.1002/jcv2.12053). For analyses using transformed data, they conducted the van der Waerden transformation prior to residualizing for age and sex as recommended by [Pain et al. 2018](https://www.nature.com/articles/s41431-018-0159-6).  
 
-I will transform all variables to get the normalised estimate, but will use the raw anxiety at age 12 as it's already normal. 
+I will transform all variables to get the normalised estimate.
 
 ```{r rank transform variables elder variables}
 # isolation age 12
@@ -444,6 +443,46 @@ hist(dat$psyexpy18norm)
 summary(dat$psyexpy18norm)
 ```
 
+## Regress out sex
+
+We first normalised the twin variables, then regress out sex. We don't regress out age here as all twins were measured as close to thir birthday as possible. 
+
+```{r Regress out age and sex}
+# twin 1 - elder
+## isolation
+dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) 
+dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude)))
+## anxiety
+dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude)))
+dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude)))
+## depression
+dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude)))
+dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude)))
+## conduct
+dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude)))
+dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude)))
+## psychosis
+dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude)))
+dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude)))
+
+# twin 2 - younger
+## isolation
+dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude))) 
+dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude)))
+## anxiety
+dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude)))
+dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude)))
+## depression
+dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude)))
+dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude)))
+## conduct
+dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude)))
+dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude)))
+## psychosis
+dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude)))
+dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude)))
+```
+
 ## Standardising
 
 Create *z scores* for all variables. 
@@ -461,7 +500,7 @@ dat <- cbind(dat, scaled_continuous_data)
 colnames(dat)
 ```
 
-### Create twin dataset
+## Create twin dataset
 
 To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
 
@@ -481,7 +520,9 @@ dat.twin.MZf <- dat.twin.MZ %>% filter(sex == "Female")
 dat.twin.DZf <- dat.twin.DZ %>% filter(sex == "Female")
 ```
 
-### Summary of MZ and DZ data
+## Summary of MZ and DZ data
+
+### Overall
 
 ```{r describe MZ and DZ data}
 MZ_summary <- describe(dat.twin.MZ, 
@@ -493,7 +534,7 @@ DZ_summary <- describe(dat.twin.DZ,
                        range = FALSE)
 ```
 
-## MZ
+### MZ correlations
 
 ```{r MZ matrices}
 # covariance matrix
@@ -503,7 +544,7 @@ cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
 # round(cor.mz, 3)
 ```
 
-## DZ
+### DZ correlations
 
 ```{r DZ matrices}
 # covariance matrix
@@ -513,7 +554,11 @@ cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
 # round(cor.dz, 3)
 ```
 
-# Set up univariate ACE model
+# Univariate ACE model
+
+## Specify
+
+This model will be applied to all variables at age 12 and 18 - social isolation, anxiety, depression, conduct disorder, psychosis. 
 
 ```{r number of variables (phenotypes)}
 # number of variables
@@ -575,17 +620,18 @@ dataDZ <-mxData(observed = dat.twin.DZ, type = "raw")
 fitFunction <- mxFitFunctionML()
 ```
 
-# Social isolation 
+## Social isolation 
 
-## Age 12
+### Age 12
 
 **First, select which variable list to use: raw, standardised, normalised, or standardised and normalised**
 
 ```{r select which variables to use}
 # selvars_si12_chosen <- selvars_si12                 # raw
 # selvars_si12_chosen <- selvars_si12_z_score         # standardised
-selvars_si12_chosen <- selvars_si12norm             # normalised
+# selvars_si12_chosen <- selvars_si12norm             # normalised
 # selvars_si12_chosen <- selvars_si12_z_score_norm    # standardised and normalised
+  selvars_si12_chosen <- selvars_si12norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 12 isolation ACE}
@@ -636,13 +682,19 @@ Social isolation	12	h2	0.421
 Social isolation	12	c2	0.000
 Social isolation	12	e2	0.579
 
-## Age 18
+normalised and sex regressed:
+Social isolation	12	h2	0.419
+Social isolation	12	c2	0.000
+Social isolation	12	e2	0.581
+
+### Age 18
 
 ```{r select which variables to use}
 # selvars_si18_chosen <- selvars_si18                 # raw
 # selvars_si18_chosen <- selvars_si18_z_score         # standardised
-selvars_si18_chosen <- selvars_si18norm             # normalised
+# selvars_si18_chosen <- selvars_si18norm             # normalised
 # selvars_si18_chosen <- selvars_si18_z_score_norm    # standardised and normalised
+  selvars_si18_chosen <- selvars_si18norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 18 isolation ACE}
@@ -693,15 +745,21 @@ Social isolation	18	h2	0.4575
 Social isolation	18	c2	0.0000
 Social isolation	18	e2	0.5425
 
-# Anxiety
+normalised and sex regressed:
+Social isolation	18	h2	0.45
+Social isolation	18	c2	0.00
+Social isolation	18	e2	0.55
 
-## Age 12
+## Anxiety
+
+### Age 12
 
 ```{r select which variables to use}
 # selvars_anx12_chosen <- selvars_anx12                 # raw
 # selvars_anx12_chosen <- selvars_anx12_z_score         # standardised
-selvars_anx12_chosen <- selvars_anx12norm             # normalised
+# selvars_anx12_chosen <- selvars_anx12norm             # normalised
 # selvars_anx12_chosen <- selvars_anx12_z_score_norm    # standardised and normalised
+  selvars_anx12_chosen <- selvars_anx12norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 12 anxiety ACE}
@@ -752,13 +810,19 @@ Anxiety	12	h2	0.270
 Anxiety	12	c2	0.114
 Anxiety	12	e2	0.615
 
-## Age 18
+normalised and sex regressed:
+Anxiety	12	h2	0.272
+Anxiety	12	c2	0.100
+Anxiety	12	e2	0.628
+
+### Age 18
 
 ```{r select which variables to use}
 # selvars_anx18_chosen <- selvars_anx18                 # raw
 # selvars_anx18_chosen <- selvars_anx18_z_score         # standardised
-selvars_anx18_chosen <- selvars_anx18norm             # normalised
+# selvars_anx18_chosen <- selvars_anx18norm             # normalised
 # selvars_anx18_chosen <- selvars_anx18_z_score_norm    # standardised and normalised
+  selvars_anx18_chosen <- selvars_anx18norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 18 anxiety ACE}
@@ -809,15 +873,21 @@ Anxiety	18	h2	0.255
 Anxiety	18	c2	0.000
 Anxiety	18	e2	0.745	
 
-# Depression
+normalised and sex regressed:
+Anxiety	18	h2	0.235
+Anxiety	18	c2	0.000
+Anxiety	18	e2	0.765	
 
-## Age 12
+## Depression
+
+### Age 12
 
 ```{r select which variables to use}
 # selvars_dep12_chosen <- selvars_dep12                 # raw
 # selvars_dep12_chosen <- selvars_dep12_z_score         # standardised
-selvars_dep12_chosen <- selvars_dep12norm             # normalised
+# selvars_dep12_chosen <- selvars_dep12norm             # normalised
 # selvars_dep12_chosen <- selvars_dep12_z_score_norm    # standardised and normalised
+  selvars_dep12_chosen <- selvars_dep12norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 12 depression ACE}
@@ -867,13 +937,19 @@ Depression	12	h2	0.210
 Depression	12	c2	0.147
 Depression	12	e2	0.643	
 
-## Age 18
+normalised and sex regressed:
+Depression	12	h2	0.211
+Depression	12	c2	0.146
+Depression	12	e2	0.643	
+
+### Age 18
 
 ```{r select which variables to use}
 # selvars_dep18_chosen <- selvars_dep18                 # raw
 # selvars_dep18_chosen <- selvars_dep18_z_score         # standardised
-selvars_dep18_chosen <- selvars_dep18norm             # normalised
+# selvars_dep18_chosen <- selvars_dep18norm             # normalised
 # selvars_dep18_chosen <- selvars_dep18_z_score_norm    # standardised and normalised
+  selvars_dep18_chosen <- selvars_dep18norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 18 depression ACE}
@@ -923,15 +999,21 @@ Depression	18	h2	0.325
 Depression	18	c2	0.000
 Depression	18	e2	0.675
 
-# Conduct disorder
+normalised and sex regressed:
+Depression	18	h2	0.315
+Depression	18	c2	0.000
+Depression	18	e2	0.685
 
-## Age 12
+## Conduct disorder
+
+### Age 12
 
 ```{r select which variables to use}
 # selvars_con12_chosen <- selvars_con12                 # raw
 # selvars_con12_chosen <- selvars_con12_z_score         # standardised
-selvars_con12_chosen <- selvars_con12norm             # normalised
+# selvars_con12_chosen <- selvars_con12norm             # normalised
 # selvars_con12_chosen <- selvars_con12_z_score_norm    # standardised and normalised
+  selvars_con12_chosen <- selvars_con12norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 12 conduct ACE}
@@ -979,16 +1061,21 @@ Conduct disorder	12	e2	0.519
 normalised:
 Conduct disorder	12	h2	0.187
 Conduct disorder	12	c2	0.272
-Conduct disorder	12	e2	0.541	
+Conduct disorder	12	e2	0.541
 
+normalised and sex regressed:
+Conduct disorder	12	h2	0.197
+Conduct disorder	12	c2	0.249
+Conduct disorder	12	e2	0.554	
 
-## Age 18
+### Age 18
 
 ```{r select which variables to use}
 # selvars_con18_chosen <- selvars_con18                 # raw
 # selvars_con18_chosen <- selvars_con18_z_score         # standardised
-selvars_con18_chosen <- selvars_con18norm             # normalised
+# selvars_con18_chosen <- selvars_con18norm             # normalised
 # selvars_con18_chosen <- selvars_con18_z_score_norm    # standardised and normalised
+  selvars_con18_chosen <- selvars_con18norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 18 conduct ACE}
@@ -1038,15 +1125,21 @@ Conduct disorder	18	h2	0.184
 Conduct disorder	18	c2	0.310
 Conduct disorder	18	e2	0.506	
 
-# Psychotic experiences
+normalised and sex regressed:
+Conduct disorder	18	h2	0.195
+Conduct disorder	18	c2	0.270
+Conduct disorder	18	e2	0.535	
 
-## Age 12
+## Psychotic experiences
+
+### Age 12
 
 ```{r select which variables to use}
 # selvars_psy12_chosen <- selvars_psy12                 # raw
 # selvars_psy12_chosen <- selvars_psy12_z_score         # standardised
-selvars_psy12_chosen <- selvars_psy12norm             # normalised
+# selvars_psy12_chosen <- selvars_psy12norm             # normalised
 # selvars_psy12_chosen <- selvars_psy12_z_score_norm    # standardised and normalised
+  selvars_psy12_chosen <- selvars_psy12norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 12 psychosis ACE}
@@ -1096,13 +1189,19 @@ Psychosis	12	h2	0.108
 Psychosis	12	c2	0.185
 Psychosis	12	e2	0.708	
 
-## Age 18
+normalised and sex regressed:
+Psychosis	12	h2	0.135
+Psychosis	12	c2	0.149
+Psychosis	12	e2	0.716	
+
+### Age 18
 
 ```{r select which variables to use}
 # selvars_psy18_chosen <- selvars_psy18                 # raw
 # selvars_psy18_chosen <- selvars_psy18_z_score         # standardised
- selvars_psy18_chosen <- selvars_psy18norm             # normalised
+# selvars_psy18_chosen <- selvars_psy18norm             # normalised
 # selvars_psy18_chosen <- selvars_psy18_z_score_norm    # standardised and normalised
+  selvars_psy18_chosen <- selvars_psy18norm_reg         # normalised and regressed sex
 ```
 
 ```{r run age 18 psychosis ACE}
@@ -1152,7 +1251,12 @@ Psychosis	18	h2	0.237
 Psychosis	18	c2	0.043	
 Psychosis	18	e2	0.720	
 
-# Full estimates table 
+normalised and sex regressed:
+Psychosis	18	h2	0.237	
+Psychosis	18	c2	0.042	
+Psychosis	18	e2	0.721	
+
+## All ACE estimates
 
 ```{r ACE estimates table for all variables}
 ACE_estimates <- rbind(isolation12_table, 
@@ -1168,4 +1272,3 @@ ACE_estimates <- rbind(isolation12_table,
 
 ACE_estimates
 ```
-
