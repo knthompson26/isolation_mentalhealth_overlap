@@ -42,6 +42,14 @@ library(tidyverse)
 library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
 ```
 
+# Source functions
+
+```{r source functions, include=FALSE}
+source("isolation_mhealth_functions.R")
+```
+
+# Read in data
+
 ```{r source the data file path, include=FALSE}
 # source raw data directory
 source("../isolation_mentalhealth_data_path.R")
@@ -52,9 +60,7 @@ dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
 colnames(dat.raw)
 ```
 
-# Data prep
-
-### Column names
+## Column names
 
 ```{r select variables needed}
 dat <- dat.raw %>%
@@ -91,9 +97,9 @@ dat <- dat.raw %>%
 colnames(dat)
 ```
 
-### Recode variables into factors {.tabset .tabset-fade}
+## Recode variables into factors {.tabset .tabset-fade}
 
-#### Sex
+### Sex
 
 ```{r recode sex}
 dat <- dat %>%
@@ -106,7 +112,7 @@ dat <- dat %>%
 table(dat$sex)
 ```
 
-#### Zygosity
+### Zygosity
 
 ```{r recode zygosity}
 dat <- dat %>%
@@ -118,7 +124,7 @@ dat <- dat %>%
 table(dat$zygosity)
 ```
 
-### Convert variables to numeric
+## Convert variables to numeric
 
 ```{r create numeric isolation variables}
 dat <- dat %>%
@@ -149,23 +155,7 @@ dat <- dat %>%
   )
 ```
 
-# Functions
-
-```{r functions}
-# Table for same phenotype cross time ACE bivariate
-ACE_esitmates_table_crosstime <- function(data, variable){
-  table <- as.tibble(data$CI) %>%
-  mutate(ACE = c(rep("h2",2), rep("c2",2), rep("e2",2))) %>%
-  mutate(Variable = variable) %>%
-  mutate(Age = rep(c("12", "18"), 3)) %>%
-  select(Variable, Age, ACE, estimate, lbound, ubound) %>% 
-  mutate(across(is.numeric, round, digits = 3))
-  
-  return(table)
-}
-```
-
-# Variables lists
+# Variable lists
 
 ```{r select variables - raw}
 # social isolation
@@ -308,7 +298,84 @@ selvars_z_score <- c("z_score_sisoe12", "z_score_masce12", "z_score_cdie12", "z_
              "z_score_sisoy12", "z_score_mascy12", "z_score_cdiy12", "z_score_conyc12", "z_score_psysympy12", "z_score_socisoy18", "z_score_gadsxy18", "z_score_mdesxy18", "z_score_cdsxy18", "z_score_psyexpy18")
 ```
 
+```{r select variables - normalised and sex regressed}
+# social isolation
+selvars_si_norm_reg <- c("sisoe12norm_reg", "socisoe18norm_reg", "sisoy12norm_reg", "socisoy18norm_reg")
+
+# anxiety
+selvars_anxe_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg")
+selvars_anx_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg", 
+                 "sisoy12norm_reg", "mascy12norm_reg", "socisoy18norm_reg", "gadsxy18norm_reg")
+selvars_anxonly_norm_reg <- c("masce12norm_reg", "gadsxe18norm_reg", "mascy12norm_reg", "gadsxy18norm_reg")
+
+# depression
+selvars_depe_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "socisoe18norm_reg", "mdesxe18norm_reg")
+selvars_dep_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "socisoe18norm_reg", "mdesxe18norm_reg", 
+                 "sisoy12norm_reg", "cdiy12norm_reg", "socisoy18norm_reg", "mdesxy18norm_reg")
+selvars_deponly_norm_reg <- c("cdie12norm_reg", "mdesxe18norm_reg", "cdiy12norm_reg", "mdesxy18norm_reg")
+
+# conduct
+selvars_cone_norm_reg <- c("sisoe12norm_reg", "conec12norm_reg", "socisoe18norm_reg", "cdsxe18norm_reg")
+selvars_con_norm_reg <- c("sisoe12norm_reg", "conec12norm_reg", "socisoe18norm_reg", "cdsxe18norm_reg", 
+                 "sisoy12norm_reg", "conyc12norm_reg", "socisoy18norm_reg", "cdsxy18norm_reg")
+selvars_cononly_norm_reg <- c("conec12norm_reg", "cdsxe18norm_reg", "conyc12norm_reg", "cdsxy18norm_reg")
+
+# psychosis
+selvars_psye_norm_reg <- c("sisoe12norm_reg", "psysympe12norm_reg", "socisoe18norm_reg", "psyexpe18norm_reg")
+selvars_psy_norm_reg <- c("sisoe12norm_reg", "psysympe12norm_reg", "socisoe18norm_reg", "psyexpe18norm_reg",
+                 "sisoy12norm_reg", "psysympy12norm_reg", "socisoy18norm_reg", "psyexpy18norm_reg")
+selvars_psyonly_norm_reg <- c("psysympe12norm_reg", "psyexpe18norm_reg", "psysympy12norm_reg", "psyexpy18norm_reg")
+
+# age 12norm_reg
+selvars_anx12_norm_reg <- c("sisoe12norm_reg",  "masce12norm_reg",   "sisoy12norm_reg", "mascy12norm_reg")
+selvars_dep12_norm_reg <- c("sisoe12norm_reg",  "cdie12norm_reg",    "sisoy12norm_reg", "cdiy12norm_reg")
+selvars_con12_norm_reg <- c("sisoe12norm_reg",  "conec12norm_reg",   "sisoy12norm_reg", "conyc12norm_reg")
+selvars_psy12_norm_reg <- c("sisoe12norm_reg",  "psysympe12norm_reg","sisoy12norm_reg",  "psysympy12norm_reg")
+
+# age 18norm_reg
+selvars_anx18_norm_reg <- c("socisoe18norm_reg", "gadsxe18norm_reg", "socisoy18norm_reg", "gadsxy18norm_reg")
+selvars_dep18_norm_reg <- c("socisoe18norm_reg", "mdesxe18norm_reg", "socisoy18norm_reg", "mdesxy18norm_reg")
+selvars_con18_norm_reg <- c("socisoe18norm_reg", "cdsxe18norm_reg",  "socisoy18norm_reg", "cdsxy18norm_reg")
+selvars_psy18_norm_reg <- c("socisoe18norm_reg", "psyexpe18norm_reg","socisoy18norm_reg",  "psyexpy18norm_reg")
+
+# all 
+selvars_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+             "sisoy12norm_reg", "mascy12norm_reg", "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg", "socisoy18norm_reg", "gadsxy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+# all with non-norm_regalised - not in the twin modelling specific order here only used to standardise all variables at once
+selvars_norm_reg_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdiy12", "conec12", "conyc12", "psysympe12", "psysympy12", 
+                      "socisoe18", "socisoy18", "gadsxe18", "gadsxy18", "mdesxe18", "mdesxy18", "cdsxe18", "cdsxy18", "psyexpe18", "psyexpy18",
+                      "sisoe12norm_reg", "sisoy12norm_reg", "masce12norm_reg", "mascy12norm_reg", "cdie12norm_reg", "cdiy12norm_reg", "conec12norm_reg", "conyc12norm_reg", "psysympe12norm_reg", "psysympy12norm_reg", 
+                      "socisoe18norm_reg", "socisoy18norm_reg", "gadsxe18norm_reg", "gadsxy18norm_reg", "mdesxe18norm_reg", "mdesxy18norm_reg", "cdsxe18norm_reg", "cdsxy18norm_reg", "psyexpe18norm_reg", "psyexpy18norm_reg")
+```
+
+# Data prep
+
+## Skewness
+
+```{r histograms}
+# isolation
+hist(dat$sisoe12)    # not normal
+hist(dat$socisoe18)  # not normal
+# anxiety
+hist(dat$masce12)    # normal
+hist(dat$gadsxe18)   # not normal
+# depression
+hist(dat$cdie12)     # not normal
+hist(dat$mdesxe18)   # not normal
+# conduct
+hist(dat$conec12)    # not normal
+hist(dat$cdsxe18)    # not normal
+# psychosis
+hist(dat$psysympe12) # not normal
+hist(dat$psyexpe18)  # not normal
+```
+
 ## Rank transformation
+
+Almost all variables are non-normal. We will use the van der Waerden's rank-based transformation as used in [Rimfeld et al 2021](https://acamh.onlinelibrary.wiley.com/doi/full/10.1002/jcv2.12053). For analyses using transformed data, they conducted the van der Waerden transformation prior to residualizing for age and sex as recommended by [Pain et al. 2018](https://www.nature.com/articles/s41431-018-0159-6).  
+
+I will transform all variables to get the normalised estimate.
 
 ```{r rank transform variables elder variables}
 # isolation age 12
@@ -434,6 +501,46 @@ hist(dat$psyexpy18norm)
 summary(dat$psyexpy18norm)
 ```
 
+## Regress out sex
+
+We first normalised the twin variables, then regress out sex. We don't regress out age here as all twins were measured as close to thir birthday as possible. 
+
+```{r Regress out age and sex}
+# twin 1 - elder
+## isolation
+dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) 
+dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude)))
+## anxiety
+dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude)))
+dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude)))
+## depression
+dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude)))
+dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude)))
+## conduct
+dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude)))
+dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude)))
+## psychosis
+dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude)))
+dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude)))
+
+# twin 2 - younger
+## isolation
+dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude))) 
+dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude)))
+## anxiety
+dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude)))
+dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude)))
+## depression
+dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude)))
+dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude)))
+## conduct
+dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude)))
+dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude)))
+## psychosis
+dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude)))
+dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude)))
+```
+
 ## Standardising
 
 Create *z scores* for all variables. 
@@ -451,7 +558,7 @@ dat <- cbind(dat, scaled_continuous_data)
 colnames(dat)
 ```
 
-### Create twin dataset
+## Create twin dataset
 
 To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
 
@@ -471,7 +578,9 @@ dat.twin.MZf <- dat.twin.MZ %>% filter(sex == "Female")
 dat.twin.DZf <- dat.twin.DZ %>% filter(sex == "Female")
 ```
 
-### Summary of MZ and DZ data
+## Summary of MZ and DZ data
+
+### Overall
 
 ```{r describe MZ and DZ data}
 MZ_summary <- describe(dat.twin.MZ, 
@@ -483,7 +592,7 @@ DZ_summary <- describe(dat.twin.DZ,
                        range = FALSE)
 ```
 
-# Correlation matrices
+### Correlation matrices
 
 ```{r pheno correlations}
 cor(dat[, selvars_anxe], use = "complete")
@@ -492,7 +601,7 @@ cor(dat[, selvars_cone], use = "complete")
 cor(dat[, selvars_psye], use = "complete")
 ```
 
-## MZ
+#### MZ
 
 ```{r MZ matrices}
 # covariance matrix
@@ -502,7 +611,7 @@ cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
 # round(cor.mz, 3)
 ```
 
-## DZ
+#### DZ
 
 ```{r DZ matrices}
 # covariance matrix
@@ -512,59 +621,7 @@ cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
 # round(cor.dz, 3)
 ```
 
-## Sex as a covariate?
-
-```{r check for sex as a covariate - isolation}
-# regression analyses in elder twin members (MZ and DZ)
-risoe12_sex <- summary(lm(sisoe12 ~ sex, data = dat.twin))
-risoe18_sex <- summary(lm(socisoe18 ~ sex, data = dat.twin))
-# regression analyses in younger twin members (MZ and DZ)
-risoy12_sex <- summary(lm(sisoy12 ~ sex, data = dat.twin))
-risoy18_sex <- summary(lm(socisoy18 ~ sex, data = dat.twin))
-# see the R2 – proportion of explained variance using print(riso12_sex$r.squared)
-```
-
-```{r check for sex as a covariate - anxiety}
-# regression analyses in elder twin members (MZ and DZ)
-ranxe12_sex <- summary(lm(masce12 ~ sex, data = dat.twin))
-ranxe18_sex <- summary(lm(gadsxe18 ~ sex, data = dat.twin))
-# regression analyses in younger twin members (MZ and DZ)
-ranxy12_sex <- summary(lm(mascy12 ~ sex, data = dat.twin))
-ranxy18_sex <- summary(lm(gadsxy18 ~ sex, data = dat.twin))
-```
-
-```{r check for sex as a covariate - depression}
-# regression analyses in elder twin members (MZ and DZ)
-rdepe12_sex <- summary(lm(cdie12 ~ sex, data = dat.twin))
-rdepe18_sex <- summary(lm(mdesxe18 ~ sex, data = dat.twin))
-# regression analyses in younger twin members (MZ and DZ)
-rdepy12_sex <- summary(lm(cdiy12 ~ sex, data = dat.twin))
-rdepy18_sex <- summary(lm(mdesxy18 ~ sex, data = dat.twin))
-```
-
-```{r check for sex as a covariate - conduct}
-# regression analyses in elder twin members (MZ and DZ)
-rcone12_sex <- summary(lm(conec12 ~ sex, data = dat.twin))
-rcone18_sex <- summary(lm(cdsxe18 ~ sex, data = dat.twin))
-# regression analyses in younger twin members (MZ and DZ)
-rcony12_sex <- summary(lm(conyc12 ~ sex, data = dat.twin))
-rcony18_sex <- summary(lm(cdsxy18 ~ sex, data = dat.twin))
-```
-
-```{r check for sex as a covariate - psychosis}
-# regression analyses in elder twin members (MZ and DZ)
-rpsye12_sex <- summary(lm(psysympe12 ~ sex, data = dat.twin))
-rpsye18_sex <- summary(lm(psyexpe18 ~ sex, data = dat.twin))
-# regression analyses in younger twin members (MZ and DZ)
-rpsyy12_sex <- summary(lm(psysympy12 ~ sex, data = dat.twin))
-rpsyy18_sex <- summary(lm(psyexpy18 ~ sex, data = dat.twin))
-```
-
-Therefore, sex significantly predicts isolation at age 12, all anxiety variables, depression at age 18, all conduct variables, and none of the psychosis variables. 
-
-**Do we want to control for sex based on this?**
-
-# ACE models
+# ACE model
 
 There are two ways to paramatise the twin model. Either through variance components or through path coefficients. 
 
@@ -579,9 +636,9 @@ In a univariate model, this would look like this:
 I will run two sets of bivariate models using the path *coefficient parametisation*:
 
 * Bivariate models for each phenotype across age 12 and 18
-* Bivariate models for cross-phenotype within each age
+* Bivariate models for cross-phenotype within each age (only if needed)
 
-## ACE setup
+## Specify
 
 ```{r number of variables (phenotypes)}
 # number of variables
@@ -656,17 +713,18 @@ dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
 dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
 ```
 
-## Bivariate models for each phenotype across age 12 and 18
+## Bivariate models by phenotype
 
 ### Social isolation 
 
-**First, select which variable list to use: raw, standardised, normalised, or standardised and normalised**
+**Select which variable list to use: raw, standardised, normalised, standardised and normalised, or normalised and sex regressed.**
 
 ```{r select which variables to use}
 # selvars_si_chosen <- selvars_si                 # raw
 # selvars_si_chosen <- selvars_si_z_score         # standardised
-selvars_si_chosen <- selvars_si_norm             # normalised
+# selvars_si_chosen <- selvars_si_norm            # normalised
 # selvars_si_chosen <- selvars_si_z_score_norm    # standardised and normalised
+ selvars_si_chosen <- selvars_si_norm_reg         # normalised and sex regressed
 ```
 
 ```{r run social isolation at age 12 and 18 ACE}
@@ -706,17 +764,21 @@ isolation1218_table <- ACE_esitmates_table_crosstime(data = AceFit_isolation1218
 isolation1218_table
 ```
 
-From the univariate models (raw):
+univariate raw:
 Social isolation	12	h2	0.421	
 Social isolation	18	h2	0.457
 
-From the bivariate models (raw):
+univariate normalised and sex regressed:
+Social isolation	12	h2	0.419
+Social isolation	18	h2	0.450
+
+bivariate raw:
 Social isolation	12	h2	0.422	
 Social isolation	18	h2	0.457	
 
-From the bivariate models (normalised):
-Social isolation	12	h2	0.422	
-Social isolation	18	h2	0.457	
+bivariate normalised and sex regressed:
+Social isolation	12	h2	0.42	
+Social isolation	18	h2	0.45	
 
 ***
 
@@ -725,8 +787,9 @@ Social isolation	18	h2	0.457
 ```{r select which variables to use}
 # selvars_anx_chosen <- selvars_anxonly                 # raw
 # selvars_anx_chosen <- selvars_anxonly_z_score         # standardised
-selvars_anx_chosen <- selvars_anxonly_norm            # normalised
+# selvars_anx_chosen <- selvars_anxonly_norm            # normalised
 # selvars_anx_chosen <- selvars_anxonly_z_score_norm    # standardised and normalised
+ selvars_anx_chosen <- selvars_anxonly_norm_reg         # normalised and sex regressed
 ```
 
 ```{r run anxiety at age 12 and 18 ACE}
@@ -770,15 +833,13 @@ anxiety1218_table <- ACE_esitmates_table_crosstime(data = AceFit_anxiety1218_sum
 anxiety1218_table
 ```
 
-From the univariate models (normalised):
-Anxiety	12	h2	0.270
-Anxiety	18	h2	0.255
+univariate normalised and sex regressed:
+Anxiety	12	h2	0.272
+Anxiety	18	h2	0.235
 
-**The bivariate model wouldn't run using raw estimates - only normalised.** 
-
-From the bivariate models (normalised):
-Anxiety	12	h2	0.259	
-Anxiety	18	h2	0.237	
+bivariate normalised and sex regressed:
+Anxiety	12	h2	0.272	
+Anxiety	18	h2	0.226	
 
 ***
 
@@ -787,8 +848,9 @@ Anxiety	18	h2	0.237
 ```{r select which variables to use}
 # selvars_dep_chosen <- selvars_deponly                 # raw
 # selvars_dep_chosen <- selvars_deponly_z_score         # standardised
-selvars_dep_chosen <- selvars_deponly_norm            # normalised
+# selvars_dep_chosen <- selvars_deponly_norm            # normalised
 # selvars_dep_chosen <- selvars_deponly_z_score_norm    # standardised and normalised
+ selvars_dep_chosen <- selvars_deponly_norm_reg         # normalised and sex regressed
 ```
 
 ```{r run depression at age 12 and 18 ACE}
@@ -818,7 +880,7 @@ obj <- mxFitFunctionAlgebra("m2LL")
 AceModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1)
 
 # run ACE
-AceFit_depression1218 <- mxTryHard(AceModel, intervals = TRUE)
+AceFit_depression1218 <- mxRun(AceModel, intervals = TRUE)
 ```
 
 ```{r run ACE model}
@@ -832,15 +894,13 @@ depression1218_table <- ACE_esitmates_table_crosstime(data = AceFit_depression12
 depression1218_table
 ```
 
-From the univariate models (normalised):
-Depression	12	h2	0.210
-Depression	18	h2	0.325
+univariate normalised and sex regressed:
+Depression	12	h2	0.211
+Depression	18	h2	0.315
 
-**The bivariate model wouldn't run using raw estimates - only normalised.** 
-
-From the bivariate models (normalised):
-Depression	12	h2	0.189	
-Depression	18	h2	0.320
+bivariate normalised and sex regressed:
+Depression	12	h2	0.187	
+Depression	18	h2	0.310
 
 ***
 
@@ -849,8 +909,9 @@ Depression	18	h2	0.320
 ```{r select which variables to use}
 # selvars_con_chosen <- selvars_cononly                 # raw
 # selvars_con_chosen <- selvars_cononly_z_score         # standardised
-selvars_con_chosen <- selvars_cononly_norm            # normalised
+# selvars_con_chosen <- selvars_cononly_norm            # normalised
 # selvars_con_chosen <- selvars_cononly_z_score_norm    # standardised and normalised
+ selvars_con_chosen <- selvars_cononly_norm_reg         # normalised and sex regressed
 ```
 
 ```{r run conduct at age 12 and 18 ACE}
@@ -898,9 +959,13 @@ From the univariate models (raw):
 Conduct disorder	12	h2	0.137
 Conduct disorder	18	h2	0.209
 
-From the univariate models (normalised):
+univariate normalised:
 Conduct disorder	12	h2	0.187
 Conduct disorder	18	h2	0.184
+
+univariate normalised and sex regressed:
+Conduct disorder	12	h2	0.197
+Conduct disorder	18	h2	0.195
 
 From the bivariate models (raw):
 Conduct Disorder	12	h2	0.114	
@@ -910,6 +975,10 @@ From the bivariate models (normalised):
 Conduct Disorder	12	h2	0.176	
 Conduct Disorder	18	h2	0.173
 
+bivariate normalised and sex regressed:
+Conduct Disorder	12	h2	0.093	
+Conduct Disorder	18	h2	0.184
+
 ***
 
 ### Psychotic experiences
@@ -917,8 +986,9 @@ Conduct Disorder	18	h2	0.173
 ```{r select which variables to use}
 # selvars_psy_chosen <- selvars_psyonly                 # raw
 # selvars_psy_chosen <- selvars_psyonly_z_score         # standardised
-selvars_psy_chosen <- selvars_psyonly_norm            # normalised
+# selvars_psy_chosen <- selvars_psyonly_norm            # normalised
 # selvars_psy_chosen <- selvars_psyonly_z_score_norm    # standardised and normalised
+ selvars_psy_chosen <- selvars_psyonly_norm_reg         # normalised and sex regressed
 ```
 
 ```{r run psychosis at age 12 and 18 ACE}
@@ -970,6 +1040,10 @@ From the univariate models (normalised):
 Psychosis	12	h2	0.108
 Psychosis	18	h2	0.237	
 
+univariate normalised and sex regressed:
+Psychosis	12	h2	0.135
+Psychosis	18	h2	0.237	
+
 From the bivariate models (raw):
 Psychosis	12	h2	0.108	
 Psychosis	18	h2	0.238	
@@ -978,4 +1052,14 @@ From the bivariate models (normalised):
 Psychosis	12	h2	0.108	
 Psychosis	18	h2	0.238	
 
+bivariate normalised and sex regressed:
+Psychosis	12	h2	0.104	
+Psychosis	18	h2	0.238	
+
+Psychosis at age 18 is the most consistently estimated heritability overall. 
+
 ***
+
+## Bivariate models by phenotype - *only if needed*
+
+FOR THIS I WOULD NEED TO MAKE NEW VARIABLE LISTS 
