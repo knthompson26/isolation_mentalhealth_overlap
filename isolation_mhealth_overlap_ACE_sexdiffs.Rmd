@@ -181,28 +181,8 @@ selvars_psy18 <- c("psyexpe18", "psyexpy18")
 # all 
 selvars <- c("sisoe12", "masce12", "cdie12", "conec12",  "psysympe12", "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18",
              "sisoy12", "mascy12", "cdiy12", "conyc12", "psysympy12",  "socisoy18", "gadsxy18", "mdesxy18", "cdsxy18","psyexpy18")
-```
 
-```{r select variables - standardised}
-# social isolation
-selvars_si12_z_score <- c("z_score_sisoe12", "z_score_sisoy12")
-selvars_si18_z_score <- c("z_score_socisoe18", "z_score_socisoy18")
-
-# anxiety
-selvars_anx12_z_score <- c("z_score_masce12", "z_score_mascy12")
-selvars_anx18_z_score <- c("z_score_gadsxe18", "z_score_gadsxy18")
-
-# depression
-selvars_dep12_z_score <- c("z_score_cdie12", "z_score_cdiy12")
-selvars_dep18_z_score <- c("z_score_mdesxe18", "z_score_mdesxy18")
-
-# conduct
-selvars_con12_z_score <- c("z_score_conec12", "z_score_conyc12")
-selvars_con18_z_score <- c("z_score_cdsxe18", "z_score_cdsxy18")
-
-# psychosis
-selvars_psy12_z_score <- c("z_score_psysympe12", "z_score_psysympy12")
-selvars_psy18_z_score <- c("z_score_psyexpe18", "z_score_psyexpy18")
+selvars_e <- c("sisoe12", "masce12", "cdie12", "conec12",  "psysympe12", "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18")
 ```
 
 ```{r select variables - normalised}
@@ -235,28 +215,6 @@ selvars_norm_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdi
                       "socisoe18", "socisoy18", "gadsxe18", "gadsxy18", "mdesxe18", "mdesxy18", "cdsxe18", "cdsxy18", "psyexpe18", "psyexpy18",
                       "sisoe12norm", "sisoy12norm", "masce12norm", "mascy12norm", "cdie12norm", "cdiy12norm", "conec12norm", "conyc12norm", "psysympe12norm", "psysympy12norm", 
                       "socisoe18norm", "socisoy18norm", "gadsxe18norm", "gadsxy18norm", "mdesxe18norm", "mdesxy18norm", "cdsxe18norm", "cdsxy18norm", "psyexpe18norm", "psyexpy18norm")
-```
-
-```{r select variables - standardised and normalised}
-# social isolation
-selvars_si12_z_score_norm <- c("z_score_sisoe12norm", "z_score_sisoy12norm")
-selvars_si18_z_score_norm <- c("z_score_socisoe18norm", "z_score_socisoy18norm")
-
-# anxiety
-selvars_anx12_z_score_norm <- c("z_score_masce12norm", "z_score_mascy12norm")
-selvars_anx18_z_score_norm <- c("z_score_gadsxe18norm", "z_score_gadsxy18norm")
-
-# depression
-selvars_dep12_z_score_norm <- c("z_score_cdie12norm", "z_score_cdiy12norm")
-selvars_dep18_z_score_norm <- c("z_score_mdesxe18norm", "z_score_mdesxy18norm")
-
-# conduct
-selvars_con12_z_score_norm <- c("z_score_conec12", "z_score_conyc12")
-selvars_con18_z_score_norm <- c("z_score_cdsxe18norm", "z_score_cdsxy18norm")
-
-# psychosis
-selvars_psy12norm_z_score_norm <- c("z_score_psysympe12norm", "z_score_psysympy12norm")
-selvars_psy18norm_z_score_norm <- c("z_score_psyexpe18norm", "z_score_psyexpy18norm")
 ```
 
 ```{r select variables - normalised and regressed sex}
@@ -481,23 +439,6 @@ dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.e
 ## psychosis
 dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude)))
 dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude)))
-```
-
-## Standardising
-
-Create *z scores* for all variables. 
-
-```{r scale variables and combine to MZ dataset}
-# create a scaled version of the continuous variables - z scores for all variables
-scaled_continuous_data <- as.data.frame(scale(dat[selvars_norm_all], center = TRUE, scale = TRUE))
-
-# rename variables to show that they are z scores 
-colnames(scaled_continuous_data) <- paste0("z_score_", colnames(scaled_continuous_data))
-
-# combine the scaled data to the main dataset for  and DZ twins
-dat <- cbind(dat, scaled_continuous_data)
-
-colnames(dat)
 ```
 
 ## Create twin dataset
@@ -1279,3 +1220,1127 @@ homace_psychosis18_table
 # compare het and hom
 mxCompare(hetace_fit_psychosis18, homace_fit_psychosis18)
 ```
+
+***
+
+# Scalar ACE model 
+
+The 'non-scalar' sex limitation refers to qualitative sex differences - the actual components having an effect differ between sexes - e.g., different A and C influences. Whereas the first one - the scalar sex limitation can be thought about in 2 ways: A 'true ' quantitative sex difference - where it is the same components in males and females but having different amounts (quantities/magnitudes of influences). In the 'false' quantitative sex difference - the total variance is larger in females compared to males or vice versa, thus, the 'raw' amount of A, C and E components (i.e., unstandardised) will be naturally larger in females - even if the standardised variances (i.e., relative proportions) are comparable across sex. This 'false' quantitative sex difference is what we test in the scalar model.
+
+This will model one set of ACE parameters for males and females, but specifying a scalar to mutiply e.g. the female variances. 
+
+Note: This only makes sense if you know from the univariate results that both variables show a variance difference between males and females. If only one shows variance differences, then more complicated hybrid models are needed. 
+
+## Specify
+
+```{r check out the male and female datasets}
+# overall
+psych::describe(dat.twin[selvars])
+# males
+psych::describe(dat.twin.MZm[selvars])
+psych::describe(dat.twin.DZm[selvars])
+# females
+psych::describe(dat.twin.MZf[selvars])
+psych::describe(dat.twin.DZf[selvars])
+```
+
+```{r number of variables}
+nv			<- 1			        	# number of variables for a twin = 1 in Univariate
+ntv			<- 2*nv		        	# number of variables for a pair = 2* 1 for Univariate
+nlower	<- ntv*(ntv+1)/2 		# number of free elements in a lower matrix ntv*ntv
+ncor		<- (nv*(nv+1)/2)-nv	# number of free elements in a correlation matrix nv*nv
+```
+
+```{r labels for means, sds, and scalar}
+# labels for the means
+LabMM	  <- paste("mm", 1:nv, sep = "")		# Male singleton
+LabMF	  <- paste("mf", 1:nv, sep = "")		# Female singleton
+LabMMM	<- c(LabMM, LabMM)			          # male-male pairs
+LabMFF	<- c(LabMF, LabMF)			          # female-female pairs
+
+# labels for the A, C and E standard deviation matrices (paths from latent factors to variables) no sex dif
+LabAm	  <- paste("apm", 1:nv, sep = "")		
+LabCm	  <- paste("cpm", 1:nv, sep = "")		
+LabEm	  <- paste("epm", 1:nv, sep = "")		
+
+# labels for the scalar matrix
+LabS		<- paste("s", 1:nv, sep = "")		
+LabSS  	<- c(LabS, LabS)
+LabNA	  <- c("NA")
+# Labdos	<- c(LabNA, LabS) # dont think we need this one
+PatF		<- c(F)
+PatT		<- c(T)
+Pat	  	<- c(PatF, PatT)
+```
+
+```{r start values}
+Stpath	  <- c(.6) 			# change here according to the variances of the variables
+Stcor		  <- c(.6)
+Stmean	  <- 4.6
+StScalar	<-c(.8)				# change here to >1 if female variance is larger than males or if it is mixed
+DumOnes	  <-c(1)
+StSdos	  <- c(DumOnes,StScalar)		# Scalar for Males is just 1 - do we need this??
+```
+
+```{r specify}
+# Matrices to estimate Means for Male/Female pairs
+MeanMM	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMMM, name = "expMeanMM")
+MeanM		<- mxMatrix("Full", 1, nv,  free = TRUE, values = c(Stmean), 		     labels = LabMM, 	name = "expMeanM")
+MeanFF	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMFF,	name = "expMeanFF")
+MeanF		<- mxMatrix("Full", 1, nv,  free = TRUE, values = c(Stmean), 		     labels = LabMF, 	name = "expMeanF")
+# MeanMF	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean,Stmean), 	labels=LabMMF, 	name="expMeanMF" )
+
+# ACE paths
+pathAm	<- mxMatrix(type = "Diag", nrow = nv, ncol = nv, free = TRUE, values = Stpath, label = LabAm, name = "am")
+pathCm	<- mxMatrix(type = "Diag", nrow = nv, ncol = nv, free = TRUE, values = Stpath, label = LabCm, name = "cm")
+pathEm	<- mxMatrix(type = "Diag", nrow = nv, ncol = nv, free = TRUE, values = Stpath, label = LabEm, name = "em")
+
+# Algebra to compute the variance components
+covAm		<- mxAlgebra(expression = am %*% t(am), name = "Am")
+covCm		<- mxAlgebra(expression = cm %*% t(cm), name = "Cm")
+covEm		<- mxAlgebra(expression = em %*% t(em), name = "Em")
+
+# Algebra to compute standardized variance components
+covm		<- mxAlgebra(expression = Am + Cm + Em, name = "Vm")
+StAm		<- mxAlgebra(expression = Am/Vm, name = "h2m")
+StCm		<- mxAlgebra(expression = Cm/Vm, name = "c2m")
+StEm		<- mxAlgebra(expression = Em/Vm, name = "e2m")
+
+# scalar
+ScalarF	<- mxMatrix(type = "Diag", nrow = 2, ncol = 2, free = TRUE, values = c(StScalar, StScalar), label = LabSS, name = "ScF")
+# ScalarOS	<- mxMatrix( type="Diag", nrow=2, ncol=2, free=Pat, values=StSdos, label=Labdos, name="ScOS")
+
+# Algebra for expected variance/covariance matrix in the 4 groups
+covMZM	<- mxAlgebra(expression = rbind(cbind(Am + Cm + Em, Am+Cm),	cbind(Am + Cm, Am + Cm + Em)), name = "ExpCovMZM")
+covDZM	<- mxAlgebra(expression = rbind(cbind(Am + Cm + Em, 0.5%x%Am + Cm),	cbind(0.5%x%Am + Cm, Am + Cm + Em)), name = "ExpCovDZM")
+
+covMZF	<- mxAlgebra(expression = ScF%&%(rbind(cbind(Am + Cm + Em, Am + Cm), cbind(Am + Cm, Am + Cm + Em))), name = "ExpCovMZF")
+covDZF	<- mxAlgebra(expression = ScF%&%(rbind(cbind(Am + Cm + Em, 0.5%x%Am + Cm), cbind(0.5%x%Am + Cm, Am + Cm + Em))), name = "ExpCovDZF")
+
+# covDOS	<-mxAlgebra( expression= ScOS %&% (rbind  ( cbind(Am+Cm+Em, 0.5%x%Am+Cm),	cbind(0.5%x%Am+Cm, Am+Cm+Em)	)),	name="ExpCovDOS")
+
+# Data objects for Multiple Groups
+dataMZM	<- mxData(dat.twin.MZm, type = "raw")
+dataMZF	<- mxData(dat.twin.MZf, type = "raw")
+dataDZM	<- mxData(dat.twin.DZm, type = "raw")
+dataDZF	<- mxData(dat.twin.DZf, type = "raw")
+
+fitFunction <- mxFitFunctionML()
+```
+
+## Univariate ACE model 
+
+```{r specity ACE}
+# Matrix & Algebra for expected means vector (free)
+MeanMZ <- mxMatrix("Full", 1, ntv, free = T, values = c(90,90), labels = c("MZm1", "MZm2"), name = "expMeanMZ")
+MeanDZ <- mxMatrix("Full", 1, ntv, free = T, values = c(90,90), labels = c("DZm1", "DZm2"), name = "expMeanDZ")
+
+# Matrices to estimate free a, c, and e path coefficients
+pathA	<- mxMatrix(type = "Full", nrow = nv, ncol = nv, free = T, values = 10, label = "a11", name = "a")
+pathC	<- mxMatrix(type = "Full", nrow = nv, ncol = nv, free = T, values = 10, label = "c11", name = "c")
+pathE	<- mxMatrix(type = "Full", nrow = nv, ncol = nv, free = T, values = 10, label = "e11", name = "e")
+
+# Algebra to generate Matrices to hold A, C, and E computed Variance Components
+covA <- mxAlgebra(expression = a %*% t(a), name = "A" )
+covC <- mxAlgebra(expression = c %*% t(c), name = "C" )
+covE <- mxAlgebra(expression = e %*% t(e), name = "E" )
+
+# Algebra to compute Total Variance
+covP <- mxAlgebra(expression = A+C+E, name = "V" )
+sd   <- mxAlgebra(expression = sqrt(V), name = "SD")
+
+# Algebra to compute standardized path estimates 
+stpathA	<- mxAlgebra(expression = a/SD, name = "sta")
+stpathC <- mxAlgebra(expression = c/SD, name = "stc")
+stpathE <- mxAlgebra(expression = e/SD, name = "ste")
+
+# Algebra to compute standardized variance components 
+stcovA <- mxAlgebra(expression = A/V, name = "h2")
+stcovC <- mxAlgebra(expression = C/V, name = "c2")
+stcovE <- mxAlgebra(expression = E/V, name = "e2")
+
+# Algebra for Expected Variance/Covariance Matrices in MZ & DZ twins
+covMZ <- mxAlgebra(expression = rbind(cbind(A+C+E,A+C), cbind(A+C,A+C+E)), name = "expCovMZ")
+covDZ <- mxAlgebra(expression = rbind(cbind(A+C+E,0.5%x%A+C),cbind(0.5%x%A+C,A+C+E)),	name = "expCovDZ")
+
+# Data objects for Multiple Groups
+dataMZ <-mxData(observed = dat.twin.MZ, type = "raw")
+dataDZ <-mxData(observed = dat.twin.DZ, type = "raw")
+
+fitFunction <- mxFitFunctionML()
+```
+
+## Social isolation
+
+### Age 12
+
+```{r select which variables to use}
+# selvars_si12_chosen <- selvars_si12                 # raw
+# selvars_si12_chosen <- selvars_si12_z_score         # standardised
+# selvars_si12_chosen <- selvars_si12norm             # normalised
+# selvars_si12_chosen <- selvars_si12_z_score_norm    # standardised and normalised
+  selvars_si12_chosen <- selvars_si12norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_si12_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_si12_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_si12_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_si12_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<-mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_isolation12_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_isolation12_sum <- summary(ScACE_isolation12_fit)
+```
+
+```{r output social isolation 12 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_isolation12_sum, 
+  variable = "Social isolation",
+  age = "12")
+
+# scalar estimate
+mxEval(MZF.ScF, ScACE_isolation12_fit)
+```
+
+```{r run age 12 isolation ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_si12_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_si12_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_isolation12 <- mxRun(ACEModel, intervals = TRUE)
+isolation12_estimates <- summary(ACEFit_isolation12)
+
+# Table
+isolation12_table <- ACE_esitmates_table(
+  data = isolation12_estimates, 
+  variable = "Social isolation",
+  age = "12")
+
+isolation12_table
+```
+
+Now to compare the univariate ACE model and the scalar model:
+
+```{r compare scalar and uni isolation12}
+# compare scalar and univariate model using the AIC
+mxCompare(ACEFit_isolation12, ScACE_isolation12_fit)
+```
+
+Here, the AIC is smaller for the scalar model, therefore the Scalar model has a better fit to the data. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni isolation12}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_isolation12, ScACE_isolation12_fit)
+```
+
+**The scalar model is still the best fit for isolation age 12** - compared to the heterogeneity model. 
+
+### Age 18
+
+```{r select which variables to use}
+# selvars_si18_chosen <- selvars_si18                 # raw
+# selvars_si18_chosen <- selvars_si18_z_score         # standardised
+# selvars_si18_chosen <- selvars_si18norm             # normalised
+# selvars_si18_chosen <- selvars_si18_z_score_norm    # standardised and normalised
+  selvars_si18_chosen <- selvars_si18norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_si18_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_si18_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_si18_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_si18_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<-mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_isolation18_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_isolation18_sum <- summary(ScACE_isolation18_fit)
+```
+
+```{r output social isolation 18 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_isolation18_sum, 
+  variable = "Social isolation",
+  age = "18")
+
+# scalar estimate? 
+mxEval(MZF.ScF, ScACE_isolation18_fit)
+```
+
+```{r run age 18 isolation ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_si18_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_si18_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_isolation18 <- mxRun(ACEModel, intervals = TRUE)
+isolation18_estimates <- summary(ACEFit_isolation18)
+
+# Table
+isolation18_table <- ACE_esitmates_table(
+  data = isolation18_estimates, 
+  variable = "Social isolation",
+  age = "18")
+
+isolation18_table
+```
+
+Now to compare the univariate ACE model and the scalar model:
+
+```{r compare scalar and uni isolation18}
+# compare scalar and univariate model using the AIC
+mxCompare(ACEFit_isolation18, ScACE_isolation18_fit)
+```
+
+Here, the AIC is smaller for the scalar model, therefore the Scalar model has the best fit for the data. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni isolation18}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_isolation18, ScACE_isolation18_fit)
+```
+
+**The scalar model is still the best fit for isolation age 18** - compared to the heterogeneity model. 
+
+## Anxiety
+
+### Age 12
+
+```{r select which variables to use}
+# selvars_anx12_chosen <- selvars_anx12                 # raw
+# selvars_anx12_chosen <- selvars_anx12_z_score         # standardised
+# selvars_anx12_chosen <- selvars_anx12norm             # normalised
+# selvars_anx12_chosen <- selvars_anx12_z_score_norm    # standardised and normalised
+  selvars_anx12_chosen <- selvars_anx12norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_anx12_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_anx12_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_anx12_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_anx12_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<-mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_anxiety12_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_anxiety12_sum <- summary(ScACE_anxiety12_fit)
+```
+
+```{r output social isolation 18 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_anxiety12_sum, 
+  variable = "Anxiety",
+  age = "12")
+
+# scalar estimate? 
+mxEval(MZF.ScF, ScACE_anxiety12_fit)
+```
+
+```{r run age 12 anxiety ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_anx12_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_anx12_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_anxiety12 <- mxRun(ACEModel, intervals = TRUE)
+anxiety12_estimates <- summary(ACEFit_anxiety12)
+
+# Table
+anxiety12_table <- ACE_esitmates_table(
+  data = anxiety12_estimates, 
+  variable = "Anxiety",
+  age = "12")
+
+anxiety12_table
+```
+
+Now to compare the univariate ACE model and the scalar model:
+
+```{r compare scalar and uni anxiety12}
+# compare scalar and univariate model using the AIC
+mxCompare(ACEFit_anxiety12, ScACE_anxiety12_fit)
+```
+
+Here, the scalar model has the same AIC as the ACE model. Therefore, we would not take this as a better fit. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni anxiety12}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_anxiety12, ScACE_anxiety12_fit)
+```
+
+**The homogeneity ACE model is still the best fit for anxiety age 12** - compared to the heterogeneity model. 
+
+### Age 18
+
+```{r select which variables to use}
+# selvars_anx18_chosen <- selvars_anx18                 # raw
+# selvars_anx18_chosen <- selvars_anx18_z_score         # standardised
+# selvars_anx18_chosen <- selvars_anx18norm             # normalised
+# selvars_anx18_chosen <- selvars_anx18_z_score_norm    # standardised and normalised
+  selvars_anx18_chosen <- selvars_anx18norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_anx18_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_anx18_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_anx18_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_anx18_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<- mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_anxiety18_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_anxiety18_sum <- summary(ScACE_anxiety18_fit)
+```
+
+```{r output social anxiety 18 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_anxiety18_sum, 
+  variable = "Anxiety",
+  age = "18")
+
+# scalar estimate? 
+mxEval(MZF.ScF, ScACE_anxiety18_fit)
+```
+
+```{r run age 18 anxiety ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_anx18_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_anx18_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_anxiety18 <- mxRun(ACEModel, intervals = TRUE)
+anxiety18_estimates <- summary(ACEFit_anxiety18)
+
+# Table
+anxiety18_table <- ACE_esitmates_table(
+  data = anxiety18_estimates, 
+  variable = "Anxiety",
+  age = "18")
+
+anxiety18_table
+```
+
+Now to compare the scalar model and the univariate mdoel
+
+```{r compare scalar and uni anxiety18}
+# compare scalar and univariate model using the AIC
+mxCompare(ACEFit_anxiety18, ScACE_anxiety18_fit)
+```
+
+Here, the AIC is lower for the scalar model, therefore the Scalar model is the best fit to the data. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni anxiety18}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_anxiety18, ScACE_anxiety18_fit)
+```
+
+**The scalar model is still the best fit for anxiety age 18** - compared to the heterogeneity model. 
+
+## Depression
+
+### Age 12
+
+```{r select which variables to use}
+# selvars_dep12_chosen <- selvars_dep12                 # raw
+# selvars_dep12_chosen <- selvars_dep12_z_score         # standardised
+# selvars_dep12_chosen <- selvars_dep12norm             # normalised
+# selvars_dep12_chosen <- selvars_dep12_z_score_norm    # standardised and normalised
+  selvars_dep12_chosen <- selvars_dep12norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_dep12_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_dep12_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_dep12_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_dep12_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<- mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_depression12_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_depression12_sum <- summary(ScACE_depression12_fit)
+```
+
+```{r output social depression 12 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_depression12_sum, 
+  variable = "Depression",
+  age = "12")
+
+# scalar estimate 
+mxEval(MZF.ScF, ScACE_depression12_fit)
+```
+
+```{r run age 12 depression ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_dep12_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_dep12_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_depression12 <- mxRun(ACEModel, intervals = TRUE)
+depression12_estimates <- summary(ACEFit_depression12)
+
+# Table
+depression12_table <- ACE_esitmates_table(
+  data = depression12_estimates, 
+  variable = "Depression",
+  age = "12")
+depression12_table
+```
+
+Compare the scalar and univariate models:
+
+```{r compare scalar and uni anxiety18}
+# compare scalar and uni
+mxCompare(ACEFit_depression12, ScACE_depression12_fit)
+```
+Here, the AIC is not lower for the scalar model, therefore we would say the univariate ACE has the better fit. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni depression12}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_depression12, ScACE_depression12_fit)
+```
+
+**The univariate ACE model is still the best fit for depression age 12** - compared to the heterogeneity model. 
+
+### Age 18
+
+```{r select which variables to use}
+# selvars_dep18_chosen <- selvars_dep18                 # raw
+# selvars_dep18_chosen <- selvars_dep18_z_score         # standardised
+# selvars_dep18_chosen <- selvars_dep18norm             # normalised
+# selvars_dep18_chosen <- selvars_dep18_z_score_norm    # standardised and normalised
+  selvars_dep18_chosen <- selvars_dep18norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_dep18_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_dep18_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_dep18_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_dep18_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<- mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_depression18_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_depression18_sum <- summary(ScACE_depression18_fit)
+```
+
+```{r output social depression 18 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_depression18_sum, 
+  variable = "Depression",
+  age = "18")
+
+# scalar estimate 
+mxEval(MZF.ScF, ScACE_depression18_fit)
+```
+
+```{r run age 18 depression ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_dep18_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_dep18_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_depression18 <- mxRun(ACEModel, intervals = TRUE)
+depression18_estimates <- summary(ACEFit_depression18)
+
+# Table
+depression18_table <- ACE_esitmates_table(
+  data = depression18_estimates, 
+  variable = "Depression",
+  age = "18")
+depression18_table
+```
+
+Compare the scalar and univariate models:
+
+```{r compare scalar and uni depression18}
+# compare scalar and uni
+mxCompare(ACEFit_depression18, ScACE_depression18_fit)
+```
+
+Here, the AIC is lower for the scalar model, therefore the scalar model is the best fit for the data.
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni depression18}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_depression18, ScACE_depression18_fit)
+```
+
+**The scalar model is still the best fit for depression age 18** - compared to the heterogeneity model. 
+
+## Conduct disorder
+
+### Age 12
+
+```{r select which variables to use}
+# selvars_con12_chosen <- selvars_con12                 # raw
+# selvars_con12_chosen <- selvars_con12_z_score         # standardised
+# selvars_con12_chosen <- selvars_con12norm             # normalised
+# selvars_con12_chosen <- selvars_con12_z_score_norm    # standardised and normalised
+  selvars_con12_chosen <- selvars_con12norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_con12_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_con12_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_con12_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_con12_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<- mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_conduct12_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_conduct12_sum <- summary(ScACE_conduct12_fit)
+```
+
+```{r output social conduct 12 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_conduct12_sum, 
+  variable = "Conduct disorder",
+  age = "12")
+
+# scalar estimate 
+mxEval(MZF.ScF, ScACE_conduct12_fit)
+```
+
+```{r run age 12 conduct ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_con12_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_con12_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_conduct12 <- mxRun(ACEModel, intervals = TRUE)
+conduct12_estimates <- summary(ACEFit_conduct12)
+
+# Table
+conduct12_table <- ACE_esitmates_table(
+  data = conduct12_estimates, 
+  variable = "Conduct disorder",
+  age = "12")
+conduct12_table
+```
+
+Compare the scalar and univariate models:
+
+```{r compare scalar and uni depression18}
+# compare scalar and uni
+mxCompare(ACEFit_conduct12, ScACE_conduct12_fit)
+```
+
+Here, the AIC is lower for the scalar model, therefore the scalar model is the best fit for the data. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni conduct12}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_conduct12, ScACE_conduct12_fit)
+```
+
+**The heterogeneity model is still the best fit for conduct age 12** - compared to the scalar model. 
+
+### Age 18
+
+```{r select which variables to use}
+# selvars_con18_chosen <- selvars_con18                 # raw
+# selvars_con18_chosen <- selvars_con18_z_score         # standardised
+# selvars_con18_chosen <- selvars_con18norm             # normalised
+# selvars_con18_chosen <- selvars_con18_z_score_norm    # standardised and normalised
+  selvars_con18_chosen <- selvars_con18norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_con18_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_con18_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_con18_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_con18_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<- mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_conduct18_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_conduct18_sum <- summary(ScACE_conduct18_fit)
+```
+
+```{r output conduct 18 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_conduct18_sum, 
+  variable = "Conduct disorder",
+  age = "18")
+
+# scalar estimate 
+mxEval(MZF.ScF, ScACE_conduct18_fit)
+```
+
+```{r run age 18 conduct ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_con18_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_con18_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_conduct18 <- mxRun(ACEModel, intervals = TRUE)
+conduct18_estimates <- summary(ACEFit_conduct18)
+
+# Table
+conduct18_table <- ACE_esitmates_table(
+  data = conduct18_estimates, 
+  variable = "Conduct disorder",
+  age = "18")
+conduct18_table
+```
+
+Compare the scalar and univariate models:
+
+```{r compare scalar and uni conduct18}
+# compare scalar and uni
+mxCompare(ACEFit_conduct18, ScACE_conduct18_fit)
+```
+
+Here, the AIC is (only just) lower for the scalar model, therefore the scalar model is the best fit for the data. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni conduct18}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_conduct18, ScACE_conduct18_fit)
+```
+
+**The scalar model is still the best fit for conduct age 18** - compared to the heterogeneity model. 
+
+
+## Psychotic experiences
+
+### Age 12
+
+```{r select which variables to use}
+# selvars_psy12_chosen <- selvars_psy12                 # raw
+# selvars_psy12_chosen <- selvars_psy12_z_score         # standardised
+# selvars_psy12_chosen <- selvars_psy12norm             # normalised
+# selvars_psy12_chosen <- selvars_psy12_z_score_norm    # standardised and normalised
+  selvars_psy12_chosen <- selvars_psy12norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_psy12_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_psy12_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_psy12_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_psy12_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<- mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_psychosis12_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_psychosis12_sum <- summary(ScACE_psychosis12_fit)
+```
+
+```{r output psychosis 12 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_psychosis12_sum, 
+  variable = "Psychosis",
+  age = "12")
+
+# scalar estimate 
+mxEval(MZF.ScF, ScACE_psychosis12_fit)
+```
+
+```{r run age 12 psychosis ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_psy12_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_psy12_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_psychosis12 <- mxRun(ACEModel, intervals = TRUE)
+psychosis12_estimates <- summary(ACEFit_psychosis12)
+
+# Table
+psychosis12_table <- ACE_esitmates_table(
+  data = psychosis12_estimates, 
+  variable = "Psychosis",
+  age = "12")
+psychosis12_table
+```
+
+Compare the scalar and univariate models:
+
+```{r compare scalar and uni conduct18}
+# compare scalar and uni
+mxCompare(ACEFit_psychosis12, ScACE_psychosis12_fit)
+```
+
+The scalar has a lower AIC and therefore a better fit to the data. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni psychosis12}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_psychosis12, ScACE_psychosis12_fit)
+```
+
+**The scalar model is still the best fit for psychosis age 12** - compared to the heterogeneity model. 
+
+### Age 18
+
+```{r select which variables to use}
+# selvars_psy18_chosen <- selvars_psy18                 # raw
+# selvars_psy18_chosen <- selvars_psy18_z_score         # standardised
+# selvars_psy18_chosen <- selvars_psy18norm             # normalised
+# selvars_psy18_chosen <- selvars_psy18_z_score_norm    # standardised and normalised
+  selvars_psy18_chosen <- selvars_psy18norm_reg         # normalised and regressed sex
+```
+
+```{r social isolation scalar}
+# objectives   
+objMZM	  <- mxExpectationNormal(covariance = "ExpCovMZM", means = "expMeanMM", dimnames = selvars_psy18_chosen)
+objDZM	  <- mxExpectationNormal(covariance = "ExpCovDZM", means = "expMeanMM", dimnames = selvars_psy18_chosen)
+objMZF	  <- mxExpectationNormal(covariance = "ExpCovMZF", means = "expMeanFF", dimnames = selvars_psy18_chosen)
+objDZF	  <- mxExpectationNormal(covariance = "ExpCovDZF", means = "expMeanFF", dimnames = selvars_psy18_chosen)
+
+# Combine Groups
+parsm	  	<- list(pathAm, pathCm, pathEm, covAm, covCm, covEm, covm, StAm, StCm, StEm, fitFunction)
+modelMZM 	<- mxModel(parsm, MeanM, MeanMM, covMZM, dataMZM, objMZM,  name = "MZM")
+modelDZM 	<- mxModel(parsm, MeanM, MeanMM, covDZM, dataDZM, objDZM,  name = "DZM")
+modelMZF 	<- mxModel(parsm, MeanF, MeanFF, covMZF, dataMZF, objMZF, ScalarF, name = "MZF")
+modelDZF 	<- mxModel(parsm, MeanF, MeanFF, covDZF, dataDZF, objDZF, ScalarF, name = "DZF")
+
+minus2ll  <- mxAlgebra(expression =	MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+ci	    	<- mxCI(c('MZM.h2m[1,1]','MZM.c2m[1,1]','MZM.e2m[1,1]') )
+
+ScACE2Model	<-mxModel("ScACE2", parsm, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, ci) 
+
+# Run
+ScACE_psychosis18_fit	<- mxTryHard(ScACE2Model, intervals = TRUE)
+ScACE_psychosis18_sum <- summary(ScACE_psychosis18_fit)
+```
+
+```{r output psychosis 18 scalar}
+# ACE estimates
+ACE_esitmates_table(
+  data = ScACE_psychosis18_sum, 
+  variable = "Psychosis",
+  age = "18")
+
+# scalar estimate 
+mxEval(MZF.ScF, ScACE_psychosis18_fit)
+```
+
+```{r run age 18 psychosis ACE}
+# Objective objects for Multiple Groups
+objMZ <- mxExpectationNormal(covariance = "expCovMZ", means = "expMeanMZ", dimnames = selvars_psy18_chosen)
+objDZ <- mxExpectationNormal(covariance = "expCovDZ", means = "expMeanDZ", dimnames = selvars_psy18_chosen)
+
+# Combine Groups
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, sd, stpathA, stpathC, stpathE, stcovA, stcovC, stcovE, fitFunction)
+
+# MZ and DZ models
+modelMZ	<- mxModel(pars, MeanMZ, covMZ, dataMZ, objMZ, name = "MZ")
+modelDZ	<- mxModel(pars, MeanDZ, covDZ, dataDZ, objDZ, name = "DZ")
+
+# Fitting
+minus2ll	<- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj	    	<- mxFitFunctionAlgebra("m2LL")
+Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
+
+# Model
+ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
+
+# Run
+ACEFit_psychosis18 <- mxRun(ACEModel, intervals = TRUE)
+psychosis18_estimates <- summary(ACEFit_psychosis18)
+
+# Table 
+psychosis18_table <- ACE_esitmates_table(
+  data = psychosis18_estimates, 
+  variable = "Psychosis",
+  age = "18")
+psychosis18_table
+```
+
+Compare the scalar and univariate models:
+
+```{r compare scalar and uni conduct18}
+# compare scalar and uni
+mxCompare(ACEFit_psychosis18, ScACE_psychosis18_fit)
+```
+
+The scalar has a lower AIC and therefore a better fit to the data. 
+
+Compare to heterogeneity model:
+
+```{r compare scalar and uni psychosis18}
+# compare scalar and univariate model using the AIC
+mxCompare(hetace_fit_psychosis18, ScACE_psychosis18_fit)
+```
+
+**The scalar model is still the best fit for psychosis age 18** - compared to the heterogeneity model. 
+

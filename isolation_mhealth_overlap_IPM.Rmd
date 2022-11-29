@@ -187,40 +187,37 @@ selvars_anx_dep <- c("sisoe12", "masce12", "cdie12", "socisoe18", "gadsxe18", "m
 selvars_dep_con <- c("sisoe12", "cdie12", "conec12", "socisoe18", "mdesxe18", "cdsxe18",
                      "sisoy12", "cdiy12", "conyc12", "socisoy18", "mdesxy18", "cdsxy18")
 
-selvars <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18",
-             "sisoy12", "mascy12", "cdiy12", "conyc12", "psysympy12", "socisoy18", "gadsxy18", "mdesxy18", "cdsxy18", "psyexpy18")
+selvars <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", 
+             "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18",
+             "sisoy12", "mascy12", "cdiy12", "conyc12", "psysympy12", 
+             "socisoy18", "gadsxy18", "mdesxy18", "cdsxy18", "psyexpy18")
+
+selvars_elder <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", 
+                   "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18")
 ```
 
 ```{r select variables - normalised}
 # anxiety
 selvars_anxe_norm <- c("sisoe12norm", "masce12norm", "socisoe18norm", "gadsxe18norm")
 selvars_anx_norm <- c("sisoe12norm", "masce12norm", "socisoe18norm", "gadsxe18norm", 
-                 "sisoy12norm", "mascy12norm", "socisoy18norm", "gadsxy18norm")
-selvars_anx_norm_switch <- c("masce12norm", "sisoe12norm", "gadsxe18norm", "socisoe18norm", 
-                 "mascy12norm", "sisoy12norm", "gadsxy18norm", "socisoy18norm")
+                      "sisoy12norm", "mascy12norm", "socisoy18norm", "gadsxy18norm")
 
 # depression
 selvars_depe_norm <- c("sisoe12norm", "cdie12norm", "socisoe18norm", "mdesxe18norm")
 selvars_dep_norm <- c("sisoe12norm", "cdie12norm", "socisoe18norm", "mdesxe18norm", 
-                 "sisoy12norm", "cdiy12norm", "socisoy18norm", "mdesxy18norm")
+                      "sisoy12norm", "cdiy12norm", "socisoy18norm", "mdesxy18norm")
 
 # conduct
 selvars_cone_norm <- c("sisoe12norm", "conec12norm", "socisoe18norm", "cdsxe18norm")
 selvars_con_norm <- c("sisoe12norm", "conec12norm", "socisoe18norm", "cdsxe18norm", 
-                 "sisoy12norm", "conyc12norm", "socisoy18norm", "cdsxy18norm")
+                      "sisoy12norm", "conyc12norm", "socisoy18norm", "cdsxy18norm")
 
 # psychosis
 selvars_psye_norm <- c("sisoe12norm", "psysympe12norm", "socisoe18norm", "psyexpe18norm")
 selvars_psy_norm <- c("sisoe12norm", "psysympe12norm", "socisoe18norm", "psyexpe18norm",
-                 "sisoy12norm", "psysympy12norm", "socisoy18norm", "psyexpy18norm")
+                      "sisoy12norm", "psysympy12norm", "socisoy18norm", "psyexpy18norm")
 
 # all 
-selvars_anx_dep_norm <- c("sisoe12norm", "masce12norm", "cdie12norm", "socisoe18norm", "gadsxe18norm", "mdesxe18norm",
-                          "sisoy12norm", "mascy12norm", "cdiy12norm", "socisoy18norm", "gadsxy18norm", "mdesxy18norm")
-
-selvars_dep_con_norm <- c("sisoe12norm", "cdie12norm", "conec12norm", "socisoe18norm", "mdesxe18norm", "cdsxe18norm",
-                          "sisoy12norm", "cdiy12norm", "conyc12norm", "socisoy18norm", "mdesxy18norm", "cdsxy18norm")
-
 selvars_norm <- c("sisoe12norm", "masce12norm", "cdie12norm", "conec12norm", "psysympe12norm", "socisoe18norm", "gadsxe18norm", "mdesxe18norm", "cdsxe18norm", "psyexpe18norm",
              "sisoy12norm", "mascy12norm", "cdiy12norm", "conyc12norm", "psysympy12norm", "socisoy18norm", "gadsxy18norm", "mdesxy18norm", "cdsxy18norm", "psyexpy18norm")
 
@@ -231,65 +228,11 @@ selvars_norm_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdi
                       "socisoe18norm", "socisoy18norm", "gadsxe18norm", "gadsxy18norm", "mdesxe18norm", "mdesxy18norm", "cdsxe18norm", "cdsxy18norm", "psyexpe18norm", "psyexpy18norm")
 ```
 
-```{r select variables - standardised}
-# anxiety
-selvars_anxe_z_score <- c("z_score_sisoe12", "z_score_masce12", "z_score_socisoe18", "z_score_gadsxe18")
-selvars_anx_z_score <- c("z_score_sisoe12", "z_score_masce12", "z_score_socisoe18", "z_score_gadsxe18", 
-                 "z_score_sisoy12", "z_score_mascy12", "z_score_socisoy18", "z_score_gadsxy18")
-
-# depression
-selvars_depe_z_score <- c("z_score_sisoe12", "z_score_cdie12", "z_score_socisoe18", "z_score_mdesxe18")
-selvars_dep_z_score <- c("z_score_sisoe12", "z_score_cdie12", "z_score_socisoe18", "z_score_mdesxe18", 
-                 "z_score_sisoy12", "z_score_cdiy12", "z_score_socisoy18", "z_score_mdesxy18")
-
-# conduct
-selvars_cone_z_score <- c("z_score_sisoe12", "z_score_conec12", "z_score_socisoe18", "z_score_cdsxe18")
-selvars_con_z_score <- c("z_score_sisoe12", "z_score_conec12", "z_score_socisoe18", "z_score_cdsxe18", 
-                 "z_score_sisoy12", "z_score_conyc12", "z_score_socisoy18", "z_score_cdsxy18")
-
-# psychosis
-selvars_psye_z_score <- c("z_score_sisoe12", "z_score_psysympe12", "z_score_socisoe18", "z_score_psyexpe18")
-selvars_psy_z_score <- c("z_score_sisoe12", "z_score_psysympe12", "z_score_socisoe18", "z_score_psyexpe18",
-                 "z_score_sisoy12", "z_score_psysympy12", "z_score_socisoy18", "z_score_psyexpy18")
-
-# all 
-selvars_z_score <- c("z_score_sisoe12", "z_score_masce12", "z_score_cdie12", "z_score_conec12", "z_score_psysympe12", "z_score_socisoe18", "z_score_gadsxe18", "z_score_mdesxe18", "z_score_cdsxe18", "z_score_psyexpe18",
-             "z_score_sisoy12", "z_score_mascy12", "z_score_cdiy12", "z_score_conyc12", "z_score_psysympy12", "z_score_socisoy18", "z_score_gadsxy18", "z_score_mdesxy18", "z_score_cdsxy18", "z_score_psyexpy18")
-```
-
-```{r select variables - normalised then standardised}
-# anxiety
-selvars_anxe_norm_z_score <- c("z_score_sisoe12_norm", "z_score_masce12_norm", "z_score_socisoe18_norm", "z_score_gadsxe18_norm")
-selvars_anx_norm_z_score <- c("z_score_sisoe12_norm", "z_score_masce12_norm", "z_score_socisoe18_norm", "z_score_gadsxe18_norm", 
-                 "z_score_sisoy12_norm", "z_score_mascy12_norm", "z_score_socisoy18_norm", "z_score_gadsxy18_norm")
-
-# depression
-selvars_depe_norm_z_score <- c("z_score_sisoe12_norm", "z_score_cdie12_norm", "z_score_socisoe18_norm", "z_score_mdesxe18_norm")
-selvars_dep_norm_z_score <- c("z_score_sisoe12_norm", "z_score_cdie12_norm", "z_score_socisoe18_norm", "z_score_mdesxe18_norm", 
-                 "z_score_sisoy12_norm", "z_score_cdiy12_norm", "z_score_socisoy18_norm", "z_score_mdesxy18_norm")
-
-# conduct
-selvars_cone_norm_z_score <- c("z_score_sisoe12_norm", "z_score_conec12_norm", "z_score_socisoe18_norm", "z_score_cdsxe18_norm")
-selvars_con_norm_z_score <- c("z_score_sisoe12_norm", "z_score_conec12_norm", "z_score_socisoe18_norm", "z_score_cdsxe18_norm", 
-                 "z_score_sisoy12_norm", "z_score_conyc12_norm", "z_score_socisoy18_norm", "z_score_cdsxy18_norm")
-
-# psychosis
-selvars_psye_norm_z_score <- c("z_score_sisoe12_norm", "z_score_psysympe12_norm", "z_score_socisoe18_norm", "z_score_psyexpe18_norm")
-selvars_psy_norm_z_score <- c("z_score_sisoe12_norm", "z_score_psysympe12_norm", "z_score_socisoe18_norm", "z_score_psyexpe18_norm",
-                 "z_score_sisoy12_norm", "z_score_psysympy12_norm", "z_score_socisoy18_norm", "z_score_psyexpy18_norm")
-
-# all 
-selvars_norm_z_score <- c("z_score_sisoe12_norm", "z_score_masce12_norm", "z_score_cdie12_norm", "z_score_conec12_norm", "z_score_psysympe12_norm", "z_score_socisoe18_norm", "z_score_gadsxe18_norm", "z_score_mdesxe18_norm", "z_score_cdsxe18_norm", "z_score_psyexpe18_norm",
-             "z_score_sisoy12_norm", "z_score_mascy12_norm", "z_score_cdiy12_norm", "z_score_conyc12_norm", "z_score_psysympy12_norm", "z_score_socisoy18_norm", "z_score_gadsxy18_norm", "z_score_mdesxy18_norm", "z_score_cdsxy18_norm", "z_score_psyexpy18_norm")
-```
-
 ```{r select variables - normalised and sex regressed}
 # anxiety
 selvars_anxe_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg")
 selvars_anx_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg", 
                  "sisoy12norm_reg", "mascy12norm_reg", "socisoy18norm_reg", "gadsxy18norm_reg")
-selvars_anx_norm_reg_switch <- c("masce12norm_reg", "sisoe12norm_reg", "gadsxe18norm_reg", "socisoe18norm_reg", 
-                 "mascy12norm_reg", "sisoy12norm_reg", "gadsxy18norm_reg", "socisoy18norm_reg")
 
 # depression
 selvars_depe_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "socisoe18norm_reg", "mdesxe18norm_reg")
@@ -307,19 +250,6 @@ selvars_psy_norm_reg <- c("sisoe12norm_reg", "psysympe12norm_reg", "socisoe18nor
                  "sisoy12norm_reg", "psysympy12norm_reg", "socisoy18norm_reg", "psyexpy18norm_reg")
 
 # all 
-selvars_anx_dep_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", 
-                              "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg",
-                              "sisoy12norm_reg", "mascy12norm_reg", "cdiy12norm_reg", 
-                              "socisoy18norm_reg", "gadsxy18norm_reg", "mdesxy18norm_reg")
-
-selvars_dep_con_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "conec12norm_reg", "socisoe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg",
-                          "sisoy12norm_reg", "cdiy12norm_reg", "conyc12norm_reg", "socisoy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg")
-
-selvars_nopsy_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", "conec12norm_reg",
-                            "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg",
-                            "sisoy12norm_reg", "mascy12norm_reg", "cdiy12norm_reg", "conyc12norm_reg",
-                            "socisoy18norm_reg", "gadsxy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg")
-
 selvars_noanx_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
                       "socisoe18norm_reg",  "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
                       "sisoy12norm_reg",  "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg",
@@ -529,25 +459,6 @@ dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action 
 dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude)))
 ```
 
-## Standardising
-
-Standardised variables have been computed in case there are problems with different measures. The standardised estimates should be identical to the non-standardised. 
-
-Create *z scores* for all variables. 
-
-```{r scale variables and combine to MZ dataset}
-# create a scaled version of the continuous variables - z scores for all variables
-scaled_continuous_data <- as.data.frame(scale(dat[selvars_norm_all], center = TRUE, scale = TRUE))
-
-# rename variables to show that they are z scores 
-colnames(scaled_continuous_data) <- paste0("z_score_", colnames(scaled_continuous_data))
-
-# combine the scaled data to the main dataset for  and DZ twins
-dat <- cbind(dat, scaled_continuous_data)
-
-colnames(dat)
-```
-
 ## Create twin dataset
 
 To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
@@ -584,6 +495,129 @@ DZ_summary <- describe(dat.twin.DZ,
 
 ### Correlation matrices
 
+```{r check again the phenotypic correlations}
+# overall
+cor(dat.twin[, selvars], use = "complete")
+
+# MZ
+cor(dat.twin.MZ[, selvars], use = "complete")
+
+# DZ
+cor(dat.twin.DZ[, selvars], use = "complete")
+```
+
+#### Heat map
+
+```{r function to order the heatmap}
+reorder_cor_matrix <- function(cor_matrix){
+ dd <- as.dist((1-cor_matrix)/2)  # use correlation between variables as distance
+ hc <- hclust(dd)
+ cor_matrix <- cor_matrix[hc$order, hc$order]
+}
+
+# Get upper triangle of the correlation matrix
+get_upper_tri <- function(cor_matrix){
+    cor_matrix[lower.tri(cor_matrix)]<- NA
+    return(cor_matrix)
+  }
+```
+
+```{r list of variables for heatmap}
+name.list <- c(
+  "Isolation12",
+  "Anxiety12",
+  "Depression12",
+  "Conduct12",
+  "Psychosis12",
+  "Isolation18",
+  "Anxiety18",
+  "Depression18",
+  "Conduct18",
+  "Psychosis18"
+)
+```
+
+```{r heat map of all correlations}
+# create data frame with just numeric antecedent variables
+variable_data_frame <- as.data.frame(dat[,selvars_elder])
+colnames(variable_data_frame) <- name.list
+
+# get correlation matrix
+isolation_cor_matrix <- cor(variable_data_frame, method = "pearson", use = "complete.obs")
+
+# Reorder the correlation matrix
+cor_matrix_full <- reorder_cor_matrix(isolation_cor_matrix)
+  
+#melt the values
+metled_cor_matrix <- reshape::melt(cor_matrix_full, na.rm = TRUE)
+
+#correlation heat map
+correlation_heat_map <- ggplot(metled_cor_matrix, aes(X2, X1, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "#343d99", high = "#a50026", mid = "white",
+   midpoint = 0, limit = c(-1,1), space = "Lab",
+    name="Pearson\nCorrelation") +
+  theme_minimal() +
+  labs(y = "",
+       x = "",
+       title = "Correlation heat map") +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),
+       axis.text.y = element_text(size = 12),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 4)
+
+correlation_heat_map
+```
+
+```{r test significance of correlations}
+# isolation12
+cor.test(dat$sisoe12, dat$cdie12, use = "complete")
+cor.test(dat$sisoe12, dat$conec12, use = "complete")
+cor.test(dat$sisoe12, dat$psysympe12, use = "complete")
+cor.test(dat$sisoe12, dat$socisoe18, use = "complete")
+cor.test(dat$sisoe12, dat$mdesxe18, use = "complete")
+cor.test(dat$sisoe12, dat$cdsxe18, use = "complete")
+cor.test(dat$sisoe12, dat$psyexpe18, use = "complete")
+
+# depression12
+cor.test(dat$cdie12, dat$conec12, use = "complete")
+cor.test(dat$cdie12, dat$psysympe12, use = "complete")
+cor.test(dat$cdie12, dat$socisoe18, use = "complete")
+cor.test(dat$cdie12, dat$mdesxe18, use = "complete")
+cor.test(dat$cdie12, dat$cdsxe18, use = "complete")
+cor.test(dat$cdie12, dat$psyexpe18, use = "complete")
+
+# conduct12
+cor.test(dat$conec12, dat$psysympe12, use = "complete")
+cor.test(dat$conec12, dat$socisoe18, use = "complete")
+cor.test(dat$conec12, dat$mdesxe18, use = "complete")
+cor.test(dat$conec12, dat$cdsxe18, use = "complete")
+cor.test(dat$conec12, dat$psyexpe18, use = "complete")
+
+# psychosis12
+cor.test(dat$psysympe12, dat$socisoe18, use = "complete")
+cor.test(dat$psysympe12, dat$mdesxe18, use = "complete")
+cor.test(dat$psysympe12, dat$cdsxe18, use = "complete")
+cor.test(dat$psysympe12, dat$psyexpe18, use = "complete")
+
+# isolation18
+cor.test(dat$socisoe18, dat$mdesxe18, use = "complete")
+cor.test(dat$socisoe18, dat$cdsxe18, use = "complete")
+cor.test(dat$socisoe18, dat$psyexpe18, use = "complete")
+
+# depression18
+cor.test(dat$mdesxe18, dat$cdsxe18, use = "complete")
+cor.test(dat$mdesxe18, dat$psyexpe18, use = "complete")
+
+# conduct18
+cor.test(dat$cdsxe18, dat$psyexpe18, use = "complete")
+```
+
+Here, all the correlations with anxiety are relatively low. We may have to consider removing it, and going for a 4 vairable model (at 2 time points).
+
 ```{r pheno correlations}
 cor(dat[, selvars_anxe], use = "complete")
 cor(dat[, selvars_depe], use = "complete")
@@ -619,73 +653,65 @@ cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
 
 ****
 
-# Independent pathway model (IPM)
+# IPM
 
 This code is adapted from [Waszczuk et al 2021](https://link.springer.com/article/10.1007/s00787-020-01515-6) using a 2A, 2C, and 2E factor independent pathway model.
 
-This model has two common ACE factors that span two time points, as well as specific factors that are spcific for each variable no matter the time point.
+This model has two common ACE factors that span two time points, as well as specific factors that are specific for each variable no matter the time point.
 
-![This IPM looks like this:](ipm.png)
+![This IPM looks like this:](multivar_ipm.png)
 
 Decisions to make for our analyses:
 
-* Waszczuk (2021) stated there were scalar (variance) sex differences in all variables except self-report time 1 depression, and time 2 self-report hyperactivity and parent-report conduct - scalar models were fitted to account for these differences. **We need to decide if this is something we need to do.** Does this mean she looked at sex hertogenity models in the univariate twin models? **I need to run sex twin models to ses if this is something that we need to do**
-* At the moment, for each IPM there is one model with no sex differences, and another with deparate means for males and females. **We need to decide if this is the right approach and if we need to do anything else to account for sex differences.**
-* Waszczuk (2021) conducted separate IPMs for each reporter (in her case self/parent). **Do we need to run separate models for childhood isoaltion as our reporters differ too?**
+* We need to decide which sex differences we are modelling (means only or different paths). I think we should include means anyway in the model as it more accurately represents the data. 
+* We need to think about if we want to consider reporter differences here - run different models for mum and teacher?
+* Decide on constraints for common and specific factors
+* Do we need a 1 factor IPM at 12 and 18 to compare our results to? 
+* Once all models have been decided on, need to convert the specifying IPM into the functions created in ipm_functions.R
+  
+# All variables 
 
-Notes on commands used in Waszczuk (2021):
-
-* The `Scalar` correction is `TRUE` only for the variables that need sex correction. In our case this would be all variables apart from social isolation at age 12. **This is only based on linear regressions, rather than estimating sex differences in OpenMx**. 
-* mxBounds() creates bounds for the objects, but I'm not entirely sure what these are??
-
-TO DO NEXT:
-
-  + Interpret the output of this model - are there negative variances?? Do the h2, c2, e2 line up with the univariate ACE models? Do the overlap estimates look weird? 
-  + Look at how to test for sex differences officially through univariate twin models
-  + Can we run an "all-encompassing" model with he 4 constructs at 12 then 18? 
-  + Run one IPM for age 12 and one for age 18
-  + Think about running this separately based on social isolation 12 reporter - the other constructs are self report?? 
-
-## Number of variables and start values 
+We will first run the full model with all variables included: Social isolation, anxiety, depression, conduct disorder, psychosis at age 12 and 18. 
 
 ```{r number of variables (phenotypes)}
 # number of variables
-nv <- 4    					      # number of variables - 2 at age 12 and 2 at age 18
+nv <- 10    					    # number of variables - 2 for each construct (2*5)
 ntv <- nv*2 				      # number of twin variables
 nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
 
-# number of factors A (common)
+# number of common factors 
 nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
+
+# Set if the parameters are estimated (TRUE) or not (FALSE) 
+Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
+
+# Create start values for 2 common ACE Factors - set the start values for common 
+Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
+Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
 
 # default optimiser 
 mxOption(NULL, "Default optimizer", "CSOLNP") # change to NPSOL and see?
+
+set.seed(2468)
 ```
 
 * For `Ac2Free`, we want to indicate `TRUE` for the first 4 variables (all variables), then for the **second** A factor, we want this to be only for the second set of 2 variables (at age 18), so for this we want the first two variables (age 12) set to `FALSE`. 
 * Similarly, we then want to set the second common start values to be 0 using `Ac2Values`. 
 
-```{r start values - think about renaming these to be consistent with start values for Cholesky}
-# Set if the parameters are estimated (TRUE) or not (FALSE) 
-Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
+```{r labels for IPM_allvar}
+# labels for common paths
+aclab <- c("ac1", "ac2", "ac3", "ac4", "ac5", "ac6", "ac7", "ac8", "ac9", "ac10", 
+           "ac11", "ac12", "ac13", "ac14", "ac15", "ac16", "ac17", "ac18", "ac19", "ac20")
+cclab <- c("cc1", "cc2", "cc3", "cc4", "cc5", "cc6", "cc7", "cc8", "cc9", "cc10", 
+           "cc11", "cc12", "cc13", "cc14", "cc15", "cc16", "cc17", "cc18", "cc19", "cc20")
+eclab <- c("ec1", "ec2", "ec3", "ec4", "ec5", "ec6", "ec7", "ec8", "ec9", "ec10", 
+           "ec11", "ec12", "ec13", "ec14", "ec15", "ec16", "ec17", "ec18", "ec19", "ec20")
 
-# Create start values for 2 common ACE Factors - set the start values for common 
-Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
-Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-
-set.seed(2468)
-```
-
-# Anxiety
-
-**Select which variable list to use: raw, standardised, normalised, standardised and normalised, normalised and sex regressed**
-
-```{r select which variables to use}
-# selvars_anx_chosen <- selvars_anx                 # raw
-# selvars_anx_chosen <- selvars_anx_z_score         # standardised
-# selvars_anx_chosen <- selvars_anx_norm            # normalised
-# selvars_anx_chosen <- selvars_anx_z_score_norm    # standardised and normalised
- selvars_anx_chosen <- selvars_anx_norm_reg         # normalised
+# labels for specific paths
+aslab <- c("as1", "as2", "as3", "as4", "as5", "as6", "as7", "as8", "as9", "as10")
+cslab <- c("cs1", "cs2", "cs3", "cs4", "cs5", "cs6", "cs7", "cs8", "cs9", "cs10")
+eslab <- c("es1", "es2", "es3", "es4", "es5", "es6", "es7", "es8", "es9", "es10")
 ```
 
 ## No sex differences
@@ -694,18 +720,18 @@ set.seed(2468)
 
 #### Specify
 
-```{r ACE model for anxiety}
-IPM_anxiety <- mxModel("IPM_anxiety",
+```{r ACE model for IPM_allvar}
+IPM_allvar <- mxModel("IPM_allvar",
 	mxModel("ACE",
     # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = aclab, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = cclab, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = eclab, values = Ec2Values, name = "ec"),
     		
     # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = aslab, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = cslab, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = eslab, values = 0.6,  name = "es"),
 		
 		# ACE variance components
     mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
@@ -717,7 +743,7 @@ IPM_anxiety <- mxModel("IPM_anxiety",
     mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
     mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
 		
-		# Expected means vector - one grand mean
+		# Expected means vector
     mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), 
 
     # Genetic and environmental correlations (correlated factor solution)
@@ -761,1969 +787,40 @@ IPM_anxiety <- mxModel("IPM_anxiety",
 	
 	mxModel("MZ",
 		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_anx_chosen),
+		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_norm_reg),
 		mxFitFunctionML()
 	),
 	mxModel("DZ",
 		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_anx_chosen),
+		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_norm_reg),
 		mxFitFunctionML()
 	),
 
 	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
 	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph", "ACE.h2"))
+	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
 )
 ```
 
-```{r run ACE model for anxiety}
-IPM_anxiety_fit <- mxTryHard(IPM_anxiety,intervals = TRUE)
-IPM_anxiety_fit_sum <- summary(IPM_anxiety_fit, verbose = TRUE)
-
-IPM_anxiety_fit_sum$CI
-
-mxEval(ACE.h2, IPM_anxiety_fit)
-
-
-```
-
-#### Output
-
-```{r IPM anxiety output ACE}
-IPM_esitmates_ACE(data = IPM_anxiety_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Anxiety12",
-                  variable3 = "Isolation18",
-                  variable4 = "Anxiety18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-
-For set.seed(2468) - it produces estimated paths where isolation loads quite evenly on common A1 and gives output of Isolation12_Anxiety12 0.100	0.250	0.650	1 and all add up to 1. 
-
-For set.seed(1234) - it produces estimated paths where isolation 12 loads highly on common A1, and no others do, and gives output of Isolation12_Anxiety12	0.230	0.201	0.569	1 and *not* all add up to 1. 
-
-***
-
-### AE 
-
-#### Specify
-
-```{r fit AE model}
-# specify AE IPM
-IPM_anxiety_AE <- mxModel(IPM_anxiety, name = "IPM_anxiety_AE",
-     mxModel(IPM_anxiety_fit$ACE,
-     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
-     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
-    )
-)
-
-# run AE IPM
-IPM_anxiety_AE_fit <- mxTryHard(IPM_anxiety_AE, intervals = TRUE)
-
-# compare ACE and AE
-mxCompare(IPM_anxiety_fit, IPM_anxiety_AE_fit)
+```{r run ACE mdoel for all variables}
+IPM_allvar_fit <- mxTryHard(IPM_allvar, intervals = FALSE)
+summary(IPM_allvar_fit)
 ```
 
 #### Output 
-
-```{r IPM anxiety output AE}
-IPM_esitmates_AE(data = IPM_anxiety_AE_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Anxiety12",
-                  variable3 = "Isolation18",
-                  variable4 = "Anxiety18",
-                  model = "AE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-
-**BOTH ACE AND AE MODELS ARE GIVING UNRELIABLE RESULTS HERE - NOT CONSISTENT IN THE SOLUTION FOUND FOR THIS ESTIMATION AND ALSO THE TOTAL % CONTRIBUTION EXCEEDS 1 FOR BOTH.**
-
-## Sex differences
-
-### ACE - separate means
-
-```{r ACE model for anxiety sex}
-IPM_anxiety_sexmean <- mxModel("IPM_anxiety_sexmean",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V
-
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # mean for males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # mean for females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),
-
-    # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, F, T, 
-                                                       T, F, F, T), # TRUE for isolation12 and anxiety 18
-             values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc1", "sc2", "sc3", "sc4"),
-             name   = "Scalar"),
-
-    mxBounds(c("sc1", "sc4"), 0, NA), # creates bounds for these objects - not too sure what these are
-
-		# MZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2",
-	       "ACE.stcc2",
-	       "ACE.stec2",
-	       "ACE.stas2",
-	       "ACE.stcs2",
-	       "ACE.stes2",
-	       "ACE.Rph",
-	       "ACE.h2",
-	       "ACE.c2",
-	       "ACE.e2"))
-)
-```
-
-```{r run ACE mdoel for anxiety}
-IPM_anxiety_sexmean_fit <- mxTryHard(IPM_anxiety_sexmean, intervals = TRUE)
-summary(IPM_anxiety_sexmean_fit, verbose = TRUE)
-```
-
-```{r IPM anxiety output ACE}
-IPM_esitmates_ACE(data = IPM_anxiety_sexmean_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Anxiety12",
-                  variable3 = "Isolation18",
-                  variable4 = "Anxiety18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-### ACE - separate path estimates
-
-```{r ACE model for anxiety sex}
-IPM_anxiety_sexdif <- mxModel("IPM_anxiety_sexdif",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acm"), # male
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acf"), # female
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccf"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecf"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asm"),  # male
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asf"),  # female
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csf"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esf"),
-
-		# ACE variance components
-    mxAlgebra(acm %*% t(acm) + asm %*% t(asm), name = "Am"), # males
-    mxAlgebra(ccm %*% t(ccm) + csm %*% t(csm), name = "Cm"),
-    mxAlgebra(ecm %*% t(ecm) + esm %*% t(esm), name = "Em"),
-    mxAlgebra(Am + Cm + Em, name = "Vm"),
-		mxAlgebra(acf %*% t(acf) + asf %*% t(asf), name = "Af"), # females
-    mxAlgebra(ccf %*% t(ccf) + csf %*% t(csf), name = "Cf"),
-    mxAlgebra(ecf %*% t(ecf) + esf %*% t(esf), name = "Ef"),
-    mxAlgebra(Af + Cf + Ef, name = "Vf"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*Vm)), name = "iSDm"), # extracting the variances from the diagonal of the covariance matrix V
-		mxAlgebra(solve(sqrt(I*Vf)), name = "iSDf"),
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Phenotypic correlations
-    mxAlgebra(solve(sqrt(I*Vm)) %&% Vm, name = "Rphm"),  # males
-		mxAlgebra(solve(sqrt(I*Vf)) %&% Vf, name = "Rphf"),  # females
-
-    # Standardised components of variance
-    mxAlgebra(Am/Vm, name = "h2m"),    # males
-    mxAlgebra(Cm/Vm, name = "c2m"),
-    mxAlgebra(Em/Vm, name = "e2m"),
-
-    mxAlgebra(Af/Vf, name = "h2f"),   # females
-    mxAlgebra(Cf/Vf, name = "c2f"),
-    mxAlgebra(Ef/Vf, name = "e2f"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSDm %*% acm, name = "stacm"),  # males
-    mxAlgebra(iSDm %*% ccm, name = "stccm"),
-    mxAlgebra(iSDm %*% ecm, name = "stecm"),
-		
-		mxAlgebra(iSDf %*% acf, name = "stacf"),  # females
-    mxAlgebra(iSDf %*% ccf, name = "stccf"),
-    mxAlgebra(iSDf %*% ecf, name = "stecf"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stacm*stacm, name = "stac2m"),  # males
-    mxAlgebra(stccm*stccm, name = "stcc2m"),
-    mxAlgebra(stecm*stecm, name = "stec2m"),
-		
-		mxAlgebra(stacf*stacf, name = "stac2f"),  # females
-    mxAlgebra(stccf*stccf, name = "stcc2f"),
-    mxAlgebra(stecf*stecf, name = "stec2f"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSDm %*% asm, name = "stasm"),  # males
-    mxAlgebra(iSDm %*% csm, name = "stcsm"),
-    mxAlgebra(iSDm %*% esm, name = "stesm"),
-		
-		mxAlgebra(iSDf %*% asf, name = "stasf"),  # females
-    mxAlgebra(iSDf %*% csf, name = "stcsf"),
-    mxAlgebra(iSDf %*% esf, name = "stesf"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stasm*stasm, name = "stas2m"),  # males
-    mxAlgebra(stcsm*stcsm, name = "stcs2m"),
-    mxAlgebra(stesm*stesm, name = "stes2m"),
-		
-		mxAlgebra(stasf*stasf, name = "stas2f"),  # females
-    mxAlgebra(stcsf*stcsf, name = "stcs2f"),
-    mxAlgebra(stesf*stesf, name = "stes2f"),
-
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, Am+Cm), cbind(Am+Cm, Am+Cm+Em)), name = "expCovMZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, Af+Cf), cbind(Af+Cf, Af+Cf+Ef)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, (0.5%x%Am)+Cm), cbind((0.5%x%Am)+Cm, Am+Cm+Em)), name = "expCovDZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, (0.5%x%Af)+Cf), cbind((0.5%x%Af)+Cf, Af+Cf+Ef)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_anx_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL")
-)
-```
-
-```{r run ACE mdoel for anxiety}
-IPM_anxiety_sexdif_fit <- mxTryHard(IPM_anxiety_sexdif, intervals = TRUE)
-summary(IPM_anxiety_sexdif_fit, verbose = TRUE)
-```
-
-```{r IPM anxiety output ACE}
-# Rph
-mxEval(ACE.Rphm, IPM_anxiety_sexdif_fit)
-mxEval(ACE.Rphf, IPM_anxiety_sexdif_fit)
-
-# ACE estimates
-mxEval(ACE.h2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.h2f, IPM_anxiety_sexdif_fit)
-
-mxEval(ACE.c2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.c2f, IPM_anxiety_sexdif_fit)
-
-mxEval(ACE.e2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.e2f, IPM_anxiety_sexdif_fit)
-
-# common factor parameters
-mxEval(ACE.stac2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.stac2f, IPM_anxiety_sexdif_fit)
-
-mxEval(ACE.stcc2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.stcc2f, IPM_anxiety_sexdif_fit)
-
-mxEval(ACE.stec2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.stec2f, IPM_anxiety_sexdif_fit)
-
-# specific factor parameters
-mxEval(ACE.stas2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.stas2f, IPM_anxiety_sexdif_fit)
-
-mxEval(ACE.stcs2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.stcs2f, IPM_anxiety_sexdif_fit)
-
-mxEval(ACE.stes2m, IPM_anxiety_sexdif_fit)
-mxEval(ACE.stes2f, IPM_anxiety_sexdif_fit)
-```
-
-```{r compare fit of different paths to paths set to be equal}
-# compare the sexdiff model with separate paths to a more constrained model that uses only separate means
-mxCompare(IPM_anxiety_sexdif_fit, IPM_anxiety_sexmean_fit)
-```
-
-This suggests that the `IPM_anxiety_sexmean` model is the best fit - as it is the model constrained model and does not significantly reduce model fit. 
-
-# Depression
-
-**Select which variable list to use: raw, standardised, normalised, standardised and normalised, normalised and sex regressed**
-
-```{r select which variables to use depression}
-# selvars_dep_chosen <- selvars_dep                 # raw
-# selvars_dep_chosen <- selvars_dep_z_score         # standardised
-# selvars_dep_chosen <- selvars_dep_norm            # normalised
-# selvars_dep_chosen <- selvars_dep_z_score_norm    # standardised and normalised
- selvars_dep_chosen <- selvars_dep_norm_reg         # normalised
-```
-
-## No sex differences
-
-### ACE
-
-#### Specify
-
-```{r ACE model for depression}
-IPM_depression <- mxModel("IPM_depression",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-    		
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-		
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-		
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), # is this for males?
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-    
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-    
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-    
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-    
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),	
-	
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
-		
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
-		
-	),
-	
-	mxModel("MZ",
-		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZ",
-		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
-)
-```
-
-```{r run ACE mdoel for depression}
-IPM_depression_fit <- mxTryHard(IPM_depression, extraTries = 100, intervals = TRUE)
-summary(IPM_depression_fit, verbose = TRUE)
-```
-
-#### Output
-
-```{r IPM depression output ACE}
-IPM_esitmates_ACE(data = IPM_depression_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Depression12",
-                  variable3 = "Isolation18",
-                  variable4 = "Depression18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-The % of phenotypic correlations look weird here - over 1. 
-
-The square root of the common genetic paths from Isolation12 to Depression18 is larger than the phenotypic correlation. The same thing is the case for depression12 to depression18. I'm not too sure how to interpret this? Is it something to do with needing an ADE model?
-
-### AE 
-
-```{r fit AE model depression}
-# specify AE IPM
-IPM_depression_AE <- mxModel(IPM_depression, name = "IPM_depression_AE",
-     mxModel(IPM_depression_fit$ACE,
-     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
-     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
-    )
-)
-
-# run AE IPM
-IPM_depression_AE_fit <- mxTryHard(IPM_depression_AE, extraTries = 100, intervals = TRUE)
-
-# Compare ACE and AE
-mxCompare(IPM_depression_fit, IPM_depression_AE_fit)
-```
-
-```{r IPM depression output AE}
-IPM_esitmates_AE(data = IPM_depression_AE_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Depression12",
-                  variable3 = "Isolation18",
-                  variable4 = "Depression18",
-                  model = "AE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-Still has contributions of above 1 - why is this??
-
-## Sex differences
-
-### ACE - separate means
-
-```{r ACE model for depression sex}
-IPM_depression_sexmean <- mxModel("IPM_depression_sexmean",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V
-
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # mean for males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # mean for females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),
-
-    # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, F, T,  # TRUE for isolation12 and depression 18 - elder
-                                                       T, F, F, T), # younger
-             values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc1", "sc2", "sc3", "sc4"),
-             name   = "Scalar"),
-
-    mxBounds(c("sc1", "sc4"), 0, NA), # creates bounds for these objects - not too sure what these are
-
-		# MZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2",
-	       "ACE.stcc2",
-	       "ACE.stec2",
-	       "ACE.stas2",
-	       "ACE.stcs2",
-	       "ACE.stes2",
-	       "ACE.Rph",
-	       "ACE.h2",
-	       "ACE.c2",
-	       "ACE.e2"))
-)
-```
-
-```{r run ACE mdoel for depression}
-IPM_depression_sexmean_fit <- mxTryHard(IPM_depression_sexmean, extraTries = 100, intervals = TRUE)
-summary(IPM_depression_sexmean_fit, verbose = TRUE)
-```
-
-```{r IPM depression output ACE}
-IPM_esitmates_ACE(data = IPM_depression_sexmean_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Depression12",
-                  variable3 = "Isolation18",
-                  variable4 = "Depression18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-* why are the Ac above 1?????
-
-### ACE - separate path estimates
-
-```{r ACE model for depression sex}
-IPM_depression_sexdif <- mxModel("IPM_depression_sexdif",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acm"), # male
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acf"), # female
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccf"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecf"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asm"),  # male
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asf"),  # female
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csf"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esf"),
-
-		# ACE variance components
-    mxAlgebra(acm %*% t(acm) + asm %*% t(asm), name = "Am"), # males
-    mxAlgebra(ccm %*% t(ccm) + csm %*% t(csm), name = "Cm"),
-    mxAlgebra(ecm %*% t(ecm) + esm %*% t(esm), name = "Em"),
-    mxAlgebra(Am + Cm + Em, name = "Vm"),
-		mxAlgebra(acf %*% t(acf) + asf %*% t(asf), name = "Af"), # females
-    mxAlgebra(ccf %*% t(ccf) + csf %*% t(csf), name = "Cf"),
-    mxAlgebra(ecf %*% t(ecf) + esf %*% t(esf), name = "Ef"),
-    mxAlgebra(Af + Cf + Ef, name = "Vf"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*Vm)), name = "iSDm"), # extracting the variances from the diagonal of the covariance matrix V
-		mxAlgebra(solve(sqrt(I*Vf)), name = "iSDf"),
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Phenotypic correlations
-    mxAlgebra(solve(sqrt(I*Vm)) %&% Vm, name = "Rphm"),  # males
-		mxAlgebra(solve(sqrt(I*Vf)) %&% Vf, name = "Rphf"),  # females
-
-    # Standardised components of variance
-    mxAlgebra(Am/Vm, name = "h2m"),    # males
-    mxAlgebra(Cm/Vm, name = "c2m"),
-    mxAlgebra(Em/Vm, name = "e2m"),
-
-    mxAlgebra(Af/Vf, name = "h2f"),   # females
-    mxAlgebra(Cf/Vf, name = "c2f"),
-    mxAlgebra(Ef/Vf, name = "e2f"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSDm %*% acm, name = "stacm"),  # males
-    mxAlgebra(iSDm %*% ccm, name = "stccm"),
-    mxAlgebra(iSDm %*% ecm, name = "stecm"),
-		
-		mxAlgebra(iSDf %*% acf, name = "stacf"),  # females
-    mxAlgebra(iSDf %*% ccf, name = "stccf"),
-    mxAlgebra(iSDf %*% ecf, name = "stecf"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stacm*stacm, name = "stac2m"),  # males
-    mxAlgebra(stccm*stccm, name = "stcc2m"),
-    mxAlgebra(stecm*stecm, name = "stec2m"),
-		
-		mxAlgebra(stacf*stacf, name = "stac2f"),  # females
-    mxAlgebra(stccf*stccf, name = "stcc2f"),
-    mxAlgebra(stecf*stecf, name = "stec2f"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSDm %*% asm, name = "stasm"),  # males
-    mxAlgebra(iSDm %*% csm, name = "stcsm"),
-    mxAlgebra(iSDm %*% esm, name = "stesm"),
-		
-		mxAlgebra(iSDf %*% asf, name = "stasf"),  # females
-    mxAlgebra(iSDf %*% csf, name = "stcsf"),
-    mxAlgebra(iSDf %*% esf, name = "stesf"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stasm*stasm, name = "stas2m"),  # males
-    mxAlgebra(stcsm*stcsm, name = "stcs2m"),
-    mxAlgebra(stesm*stesm, name = "stes2m"),
-		
-		mxAlgebra(stasf*stasf, name = "stas2f"),  # females
-    mxAlgebra(stcsf*stcsf, name = "stcs2f"),
-    mxAlgebra(stesf*stesf, name = "stes2f"),
-
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, Am+Cm), cbind(Am+Cm, Am+Cm+Em)), name = "expCovMZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, Af+Cf), cbind(Af+Cf, Af+Cf+Ef)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, (0.5%x%Am)+Cm), cbind((0.5%x%Am)+Cm, Am+Cm+Em)), name = "expCovDZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, (0.5%x%Af)+Cf), cbind((0.5%x%Af)+Cf, Af+Cf+Ef)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_dep_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL")
-)
-```
-
-```{r run ACE mdoel for depression}
-IPM_depression_sexdif_fit <- mxTryHard(IPM_depression_sexdif, extraTries = 100, intervals = TRUE)
-summary(IPM_depression_sexdif_fit, verbose = TRUE)
-```
-
-```{r IPM depression output ACE}
-# Rph
-mxEval(ACE.Rphm, IPM_depression_sexdif_fit)
-mxEval(ACE.Rphf, IPM_depression_sexdif_fit)
-
-# ACE estimates
-mxEval(ACE.h2m, IPM_depression_sexdif_fit)
-mxEval(ACE.h2f, IPM_depression_sexdif_fit)
-
-mxEval(ACE.c2m, IPM_depression_sexdif_fit)
-mxEval(ACE.c2f, IPM_depression_sexdif_fit)
-
-mxEval(ACE.e2m, IPM_depression_sexdif_fit)
-mxEval(ACE.e2f, IPM_depression_sexdif_fit)
-
-# common factor parameters
-mxEval(ACE.stac2m, IPM_depression_sexdif_fit)
-mxEval(ACE.stac2f, IPM_depression_sexdif_fit)
-
-mxEval(ACE.stcc2m, IPM_depression_sexdif_fit)
-mxEval(ACE.stcc2f, IPM_depression_sexdif_fit)
-
-mxEval(ACE.stec2m, IPM_depression_sexdif_fit)
-mxEval(ACE.stec2f, IPM_depression_sexdif_fit)
-
-# specific factor parameters
-mxEval(ACE.stas2m, IPM_depression_sexdif_fit)
-mxEval(ACE.stas2f, IPM_depression_sexdif_fit)
-
-mxEval(ACE.stcs2m, IPM_depression_sexdif_fit)
-mxEval(ACE.stcs2f, IPM_depression_sexdif_fit)
-
-mxEval(ACE.stes2m, IPM_depression_sexdif_fit)
-mxEval(ACE.stes2f, IPM_depression_sexdif_fit)
-```
-
-```{r compare fit of different paths to paths set to be equl depressionl}
-# compare the sexdiff model with separate paths to a more constrained model that uses only separate means
-mxCompare(IPM_depression_sexdif_fit, IPM_depression_sexmean_fit)
-```
-
-This suggests that there is not a significant loss in fit by modeling separate means rather than paths. 
-
-# Conduct disorder
-
-**Select which variable list to use: raw, standardised, normalised, standardised and normalised, normalised and sex regressed**
-
-```{r select which variables to use}
-# selvars_con_chosen <- selvars_con                 # raw
-# selvars_con_chosen <- selvars_con_z_score         # standardised
-# selvars_con_chosen <- selvars_con_norm            # normalised
-# selvars_con_chosen <- selvars_con_z_score_norm    # standardised and normalised
- selvars_con_chosen <- selvars_con_norm_reg         # normalised
-```
-
-## No sex differences
-
-### ACE
-
-#### Specify
-
-```{r ACE model for condict}
-IPM_conduct <- mxModel("IPM_conduct",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-    		
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-		
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-		
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
-		
-		# Expected means vector - one grand mean
-    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), 
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-    
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-    
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-    
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-    
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),	
-	
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
-		
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
-		
-	),
-	
-	mxModel("MZ",
-		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZ",
-		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
-)
-```
-
-```{r run ACE model for conduct}
-IPM_conduct_fit <- mxTryHard(IPM_conduct, extraTries = 100, intervals = TRUE)
-```
-
-#### Output
-
-```{r IPM anxiety output ACE}
-IPM_esitmates_ACE(data = IPM_conduct_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Conduct12",
-                  variable3 = "Isolation18",
-                  variable4 = "Conduct18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
- 
-Why is the total for the age 18 not 1? 
-
-***
-
-### AE 
-
-#### Specify
-
-```{r fit AE model}
-# specify AE IPM
-IPM_conduct_AE <- mxModel(IPM_conduct, name = "IPM_conduct_AE",
-     mxModel(IPM_conduct_fit$ACE,
-     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
-     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
-    )
-)
-
-# run AE IPM
-IPM_conduct_AE_fit <- mxTryHard(IPM_conduct_AE, extraTries = 100, intervals = TRUE)
-
-# compare ACE and AE
-mxCompare(IPM_conduct_fit, IPM_conduct_AE_fit)
-```
-
-#### Output 
-
-```{r IPM conduct output AE}
-IPM_esitmates_AE(data = IPM_conduct_AE_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Conduct12",
-                  variable3 = "Isolation18",
-                  variable4 = "Conduct18",
-                  model = "AE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-## Sex differences
-
-### ACE - separate means
-
-```{r ACE model for conduct sex}
-IPM_conduct_sexmean <- mxModel("IPM_conduct_sexmean",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V
-
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # mean for males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # mean for females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),
-
-    # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, T, F, F,  # TRUE for isolation12 and conduct 12 - elder
-                                                       T, T, F, F), # younger
-             values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc1", "sc2", "sc3", "sc4"),
-             name   = "Scalar"),
-
-    mxBounds(c("sc1", "sc2"), 0, NA), # creates bounds for these objects
-
-		# MZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2",
-	       "ACE.stcc2",
-	       "ACE.stec2",
-	       "ACE.stas2",
-	       "ACE.stcs2",
-	       "ACE.stes2",
-	       "ACE.Rph",
-	       "ACE.h2",
-	       "ACE.c2",
-	       "ACE.e2"))
-)
-```
-
-```{r run ACE mdoel for conduct}
-IPM_conduct_sexmean_fit <- mxTryHard(IPM_conduct_sexmean, extraTries = 100, intervals = TRUE)
-summary(IPM_conduct_sexmean_fit, verbose = TRUE)
-```
-
-```{r IPM conduct output ACE}
-IPM_esitmates_ACE(data = IPM_conduct_sexmean_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Conduct12",
-                  variable3 = "Isolation18",
-                  variable4 = "Conduct18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-### ACE - separate path estimates
-
-```{r ACE model for conduct sex}
-IPM_conduct_sexdif <- mxModel("IPM_conduct_sexdif",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acm"), # male
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acf"), # female
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccf"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecf"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asm"),  # male
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asf"),  # female
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csf"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esf"),
-
-		# ACE variance components
-    mxAlgebra(acm %*% t(acm) + asm %*% t(asm), name = "Am"), # males
-    mxAlgebra(ccm %*% t(ccm) + csm %*% t(csm), name = "Cm"),
-    mxAlgebra(ecm %*% t(ecm) + esm %*% t(esm), name = "Em"),
-    mxAlgebra(Am + Cm + Em, name = "Vm"),
-		mxAlgebra(acf %*% t(acf) + asf %*% t(asf), name = "Af"), # females
-    mxAlgebra(ccf %*% t(ccf) + csf %*% t(csf), name = "Cf"),
-    mxAlgebra(ecf %*% t(ecf) + esf %*% t(esf), name = "Ef"),
-    mxAlgebra(Af + Cf + Ef, name = "Vf"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*Vm)), name = "iSDm"), # extracting the variances from the diagonal of the covariance matrix V
-		mxAlgebra(solve(sqrt(I*Vf)), name = "iSDf"),
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Phenotypic correlations
-    mxAlgebra(solve(sqrt(I*Vm)) %&% Vm, name = "Rphm"),  # males
-		mxAlgebra(solve(sqrt(I*Vf)) %&% Vf, name = "Rphf"),  # females
-
-    # Standardised components of variance
-    mxAlgebra(Am/Vm, name = "h2m"),    # males
-    mxAlgebra(Cm/Vm, name = "c2m"),
-    mxAlgebra(Em/Vm, name = "e2m"),
-
-    mxAlgebra(Af/Vf, name = "h2f"),   # females
-    mxAlgebra(Cf/Vf, name = "c2f"),
-    mxAlgebra(Ef/Vf, name = "e2f"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSDm %*% acm, name = "stacm"),  # males
-    mxAlgebra(iSDm %*% ccm, name = "stccm"),
-    mxAlgebra(iSDm %*% ecm, name = "stecm"),
-		
-		mxAlgebra(iSDf %*% acf, name = "stacf"),  # females
-    mxAlgebra(iSDf %*% ccf, name = "stccf"),
-    mxAlgebra(iSDf %*% ecf, name = "stecf"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stacm*stacm, name = "stac2m"),  # males
-    mxAlgebra(stccm*stccm, name = "stcc2m"),
-    mxAlgebra(stecm*stecm, name = "stec2m"),
-		
-		mxAlgebra(stacf*stacf, name = "stac2f"),  # females
-    mxAlgebra(stccf*stccf, name = "stcc2f"),
-    mxAlgebra(stecf*stecf, name = "stec2f"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSDm %*% asm, name = "stasm"),  # males
-    mxAlgebra(iSDm %*% csm, name = "stcsm"),
-    mxAlgebra(iSDm %*% esm, name = "stesm"),
-		
-		mxAlgebra(iSDf %*% asf, name = "stasf"),  # females
-    mxAlgebra(iSDf %*% csf, name = "stcsf"),
-    mxAlgebra(iSDf %*% esf, name = "stesf"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stasm*stasm, name = "stas2m"),  # males
-    mxAlgebra(stcsm*stcsm, name = "stcs2m"),
-    mxAlgebra(stesm*stesm, name = "stes2m"),
-		
-		mxAlgebra(stasf*stasf, name = "stas2f"),  # females
-    mxAlgebra(stcsf*stcsf, name = "stcs2f"),
-    mxAlgebra(stesf*stesf, name = "stes2f"),
-
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, Am+Cm), cbind(Am+Cm, Am+Cm+Em)), name = "expCovMZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, Af+Cf), cbind(Af+Cf, Af+Cf+Ef)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, (0.5%x%Am)+Cm), cbind((0.5%x%Am)+Cm, Am+Cm+Em)), name = "expCovDZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, (0.5%x%Af)+Cf), cbind((0.5%x%Af)+Cf, Af+Cf+Ef)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_con_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL")
-)
-```
-
-```{r run ACE mdoel for conduct}
-IPM_conduct_sexdif_fit <- mxTryHard(IPM_conduct_sexdif, extraTries = 100, intervals = TRUE)
-summary(IPM_conduct_sexdif_fit, verbose = TRUE)
-```
-
-```{r IPM conduct output ACE}
-# Rph
-mxEval(ACE.Rphm, IPM_conduct_sexdif_fit)
-mxEval(ACE.Rphf, IPM_conduct_sexdif_fit)
-
-# ACE estimates
-mxEval(ACE.h2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.h2f, IPM_conduct_sexdif_fit)
-
-mxEval(ACE.c2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.c2f, IPM_conduct_sexdif_fit)
-
-mxEval(ACE.e2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.e2f, IPM_conduct_sexdif_fit)
-
-# common factor parameters
-mxEval(ACE.stac2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.stac2f, IPM_conduct_sexdif_fit)
-
-mxEval(ACE.stcc2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.stcc2f, IPM_conduct_sexdif_fit)
-
-mxEval(ACE.stec2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.stec2f, IPM_conduct_sexdif_fit)
-
-# specific factor parameters
-mxEval(ACE.stas2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.stas2f, IPM_conduct_sexdif_fit)
-
-mxEval(ACE.stcs2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.stcs2f, IPM_conduct_sexdif_fit)
-
-mxEval(ACE.stes2m, IPM_conduct_sexdif_fit)
-mxEval(ACE.stes2f, IPM_conduct_sexdif_fit)
-```
-
-```{r compare fit of different paths to paths set to be equal conduct}
-# compare the sexdiff model with separate paths to a more constrained model that uses only separate means
-mxCompare(IPM_conduct_sexdif_fit, IPM_conduct_sexmean_fit)
-```
-
-This suggests that the `IPM_conduct_sexdif` model is the best fit - as constraining the sex differences to scaled means is a significantly worse fit. So this implies there are different ACE paths for males and females. 
-
-# Psychosis
-
-**Select which variable list to use: raw, standardised, normalised, standardised and normalised, normalised and sex regressed**
-
-```{r select which variables to use}
-# selvars_psy_chosen <- selvars_psy                 # raw
-# selvars_psy_chosen <- selvars_psy_z_score         # standardised
-# selvars_psy_chosen <- selvars_psy_norm            # normalised
-# selvars_psy_chosen <- selvars_psy_z_score_norm    # standardised and normalised
- selvars_psy_chosen <- selvars_psy_norm_reg         # normalised
-```
-
-## No sex differences
-
-### ACE
-
-#### Specify
-
-```{r ACE model for condict}
-IPM_psychosis <- mxModel("IPM_psychosis",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-    		
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-		
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-		
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
-		
-		# Expected means vector - one grand mean
-    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), 
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-    
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-    
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-    
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-    
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),	
-	
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
-		
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
-		
-	),
-	
-	mxModel("MZ",
-		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZ",
-		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
-)
-```
-
-```{r run ACE model for psychosis}
-IPM_psychosis_fit <- mxTryHard(IPM_psychosis, extraTries = 100, intervals = TRUE)
-summary(IPM_psychosis_fit, verbose = TRUE)
-```
-
-#### Output
-
-```{r IPM psychosis output ACE}
-IPM_esitmates_ACE(data = IPM_psychosis_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Psychosis12",
-                  variable3 = "Isolation18",
-                  variable4 = "Psychosis18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
- 
-Why do some of these not add up to 1? 
-
-***
-
-### AE 
-
-#### Specify
-
-```{r fit psychosis AE model}
-# specify AE IPM
-IPM_psychosis_AE <- mxModel(IPM_psychosis, name = "IPM_psychosis_AE",
-     mxModel(IPM_psychosis_fit$ACE,
-     mxMatrix("Full", nrow = nv, ncol = nfAc, free = FALSE, values = 0, name = "cc"),
-     mxMatrix("Diag", nrow = nv, ncol = nv, free = FALSE, values = 0, name = "cs")   # drop C at 0
-    )
-)
-
-# run AE IPM
-IPM_psychosis_AE_fit <- mxTryHard(IPM_psychosis_AE, extraTries = 100, intervals = TRUE)
-
-# compare ACE and AE
-mxCompare(IPM_psychosis_fit, IPM_psychosis_AE_fit)
-summary(IPM_psychosis_AE_fit, verbose = TRUE)
-```
-
-#### Output 
-
-```{r IPM psychosis output AE}
-IPM_esitmates_AE(data = IPM_psychosis_AE_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Psychosis12",
-                  variable3 = "Isolation18",
-                  variable4 = "Psychosis18",
-                  model = "AE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-## Sex differences
-
-### ACE - separate means
-
-```{r ACE model for psychosis sex}
-IPM_psychosis_sexmean <- mxModel("IPM_psychosis_sexmean",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V
-
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # mean for males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # mean for females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),
-
-    # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, T, F, T, 
-                                                       T, T, F, T), # TRUE for isolation12 and psychosis 12 & 18
-             values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc1", "sc2", "sc3", "sc4"),
-             name   = "Scalar"),
-
-    mxBounds(c("sc1", "sc2", "sc4"), 0, NA), # creates bounds for these objects - not too sure what these are
-
-		# MZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"), # why is the scalar applied to just males? 
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2",
-	       "ACE.stcc2",
-	       "ACE.stec2",
-	       "ACE.stas2",
-	       "ACE.stcs2",
-	       "ACE.stes2",
-	       "ACE.Rph",
-	       "ACE.h2",
-	       "ACE.c2",
-	       "ACE.e2"))
-)
-```
-
-```{r run ACE mdoel for psychosis}
-IPM_psychosis_sexmean_fit <- mxTryHard(IPM_psychosis_sexmean, extraTries = 100, intervals = TRUE)
-summary(IPM_psychosis_sexmean_fit, verbose = TRUE)
-```
-
-```{r IPM psychosis output ACE}
-IPM_esitmates_ACE(data = IPM_psychosis_sexmean_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "psychosis12",
-                  variable3 = "Isolation18",
-                  variable4 = "psychosis18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-### ACE - separate path estimates
-
-```{r ACE model for psychosis sex}
-IPM_psychosis_sexdif <- mxModel("IPM_psychosis_sexdif",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acm"), # male
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecm"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "acf"), # female
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "ccf"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ecf"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asm"),  # male
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esm"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "asf"),  # female
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "csf"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "esf"),
-
-		# ACE variance components
-    mxAlgebra(acm %*% t(acm) + asm %*% t(asm), name = "Am"), # males
-    mxAlgebra(ccm %*% t(ccm) + csm %*% t(csm), name = "Cm"),
-    mxAlgebra(ecm %*% t(ecm) + esm %*% t(esm), name = "Em"),
-    mxAlgebra(Am + Cm + Em, name = "Vm"),
-		mxAlgebra(acf %*% t(acf) + asf %*% t(asf), name = "Af"), # females
-    mxAlgebra(ccf %*% t(ccf) + csf %*% t(csf), name = "Cf"),
-    mxAlgebra(ecf %*% t(ecf) + esf %*% t(esf), name = "Ef"),
-    mxAlgebra(Af + Cf + Ef, name = "Vf"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*Vm)), name = "iSDm"), # extracting the variances from the diagonal of the covariance matrix V
-		mxAlgebra(solve(sqrt(I*Vf)), name = "iSDf"),
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Phenotypic correlations
-    mxAlgebra(solve(sqrt(I*Vm)) %&% Vm, name = "Rphm"),  # males
-		mxAlgebra(solve(sqrt(I*Vf)) %&% Vf, name = "Rphf"),  # females
-
-    # Standardised components of variance
-    mxAlgebra(Am/Vm, name = "h2m"),    # males
-    mxAlgebra(Cm/Vm, name = "c2m"),
-    mxAlgebra(Em/Vm, name = "e2m"),
-
-    mxAlgebra(Af/Vf, name = "h2f"),   # females
-    mxAlgebra(Cf/Vf, name = "c2f"),
-    mxAlgebra(Ef/Vf, name = "e2f"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSDm %*% acm, name = "stacm"),  # males
-    mxAlgebra(iSDm %*% ccm, name = "stccm"),
-    mxAlgebra(iSDm %*% ecm, name = "stecm"),
-		
-		mxAlgebra(iSDf %*% acf, name = "stacf"),  # females
-    mxAlgebra(iSDf %*% ccf, name = "stccf"),
-    mxAlgebra(iSDf %*% ecf, name = "stecf"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stacm*stacm, name = "stac2m"),  # males
-    mxAlgebra(stccm*stccm, name = "stcc2m"),
-    mxAlgebra(stecm*stecm, name = "stec2m"),
-		
-		mxAlgebra(stacf*stacf, name = "stac2f"),  # females
-    mxAlgebra(stccf*stccf, name = "stcc2f"),
-    mxAlgebra(stecf*stecf, name = "stec2f"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSDm %*% asm, name = "stasm"),  # males
-    mxAlgebra(iSDm %*% csm, name = "stcsm"),
-    mxAlgebra(iSDm %*% esm, name = "stesm"),
-		
-		mxAlgebra(iSDf %*% asf, name = "stasf"),  # females
-    mxAlgebra(iSDf %*% csf, name = "stcsf"),
-    mxAlgebra(iSDf %*% esf, name = "stesf"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stasm*stasm, name = "stas2m"),  # males
-    mxAlgebra(stcsm*stcsm, name = "stcs2m"),
-    mxAlgebra(stesm*stesm, name = "stes2m"),
-		
-		mxAlgebra(stasf*stasf, name = "stas2f"),  # females
-    mxAlgebra(stcsf*stcsf, name = "stcs2f"),
-    mxAlgebra(stesf*stesf, name = "stes2f"),
-
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, Am+Cm), cbind(Am+Cm, Am+Cm+Em)), name = "expCovMZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, Af+Cf), cbind(Af+Cf, Af+Cf+Ef)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(Am+Cm+Em, (0.5%x%Am)+Cm), cbind((0.5%x%Am)+Cm, Am+Cm+Em)), name = "expCovDZm"), 
-		mxAlgebra(rbind(cbind(Af+Cf+Ef, (0.5%x%Af)+Cf), cbind((0.5%x%Af)+Cf, Af+Cf+Ef)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_psy_chosen),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL")
-)
-```
-
-```{r run ACE mdoel for psychosis}
-IPM_psychosis_sexdif_fit <- mxTryHard(IPM_psychosis_sexdif, extraTries = 100, intervals = TRUE)
-summary(IPM_psychosis_sexdif_fit, verbose = TRUE)
-```
-
-```{r IPM psychosis output ACE}
-# Rph
-mxEval(ACE.Rphm, IPM_psychosis_sexdif_fit)
-mxEval(ACE.Rphf, IPM_psychosis_sexdif_fit)
-
-# ACE estimates
-mxEval(ACE.h2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.h2f, IPM_psychosis_sexdif_fit)
-
-mxEval(ACE.c2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.c2f, IPM_psychosis_sexdif_fit)
-
-mxEval(ACE.e2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.e2f, IPM_psychosis_sexdif_fit)
-
-# common factor parameters
-mxEval(ACE.stac2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.stac2f, IPM_psychosis_sexdif_fit)
-
-mxEval(ACE.stcc2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.stcc2f, IPM_psychosis_sexdif_fit)
-
-mxEval(ACE.stec2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.stec2f, IPM_psychosis_sexdif_fit)
-
-# specific factor parameters
-mxEval(ACE.stas2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.stas2f, IPM_psychosis_sexdif_fit)
-
-mxEval(ACE.stcs2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.stcs2f, IPM_psychosis_sexdif_fit)
-
-mxEval(ACE.stes2m, IPM_psychosis_sexdif_fit)
-mxEval(ACE.stes2f, IPM_psychosis_sexdif_fit)
-```
-
-```{r compare fit of different paths to paths set to be equl psychosis}
-# compare the sexdiff model with separate paths to a more constrained model that uses only separate means
-mxCompare(IPM_psychosis_sexdif_fit, IPM_psychosis_sexmean_fit)
-```
-
-This suggests that the `IPM_psychosis_sexdif` model is the best fit - as constraining the sex differences to scaled means is a significantly worse fit. So this implies there are different ACE paths for males and females. 
-
-***
-
-# All variables - without psychosis
-
-This section will run a model with all variables apart from psychosis, and then again with all 5 avriables. 
-
-```{r number of variables (phenotypes)}
-# number of variables
-nv <- 8    					      # number of variables - 2 for each construct (2*4)
-ntv <- nv*2 				      # number of twin variables
-nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
-
-# number of common factors 
-nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
-
-# Set if the parameters are estimated (TRUE) or not (FALSE) 
-Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
-
-# Create start values for 2 common ACE Factors - set the start values for common 
-Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
-Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-```
-
-## No sex differences
-
-### ACE
-
-```{r ACE model for IPM_allvar_nopsy}
-IPM_allvar_nopsy <- mxModel("IPM_allvar_nopsy",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-    		
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-		
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-		
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), 
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-    
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-    
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-    
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-    
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),	
-	
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
-		
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
-		
-	),
-	
-	mxModel("MZ",
-		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_nopsy_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZ",
-		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_nopsy_norm_reg),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
-)
-```
-
-```{r run ACE mdoel for anxiety}
-IPM_allvar_nopsy_fit <- mxTryHard(IPM_allvar_nopsy, intervals = TRUE)
-```
 
 ```{r output for IPM_allvar_nopsy_fit}
-IPM_esitmates_ACE_8var(data = IPM_allvar_nopsy_fit,
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_fit,
                   variable1 = "Isolation12",
                   variable2 = "Anxiety12",
                   variable3 = "Depression12",
                   variable4 = "Conduct12",
-                  variable5 = "Isolation18",
-                  variable6 = "Anxiety18",
-                  variable7 = "Depression18",
-                  variable8 = "Conduct18",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
                   model = "ACE",
                   uniACEestimates = TRUE,
                   pathestimates = TRUE,
@@ -2733,32 +830,392 @@ IPM_esitmates_ACE_8var(data = IPM_allvar_nopsy_fit,
                   common_factor_contribution = TRUE)
 ```
 
-Univariate heritabilities:
-Isolation 12     0.419
-Anxiety 12       0.272
-Depression 12    0.211
-Conduct 12       0.197
-Isolation 18     0.450
-Anxiety 18       0.235
-Depression 18    0.315
-Conduct 18       0.195
+*Univariate ACE estimates*
+                   a2      c2       e2
+Isolation 12     0.419   0.000    0.581
+Anxiety 12       0.285   0.097    0.618
+Depression 12    0.211   0.146    0.643
+Conduct 12       0.197   0.249    0.554
+Psychosis 12     0.103   0.187    0.710
 
-## Sex differences
+Isolation 18     0.450   0.000    0.550
+Anxiety 18       0.235   0.000    0.765
+Depression 18    0.315   0.000    0.685
+Conduct 18       0.195   0.270    0.535
+Psychosis 18     0.237   0.042    0.721
+
+
+#### Submodels
+
+**NEED TO CHECK THAT THE ONES I AM DROPPING ARE NON-SIGNIFICANT - TO DO THIS RERUN ALL WITH INTERVALS = TRUE**
+
+We now need to check if there are very small effects that we can constrain to be zero. According to Dirk Pelt, we also need to check for any negative variances and set these to be zero. 
+
+Here we can check all the output to see if any of the variances are negative - this can sometimes be called  a Heywood case, which means that more than 100% of the variable's variance is explained by the (latent) factor(s), which implies that the residual variance is negative. For a model with one factor, it means that the (standardized) loading is larger than 1.00.
+
+```{r checknegative variances for common and specific paths}
+# common squared parameters - variances
+mxEval(ACE.stac2, IPM_allvar_fit)
+mxEval(ACE.stcc2, IPM_allvar_fit)
+mxEval(ACE.stec2, IPM_allvar_fit)
+
+# specific squared parameters - variances
+mxEval(ACE.stas2, IPM_allvar_fit)
+mxEval(ACE.stcs2, IPM_allvar_fit)
+mxEval(ACE.stes2, IPM_allvar_fit)
+
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_fit)
+mxEval(ACE.stcc, IPM_allvar_fit)
+mxEval(ACE.stec, IPM_allvar_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_fit)
+mxEval(ACE.stcs, IPM_allvar_fit)
+mxEval(ACE.stes, IPM_allvar_fit)
+```
+
+##### Common factors
+
+Negative estimates for:
+* C1 factors for *anxiety12(cc2)*, *psychosis12(cc5)* and *anxiety18(cc7)*
+* E1 factors for *conduct18(ec9)* and *psychosis18(ec10)* 
+
+Small estimates (0.05) for:
+* C1 factors for *depression12(cc3)* and *depression18(cc8)* and *psychosis18(cc10)*
+* E1 factors for *psychosis12(ec5)* and *anxiety18(ec7)* and *depression18(ec8)*
+
+First, we will constrain the negative estimates to make sure the % contribution of ACE adds up to 100. Once constraining cc2, cc5, cc7, and ec10, we don't need to constrain ec9 for these %s to add up. 
+
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_sub1modelc <- mxModel(IPM_allvar_fit, name = "IPM_allvar_sub1c") 
+
+# set parameters identified above to be zero
+IPM_allvar_sub1modelc <- omxSetParameters(IPM_allvar_sub1modelc,
+                                         labels = c("cc2", "cc5", "cc7"
+                                                   ,"ec10"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_sub1modelc <- omxAssignFirstParameters(IPM_allvar_sub1modelc)
+
+# Run sunmodels
+IPM_allvar_sub1modelc_fit <- mxTryHard(IPM_allvar_sub1modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_sub1modelc_sum <- summary(IPM_allvar_sub1modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_fit, IPM_allvar_sub1modelc_fit)
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_sub1modelc_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Anxiety12",
+                  variable3 = "Depression12",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+```
+
+So these all now add up to 100, which is great. We can interpret the paths that have been set to zero - as these paths were very close to 0 anyway. Now we can check if we can constrain the very small estimates - we need to re-check the standardsied unsquared estimates. 
+
+```{r recheck the standardised estimates}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_sub1modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_sub1modelc_fit)
+mxEval(ACE.stec, IPM_allvar_sub1modelc_fit)
+```
+
+The following have small estimates (0.05):
+* C factors *isolation18(cc16)*
+* E factors *psychosis12(ec5)* and *anxiety18(ec7)* and *depression18(ec8)* and *conduct18(ec9)*
+
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_sub2modelc <- mxModel(IPM_allvar_sub1modelc_fit, name = "IPM_allvar_sub2c") 
+
+# set parameters identified above to be zero
+IPM_allvar_sub2modelc <- omxSetParameters(IPM_allvar_sub2modelc,
+                                         labels = c("cc16", 
+                                                    "ec5", "ec7", "ec8", "ec9" 
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_sub2modelc <- omxAssignFirstParameters(IPM_allvar_sub2modelc)
+
+# Run sunmodels
+IPM_allvar_sub2modelc_fit <- mxTryHard(IPM_allvar_sub2modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_sub2modelc_sum <- summary(IPM_allvar_sub2modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_fit, IPM_allvar_sub2modelc_fit)
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_sub2modelc_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Anxiety12",
+                  variable3 = "Depression12",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+```
+
+```{r check for negative estimatess}
+mxEval(ACE.stac, IPM_allvar_sub2modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_sub2modelc_fit)
+mxEval(ACE.stec, IPM_allvar_sub2modelc_fit)
+```
+
+*isolation18(ec6)* is now ~0.05 so we will constrain this to be 0 too - this model will be IPM_allvar_sub3modelc. 
+
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_sub3modelc <- mxModel(IPM_allvar_sub2modelc_fit, name = "IPM_allvar_sub3c") 
+
+# set parameters identified above to be zero
+IPM_allvar_sub3modelc <- omxSetParameters(IPM_allvar_sub3modelc,
+                                         labels = c("ec6"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_sub3modelc <- omxAssignFirstParameters(IPM_allvar_sub3modelc)
+
+# Run sunmodels
+IPM_allvar_sub3modelc_fit <- mxTryHard(IPM_allvar_sub3modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_sub3modelc_sum <- summary(IPM_allvar_sub3modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_fit, IPM_allvar_sub3modelc_fit)
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_sub3modelc_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Anxiety12",
+                  variable3 = "Depression12",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+```
+
+```{r check for negative estimatess}
+mxEval(ACE.stac, IPM_allvar_sub3modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_sub3modelc_fit)
+mxEval(ACE.stec, IPM_allvar_sub3modelc_fit)
+```
+
+Based on this - IPM_allvar_sub3modelc_fit is the model to take forward. 
+
+##### Specific factors
+
+Now we will check the standardised specific paths to see which we need to constrain to be 0. We will constrain those that are very small in the stas/stcs/stes output. 
+
+The standardised path coefficients (stac) are factor loadings, and in order to get this to a variance, we need to square it. When we have standardised and squared paths, we can add up each ACE contribution .
+
+```{r checknegative variances for common and specific paths}
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_fit)
+mxEval(ACE.stcs, IPM_allvar_fit)
+mxEval(ACE.stes, IPM_allvar_fit)
+```
+
+For the specific factors, we will be slightly more conservative in what we drop - as these make up all individual contributions to each construct - using the threshold of ~0.001. We also dont want to drop any specific E parameters as this includes measurement error. 
+
+* A factors for *depression12 (as3)*, *depression18 (as8)*, and *conduct18 (as9)* 
+* C factors for *isolation12 (cs1)*, *isolation18 (es6)*, *anxiety18 (cs7)*, *depression18 (cs8)*, *conduct18 (cs9)*, and *psychosis18 (cs10)*
+
+We will first compare to the full model IPM_allvar_fit and then as a second step compare it to the chosen Common submodel. 
+
+```{r specific constrained submodel}
+# create a "copy" of the model
+IPM_allvar_sub1models <- mxModel(IPM_allvar_fit, name = "IPM_allvar_sub1s")
+
+# set parameters identified above to be zero
+IPM_allvar_sub1models <- omxSetParameters(IPM_allvar_sub1models,
+                                         labels = c("as3", "as8", "as9", 
+                                                    "cs1", "cs6", "cs7", "cs8", "cs9", "cs10"), 
+                                         free = FALSE, 
+                                         values = 0)
+
+# not sure what this does ? Ask Kunle
+IPM_allvar_sub1models    <- omxAssignFirstParameters(IPM_allvar_sub1models)
+
+# Run sunmodels
+IPM_allvar_sub1models_fit <- mxTryHard(IPM_allvar_sub1models, intervals = FALSE)
+
+# create summary
+IPM_allvar_sub1models_sum <- summary(IPM_allvar_sub1models_fit)
+
+# compare to original model      
+mxCompare(IPM_allvar_fit, IPM_allvar_sub1models_fit)
+
+# check
+IPM_allvar_sub1models_fit$ACE$stas
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_sub1models_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Anxiety12",
+                  variable3 = "Depression12",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+```
+
+```{r checknegative variances for common and specific paths}
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_sub1models_fit)
+mxEval(ACE.stcs, IPM_allvar_sub1models_fit)
+mxEval(ACE.stes, IPM_allvar_sub1models_fit)
+```
+
+This had a p values of very close to 1, so now we will add in the common constraints to get the best fitting submodel constraining both common and specific paths. *Note - there are still negative estimates in here - need to decide if this is a problem?*
+
+##### Common and specific
+
+Full list of common and specific paths constrained:
+
+* Common C1 factors for *anxiety12(cc2)*, *psychosis12(cc5)*, *anxiety18(cc7)* and *isolation18(cc16)*
+* Common E1 factors for *psychosis12(ec5)*, *isolation18(ec6)*, *anxiety18(ec7)*, *depression18(ec8)*, *conduct18(ec9)* and *psychosis18(ec10)* 
+* Specific A factors for *depression12 (as3)*, *depression18 (as8)*, and *conduct18 (as9)* 
+* Specific C factors for *isolation12 (cs1)*, *isolation18 (es6)*, *anxiety18 (cs7)*, *depression18 (cs8)*, *conduct18 (cs9)*, and *psychosis18 (cs10)*
+
+```{r common and specific constrained submodel}
+# create a "copy" of the model
+IPM_allvar_submodel <- mxModel(IPM_allvar_fit, name = "IPM_allvar_sub")
+
+# set parameters identified above to be zero
+IPM_allvar_submodel <- omxSetParameters(IPM_allvar_submodel,
+                                         labels = c(# common
+                                                    "cc2", "cc5", "cc7", "cc16",  
+                                                    "ec5", "ec6", "ec7", "ec8", "ec9", "ec10",
+                                                    # specific
+                                                    "as3", "as8", "as9", 
+                                                    "cs1", "cs6", "cs7", "cs8", "cs9", "cs10"), 
+                                         free = FALSE, 
+                                         values = 0)
+
+# assigns the same starting values
+IPM_allvar_submodel   <- omxAssignFirstParameters(IPM_allvar_submodel)
+
+# Run submodels
+IPM_allvar_submodel_fit <- mxTryHard(IPM_allvar_submodel, intervals = FALSE)
+
+# create summary
+IPM_allvar_submodel_sum <- summary(IPM_allvar_submodel_fit)
+
+# compare to original model      
+mxCompare(IPM_allvar_fit, IPM_allvar_submodel_fit)
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_submodel_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Anxiety12",
+                  variable3 = "Depression12",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+```
+
+
+## Sex differences - IN PROGRESS
+
+The following variables had quantitative sex differences:
+
+* Social isolation age 12
+* Anxiety age 18
+* Depression age 18
+* Conduct disorder age 12
+* Psychosis age 12
+* Psychosis age 18
 
 ### ACE - separate means
 
-```{r ACE model for psychosis sex}
-IPM_allvar_nopsy_sexmean <- mxModel("IPM_allvar_nopsy_sexmean",
+* The `Scalar` correction is `TRUE` only for the variables that need sex correction. This is based on variables that have quantitative or scalar sex differences (differences in proportions of ACE influences across sex).The scalar multiplier controls for the difference in total variance between males and females. 
+* mxBounds() creates bounds for the objects, so that the estimates do not go below 0. 
+
+#### Specify
+
+```{r ACE model for IPM_allvar_sexmean}
+IPM_allvar_sexmean <- mxModel("IPM_allvar_sexmean",
 	mxModel("ACE",
     # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = aclab, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = cclab, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = eclab, values = Ec2Values, name = "ec"),
 
     # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = aslab, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = cslab, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = eslab, values = 0.6,  name = "es"),
 
 		# ACE variance components
     mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
@@ -2809,297 +1266,14 @@ IPM_allvar_nopsy_sexmean <- mxModel("IPM_allvar_nopsy_sexmean",
     mxAlgebra(stes*stes, name = "stes2"),
 
     # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, F, T, F, T, T, F,  # True for isolation and conduct age 12, and anxiety and depression at 18
-                                                       T, F, F, T, F, T, T, F),
+    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, F, T, T, F, T, T, F, T,   # True for isolation12 conduct12, psychosis12, anxiety18, depression18, and psychosis18. 
+                                                       T, F, F, T, T, F, T, T, F, T),
              values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7", "sc8",
-                        "sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7", "sc8"),
+             label  = c("sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7","sc8", "sc9", "sc10", 
+                        "sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7","sc8", "sc9", "sc10"),
              name   = "Scalar"),
 
-    mxBounds(c("sc1", "sc4", "sc6", "sc7"), 0, NA), # creates bounds for these objects when = TRUE
-
-		# MZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), 
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"), 
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_nopsy_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_nopsy_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_nopsy_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_nopsy_norm_reg),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2",
-	       "ACE.stcc2",
-	       "ACE.stec2",
-	       "ACE.stas2",
-	       "ACE.stcs2",
-	       "ACE.stes2",
-	       "ACE.Rph",
-	       "ACE.h2",
-	       "ACE.c2",
-	       "ACE.e2"))
-)
-```
-
-```{r run ACE mdoel for psychosis}
-IPM_allvar_nopsy_sexmean_fit <- mxTryHard(IPM_allvar_nopsy_sexmean, intervals = TRUE)
-```
-
-```{r output for IPM_allvar_nopsy_sexmean_fit}
-IPM_esitmates_ACE_8var(data = IPM_allvar_nopsy_sexmean_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Anxiety12",
-                  variable3 = "Depression12",
-                  variable4 = "Conduct12",
-                  variable5 = "Isolation18",
-                  variable6 = "Anxiety18",
-                  variable7 = "Depression18",
-                  variable8 = "Conduct18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-
-# Isolation, anxiety and depression
-
-This section will run a model with all variables apart from psychosis, and then again with all 5 avriables. 
-
-```{r number of variables (phenotypes)}
-# number of variables
-nv <- 6    					    # number of variables - 2 for each construct (2*4)
-ntv <- nv*2 				      # number of twin variables
-nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
-
-# number of common factors 
-nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
-
-# Set if the parameters are estimated (TRUE) or not (FALSE) 
-Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
-
-# Create start values for 2 common ACE Factors - set the start values for common 
-Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
-Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-```
-
-## No sex differences
-
-### ACE
-
-```{r ACE model for IPM_allvar_nopsy}
-IPM_anx_dep <- mxModel("IPM_anx_dep",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-    		
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-		
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-		
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), 
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-    
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-    
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-    
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-    
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),	
-	
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
-		
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
-		
-	),
-	
-	mxModel("MZ",
-		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_anx_dep_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZ",
-		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_anx_dep_norm_reg),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
-)
-```
-
-```{r run ACE mdoel for anxiety}
-IPM_anx_dep_fit <- mxTryHard(IPM_anx_dep, intervals = TRUE)
-summary(IPM_anx_dep_fit, verbose = TRUE)
-```
-
-```{r output for IPM_anx_dep_fit}
-IPM_esitmates_ACE_6var(data = IPM_anx_dep_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Anxiety12",
-                  variable3 = "Depression12",
-                  variable4 = "Isolation18",
-                  variable5 = "Anxiety18",
-                  variable6 = "Depression18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
-
-Univariate heritabilities:
-Isolation 12     0.419
-Anxiety 12       0.272
-Depression 12    0.211
-Isolation 18     0.450
-Anxiety 18       0.235
-Depression 18    0.315
-
-## Sex differences
-
-### ACE - separate means
-
-```{r ACE model for anx_dep sex}
-IPM_anx_dep_sexmean <- mxModel("IPM_anx_dep_sexmean",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V
-
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # mean for males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # mean for females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),
-
-    # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, F, F, T, T,   # True for isolation age 12, and anxiety and depression at 18
-                                                       T, F, F, F, T, T),
-             values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc5", "sc6", 
-                        "sc1", "sc2", "sc3", "sc4", "sc5", "sc6"),
-             name   = "Scalar"),
-
-    mxBounds(c("sc1", "sc5", "sc6"), 0, NA), # creates bounds for these objects when = TRUE
+    mxBounds(c("sc1", "sc4", "sc5", "sc7", "sc8", "sc10"), 0, NA), # creates bounds for these objects when = TRUE
 
 		# MZ expected covariance matrix
 		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), 
@@ -3113,22 +1287,22 @@ IPM_anx_dep_sexmean <- mxModel("IPM_anx_dep_sexmean",
 
 	mxModel("MZM",
 		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_anx_dep_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_norm_reg),
 		mxFitFunctionML()
 	),
 	mxModel("MZF",
 		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_anx_dep_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_norm_reg),
 		mxFitFunctionML()
 	),
 	mxModel("DZM",
 		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_anx_dep_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_norm_reg),
 		mxFitFunctionML()
 	),
 	mxModel("DZF",
 		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_anx_dep_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_norm_reg),
 		mxFitFunctionML()
 	),
 
@@ -3148,18 +1322,24 @@ IPM_anx_dep_sexmean <- mxModel("IPM_anx_dep_sexmean",
 ```
 
 ```{r run ACE mdoel for psychosis}
-IPM_anx_dep_sexmean_fit <- mxTryHard(IPM_anx_dep_sexmean, intervals = TRUE)
-summary(IPM_anx_dep_sexmean_fit, verbose = TRUE)
+IPM_allvar_sexmean_fit <- mxTryHard(IPM_allvar_sexmean, intervals = FALSE)
+summary(IPM_allvar_sexmean_fit, verbose = TRUE)
 ```
 
-```{r output for IPM_anx_dep_sexmean_fit}
-IPM_esitmates_ACE_6var(data = IPM_anx_dep_sexmean_fit,
+#### Output
+
+```{r output for IPM_allvar_sexmean_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_sexmean_fit,
                   variable1 = "Isolation12",
                   variable2 = "Anxiety12",
                   variable3 = "Depression12",
-                  variable4 = "Isolation18",
-                  variable5 = "Anxiety18",
-                  variable6 = "Depression18",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
                   model = "ACE",
                   uniACEestimates = TRUE,
                   pathestimates = TRUE,
@@ -3167,130 +1347,67 @@ IPM_esitmates_ACE_6var(data = IPM_anx_dep_sexmean_fit,
                   C_percent = TRUE,
                   E_percent = TRUE,
                   common_factor_contribution = TRUE)
+
+
 ```
 
+Same as when we were not accounting for sex differences, we need to check for negative loadings on the common paths and very small loadings for both common and specific paths. 
 
-# Isolation, depression and conduct
+```{r check for negative loadings}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_sexmean_fit)
+mxEval(ACE.stcc, IPM_allvar_sexmean_fit)
+mxEval(ACE.stec, IPM_allvar_sexmean_fit)
 
-This section will run a model with all variables apart from psychosis, and then again with all 5 avriables. 
-
-```{r number of variables (phenotypes)}
-# number of variables
-nv <- 6    					    # number of variables - 2 for each construct (2*4)
-ntv <- nv*2 				      # number of twin variables
-nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
-
-# number of common factors 
-nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
-
-# Set if the parameters are estimated (TRUE) or not (FALSE) 
-Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
-
-# Create start values for 2 common ACE Factors - set the start values for common 
-Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
-Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_sexmean_fit)
+mxEval(ACE.stcs, IPM_allvar_sexmean_fit)
+mxEval(ACE.stes, IPM_allvar_sexmean_fit)
 ```
 
-## No sex differences
+#### Submodels - update with specific
 
-### ACE
+##### Common factors
 
-```{r ACE model for IPM_dep_con}
-IPM_dep_con <- mxModel("IPM_dep_con",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-    		
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-		
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-		
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), 
+For the common factors there are negative stac/stcc/stec estimates coming from:
+* C1 factors for *anxiety12(cc2)*, *psychosis12(cc5)* and *anxiety18(cc7)*
+* E1 factors for *psychosis18(ec10)*
 
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_sexmean_sub1modelc <- mxModel(IPM_allvar_sexmean_fit, name = "IPM_allvar_sexmean_sub1c") 
 
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-    
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-    
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-    
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-    
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),	
-	
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
-		
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
-		
-	),
-	
-	mxModel("MZ",
-		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_dep_con_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZ",
-		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_dep_con_norm_reg),
-		mxFitFunctionML()
-	),
+# set parameters identified above to be zero
+IPM_allvar_sexmean_sub1modelc <- omxSetParameters(IPM_allvar_sexmean_sub1modelc,
+                                         labels = c("cc2", "cc5", "cc7",
+                                                    "ec10"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
 
-	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
-)
+IPM_allvar_sexmean_sub1modelc <- omxAssignFirstParameters(IPM_allvar_sexmean_sub1modelc)
+
+# Run sunmodels
+IPM_allvar_sexmean_sub1modelc_fit <- mxTryHard(IPM_allvar_sexmean_sub1modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_sexmean_sub1modelc_sum <- summary(IPM_allvar_sexmean_sub1modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_sexmean_fit, IPM_allvar_sexmean_sub1modelc_fit)
 ```
-
-```{r run ACE mdoel for anxiety}
-IPM_dep_con_fit <- mxTryHard(IPM_dep_con, intervals = TRUE)
-summary(IPM_dep_con_fit, verbose = TRUE)
-```
-
-```{r output for IPM_anx_dep_fit}
-IPM_esitmates_ACE_6var(data = IPM_dep_con_fit,
+```{r results from IPM_allvar_sub1models_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_sexmean_sub1modelc_fit,
                   variable1 = "Isolation12",
-                  variable2 = "Depression12",
-                  variable3 = "Conduct12",
-                  variable4 = "Isolation18",
-                  variable5 = "Depression18",
-                  variable6 = "Conduct18",
+                  variable2 = "Anxiety12",
+                  variable3 = "Depression12",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
                   model = "ACE",
                   uniACEestimates = TRUE,
                   pathestimates = TRUE,
@@ -3300,148 +1417,63 @@ IPM_esitmates_ACE_6var(data = IPM_dep_con_fit,
                   common_factor_contribution = TRUE)
 ```
 
-Univariate heritabilities:
-Isolation 12     0.419
-Depression 12    0.211
-Conduct 12       0.197
-Isolation 18     0.450
-Depression 18    0.315
-Conduct 18       0.195
+*Here we really benefit by not constraining any E parameters - just C, will be interesting to see if we remove anxiety and include sex differences, do we need to constrain any parameters at all?*
 
-## Sex differences
+```{r check}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_sexmean_sub1modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_sexmean_sub1modelc_fit)
+mxEval(ACE.stec, IPM_allvar_sexmean_sub1modelc_fit)
 
-### ACE - separate means
-
-```{r ACE model for anx_dep sex}
-IPM_dep_con_sexmean <- mxModel("IPM_dep_con_sexmean",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V
-
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # mean for males
-    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
-
-    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # mean for females
-    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
-
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
-
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),
-
-    # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, T, F, T, F,   # True for isolation and conduct age 12, and depression at 18
-                                                       T, F, T, F, T, F),
-             values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc5", "sc6", 
-                        "sc1", "sc2", "sc3", "sc4", "sc5", "sc6"),
-             name   = "Scalar"),
-
-    mxBounds(c("sc1", "sc3", "sc5"), 0, NA), # creates bounds for these objects when = TRUE
-
-		# MZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), 
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZf"),
-
-		# DZ expected covariance matrix
-		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZm"), 
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZf")
-
-	),
-
-	mxModel("MZM",
-		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_dep_con_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("MZF",
-		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_dep_con_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZM",
-		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_dep_con_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZF",
-		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_dep_con_norm_reg),
-		mxFitFunctionML()
-	),
-
-	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2",
-	       "ACE.stcc2",
-	       "ACE.stec2",
-	       "ACE.stas2",
-	       "ACE.stcs2",
-	       "ACE.stes2",
-	       "ACE.Rph",
-	       "ACE.h2",
-	       "ACE.c2",
-	       "ACE.e2"))
-)
+mxEval(ACE.stas, IPM_allvar_sexmean_sub1modelc_fit)
+mxEval(ACE.stcs, IPM_allvar_sexmean_sub1modelc_fit)
+mxEval(ACE.stes, IPM_allvar_sexmean_sub1modelc_fit)
 ```
 
-```{r run ACE mdoel for psychosis}
-IPM_dep_con_sexmean_fit <- mxTryHard(IPM_dep_con_sexmean, intervals = TRUE)
-summary(IPM_dep_con_sexmean_fit, verbose = TRUE)
+##### Specific factors
+
+For the specific factors there are negative stac/stcc/stec estimates coming from:
+* A factors for *depression12(as2)*, *psychosis12(as5)*, *depression18(as8)*, and *conduct18(as9)*
+* C factors for *isolation12(cs1)*, *conduct12(cs4)*, *isolation18(cs6)*, *anxiety18(cs7)*, *dperession18(cs8)*, *conduct18(cs9)* and *psychosis18(cs10)*
+
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_sexmean_sub2model <- mxModel(IPM_allvar_sexmean_fit, name = "IPM_allvar_sexmean_sub2") 
+
+# set parameters identified above to be zero
+IPM_allvar_sexmean_sub2model <- omxSetParameters(IPM_allvar_sexmean_sub2model,
+                                         labels = c("cc2", "cc5", "cc7",
+                                                    "ec10",
+                                                    "as3", "as5", "as8", "as9",
+                                                    "cs1", "cs4", "cs6", "cs7", "cs8", "cs9", "cs10" 
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_sexmean_sub2model <- omxAssignFirstParameters(IPM_allvar_sexmean_sub2model)
+
+# Run sunmodels
+IPM_allvar_sexmean_sub2model_fit <- mxTryHard(IPM_allvar_sexmean_sub2model, intervals = FALSE)
+
+# create summary
+IPM_allvar_sexmean_sub2model_sum <- summary(IPM_allvar_sexmean_sub2model_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_sexmean_fit, IPM_allvar_sexmean_sub2model_fit)
 ```
 
-```{r output for IPM_anx_dep_sexmean_fit}
-IPM_esitmates_ACE_6var(data = IPM_dep_con_sexmean_fit,
+```{r results from IPM_allvar_sub2model_fit}
+IPM_esitmates_ACE_10var_noCI(data = IPM_allvar_sexmean_sub2model_fit,
                   variable1 = "Isolation12",
-                  variable2 = "Depression12",
-                  variable3 = "Conduct12",
-                  variable4 = "Isolation18",
-                  variable5 = "Depression18",
-                  variable6 = "Conduct12",
+                  variable2 = "Anxiety12",
+                  variable3 = "Depression12",
+                  variable4 = "Conduct12",
+                  variable5 = "Psychosis12",
+                  variable6 = "Isolation18",
+                  variable7 = "Anxiety18",
+                  variable8 = "Depression18",
+                  variable9 = "Conduct18",
+                  variable10 = "Psychosis18",
                   model = "ACE",
                   uniACEestimates = TRUE,
                   pathestimates = TRUE,
@@ -3451,9 +1483,24 @@ IPM_esitmates_ACE_6var(data = IPM_dep_con_sexmean_fit,
                   common_factor_contribution = TRUE)
 ```
 
-# All variables - without anxiety
+```{r check}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_sexmean_sub2model_fit)
+mxEval(ACE.stcc, IPM_allvar_sexmean_sub2model_fit)
+mxEval(ACE.stec, IPM_allvar_sexmean_sub2model_fit)
 
-This section will run a model with all variables apart from psychosis, and then again with all 5 avriables. 
+mxEval(ACE.stas, IPM_allvar_sexmean_sub2model_fit)
+mxEval(ACE.stcs, IPM_allvar_sexmean_sub2model_fit)
+mxEval(ACE.stes, IPM_allvar_sexmean_sub2model_fit)
+```
+
+Some of these are still negative - do we need to constrain these?
+
+***
+
+# All variables - w/o anxiety
+
+This section will run a model with all variables apart from anxiety as it seemed to cause some problems with the "all_var" model. 
 
 ```{r number of variables (phenotypes)}
 # number of variables
@@ -3473,22 +1520,39 @@ Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
 Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
 ```
 
+```{r labels for IPM_allvar}
+# labels for common paths
+aclab_noanx <- c("ac1", "ac2", "ac3", "ac4", "ac5", "ac6", "ac7", "ac8", 
+           "ac11", "ac12", "ac13", "ac14", "ac15", "ac16", "ac17", "ac18")
+cclab_noanx <- c("cc1", "cc2", "cc3", "cc4", "cc5", "cc6", "cc7", "cc8", 
+           "cc11", "cc12", "cc13", "cc14", "cc15", "cc16", "cc17", "cc18")
+eclab_noanx <- c("ec1", "ec2", "ec3", "ec4", "ec5", "ec6", "ec7", "ec8",  
+           "ec11", "ec12", "ec13", "ec14", "ec15", "ec16", "ec17", "ec18")
+
+# labels for specific paths
+aslab_noanx <- c("as1", "as2", "as3", "as4", "as5", "as6", "as7", "as8")
+cslab_noanx <- c("cs1", "cs2", "cs3", "cs4", "cs5", "cs6", "cs7", "cs8")
+eslab_noanx <- c("es1", "es2", "es3", "es4", "es5", "es6", "es7", "es8")
+```
+
 ## No sex differences
 
 ### ACE
+
+#### Specify
 
 ```{r ACE model for IPM_allvar_noanx}
 IPM_allvar_noanx <- mxModel("IPM_allvar_noanx",
 	mxModel("ACE",
     # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = aclab_noanx, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = cclab_noanx, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = eclab_noanx, values = Ec2Values, name = "ec"),
     		
     # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = aslab_noanx, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = cslab_noanx, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = eslab_noanx, values = 0.6,  name = "es"),
 		
 		# ACE variance components
     mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
@@ -3564,6 +1628,8 @@ IPM_allvar_noanx_fit <- mxTryHard(IPM_allvar_noanx, intervals = TRUE)
 summary(IPM_allvar_noanx_fit)
 ```
 
+#### Output 
+
 ```{r output for IPM_allvar_nopsy_fit}
 IPM_esitmates_ACE_8var(data = IPM_allvar_noanx_fit,
                   variable1 = "Isolation12",
@@ -3593,22 +1659,304 @@ Anxiety 18       0.235
 Depression 18    0.315
 Conduct 18       0.195
 
-## Sex differences - NOT UPDATED YET
+
+#### Submodels
+
+```{r check for negative loadings}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_fit)
+```
+
+Without anxiety, small/negative common loadings (<0.05) are:
+* A1 factors of *conduct18(ac7)* - also non-sig (according to 5 decimal places)
+* A2 factors of *isolation18(ac15)* - also non-sig
+* C1 factors of *psychosis18(cc4)* - also non-sig
+
+Without anxiety, small specific loadings are:
+* A factors of *depression12(as2)*, *depression18(as6)* - also non-sig
+* C factors of *isolation12(cs1)*, *conduct12(cs3)*, *isolation18(cs5)*, *depression18(cs6)*, *conduct18(cs7)*, *psychosis18(cs8)* - also non-sig
+
+We will constrain each of these one at a time. 
+
+##### Common factors
+
+Common factor a7 has a negative factor loading. 
+
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_noanx_sub1modelc <- mxModel(IPM_allvar_noanx_fit, name = "IPM_allvar_noanx_sub1c") 
+
+# set parameters identified above to be zero
+IPM_allvar_noanx_sub1modelc <- omxSetParameters(IPM_allvar_noanx_sub1modelc,
+                                         labels = c("ac7"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_noanx_sub1modelc <- omxAssignFirstParameters(IPM_allvar_noanx_sub1modelc)
+
+# Run sunmodels
+IPM_allvar_noanx_sub1modelc_fit <- mxTryHard(IPM_allvar_noanx_sub1modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_noanx_sub1modelc_sum <- summary(IPM_allvar_noanx_sub1modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_noanx_fit, IPM_allvar_noanx_sub1modelc_fit)
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_sub1modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_sub1modelc_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_sub1modelc_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_sub1modelc_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_sub1modelc_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_sub1modelc_fit)
+```
+
+To constrain:
+* A1 factors of *conduct18(ac7)* - constrained
+* A2 factors of *isolation18(ac15)* 
+* C1 factors of *psychosis18(cc4)* 
+* A factors of *depression12(as2)*, *depression18(as6)*
+* C factors of *isolation12(cs1)*, *conduct12(cs3)*, *isolation18(cs5)*, *depression18(cs6)*, *conduct18(cs7)*, *psychosis18(cs8)*
+ 
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_noanx_sub2modelc <- mxModel(IPM_allvar_noanx_fit, name = "IPM_allvar_noanx_sub2c") 
+
+# set parameters identified above to be zero
+IPM_allvar_noanx_sub2modelc <- omxSetParameters(IPM_allvar_noanx_sub2modelc,
+                                         labels = c("ac7", 
+                                                    "ac15"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_noanx_sub2modelc <- omxAssignFirstParameters(IPM_allvar_noanx_sub2modelc)
+
+# Run sunmodels
+IPM_allvar_noanx_sub2modelc_fit <- mxTryHard(IPM_allvar_noanx_sub2modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_noanx_sub2modelc_sum <- summary(IPM_allvar_noanx_sub2modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_noanx_fit, IPM_allvar_noanx_sub2modelc_fit)
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_sub2modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_sub2modelc_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_sub2modelc_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_sub2modelc_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_sub2modelc_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_sub2modelc_fit)
+```
+
+To constrain:
+* A1 factors of *conduct18(ac7)* - constrained
+* A2 factors of *isolation18(ac15)* - constrained
+* C1 factors of *psychosis18(cc4)* 
+* A factors of *depression12(as2)*, *depression18(as6)*
+* C factors of *isolation12(cs1)*, *conduct12(cs3)*, *isolation18(cs5)*, *depression18(cs6)*, *conduct18(cs7)*, *psychosis18(cs8)*
+
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_noanx_sub3modelc <- mxModel(IPM_allvar_noanx_fit, name = "IPM_allvar_noanx_sub3c") 
+
+# set parameters identified above to be zero
+IPM_allvar_noanx_sub3modelc <- omxSetParameters(IPM_allvar_noanx_sub3modelc,
+                                         labels = c("ac7", 
+                                                    "ac15",
+                                                    "cc4"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_noanx_sub3modelc <- omxAssignFirstParameters(IPM_allvar_noanx_sub3modelc)
+
+# Run sunmodels
+IPM_allvar_noanx_sub3modelc_fit <- mxTryHard(IPM_allvar_noanx_sub3modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_noanx_sub3modelc_sum <- summary(IPM_allvar_noanx_sub3modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_noanx_fit, IPM_allvar_noanx_sub3modelc_fit)
+```
+
+
+```{r results from IPM_allvar_sub1models_fit}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_sub3modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_sub3modelc_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_sub3modelc_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_sub3modelc_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_sub3modelc_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_sub3modelc_fit)
+```
+
+##### Specific factors 
+
+We will now constrain the specific factors only, before moving on to constrain both.
+
+To constrain:
+* A1 factors of *conduct18(ac7)* - constrained
+* A2 factors of *isolation18(ac15)* - constrained
+* C1 factors of *psychosis18(cc4)* - constrained
+* A factors of *depression12(as2)*, *depression18(as6)*
+* C factors of *isolation12(cs1)*, *conduct12(cs3)*, *isolation18(cs5)*, *depression18(cs6)*, *conduct18(cs7)*, *psychosis18(cs8)*
+
+```{r specific constrained submodel}
+# create a "copy" of the model
+IPM_allvar_noanx_sub1models <- mxModel(IPM_allvar_noanx_fit, name = "IPM_allvar_noanx_sub1s")
+
+# set parameters identified above to be zero
+IPM_allvar_noanx_sub1models <- omxSetParameters(IPM_allvar_noanx_sub1models,
+                                         labels = c("as2", "as6",
+                                                    "cs1", "cs3", "cs5", "cs6", "cs7", "cs8"), 
+                                         free = FALSE, 
+                                         values = 0)
+
+# not sure what this does ? Ask Kunle
+IPM_allvar_noanx_sub1models    <- omxAssignFirstParameters(IPM_allvar_noanx_sub1models)
+
+# Run sunmodels
+IPM_allvar_noanx_sub1models_fit <- mxTryHard(IPM_allvar_noanx_sub1models, intervals = FALSE)
+
+# create summary
+IPM_allvar_noanx_sub1models_sum <- summary(IPM_allvar_noanx_sub1models_fit)
+
+# compare to original model      
+mxCompare(IPM_allvar_noanx_fit, IPM_allvar_noanx_sub1models_fit)
+```
+
+```{r results from IPM_allvar_sub1models_fit}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_sub1models_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_sub1models_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_sub1models_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_sub1models_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_sub1models_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_sub1models_fit)
+```
+
+All the previously constrained common factors (ac7, ac15, cc4) still need to be constrained, so we will constrain all together. 
+
+##### Common and specific
+
+To constrain:
+* A1 factors of *conduct18(ac7)* - constrained
+* A2 factors of *isolation18(ac15)* - constrained
+* C1 factors of *psychosis18(cc4)* - constrained
+* A factors of *depression12(as2)*, *depression18(as6)* - constrained
+* C factors of *isolation12(cs1)*, *conduct12(cs3)*, *isolation18(cs5)*, *depression18(cs6)*, *conduct18(cs7)*, *psychosis18(cs8)* - constrained
+
+```{r specific constrained submodel}
+# create a "copy" of the model
+IPM_allvar_noanx_submodel <- mxModel(IPM_allvar_noanx_fit, name = "IPM_allvar_noanx_sub")
+
+# set parameters identified above to be zero
+IPM_allvar_noanx_submodel <- omxSetParameters(IPM_allvar_noanx_submodel,
+                                         labels = c("ac7","ac15",
+                                                    "cc4",
+                                                    "as2", "as6",
+                                                    "cs1", "cs3", "cs5", "cs6", "cs7", "cs8"), 
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_noanx_submodel    <- omxAssignFirstParameters(IPM_allvar_noanx_submodel)
+
+# Run sunmodels
+IPM_allvar_noanx_submodel_fit <- mxTryHard(IPM_allvar_noanx_submodel, intervals = TRUE)
+
+# create summary
+IPM_allvar_noanx_submodel_sum <- summary(IPM_allvar_noanx_submodel_fit)
+
+# compare to original model      
+mxCompare(IPM_allvar_noanx_fit, IPM_allvar_noanx_submodel_fit)
+```
+
+```{r results from IPM_allvar_sub2models_fit}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_submodel_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_submodel_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_submodel_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_submodel_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_submodel_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_submodel_fit)
+```
+
+```{r output for IPM_allvar_nopsy_fit}
+IPM_esitmates_ACE_8var(data = IPM_allvar_noanx_submodel_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Depression12",
+                  variable3 = "Conduct12",
+                  variable4 = "Psychosis12",
+                  variable5 = "Isolation18",
+                  variable6 = "Depression18",
+                  variable7 = "Conduct18",
+                  variable8 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+```
+
+## Sex differences - IN PROGRESS
+
+The following variables had quantitative sex differences:
+
+* Social isolation age 12
+* Anxiety age 18
+* Depression age 18
+* Conduct disorder age 12
+* Psychosis age 12
+* Psychosis age 18
+
 
 ### ACE - separate means
 
-```{r ACE model for psychosis sex}
-IPM_allvar_nopsy_sexmean <- mxModel("IPM_allvar_nopsy_sexmean",
+* The `Scalar` correction is `TRUE` only for the variables that need sex correction. In our case this would be all variables apart from social isolation at age 12. **This is only based on linear regressions, rather than estimating sex differences in OpenMx**. 
+* mxBounds() creates bounds for the objects, but I'm not entirely sure what these are??
+
+#### Specify
+
+```{r ACE model for IPM_allvar_noanx_sexmean}
+IPM_allvar_noanx_sexmean <- mxModel("IPM_allvar_noanx_sexmean",
 	mxModel("ACE",
     # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = aclab_noanx, values = Ac2Values, name = "ac"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = cclab_noanx, values = Cc2Values, name = "cc"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = eclab_noanx, values = Ec2Values, name = "ec"),
 
     # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = aslab_noanx, values = 0.6,  name = "as"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = cslab_noanx, values = 0.01, name = "cs"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = eslab_noanx, values = 0.6,  name = "es"),
 
 		# ACE variance components
     mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"),
@@ -3659,14 +2007,14 @@ IPM_allvar_nopsy_sexmean <- mxModel("IPM_allvar_nopsy_sexmean",
     mxAlgebra(stes*stes, name = "stes2"),
 
     # Scalar multiplier 
-    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, F, T, F, T, T, F,  # True for isolation and conduct age 12, and anxiety and depression at 18
-                                                       T, F, F, T, F, T, T, F),
+    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, T, T, F, T, F, T,   # True for isolation12 conduct12, psychosis12, depression18, and psychosis18. 
+                                                       T, F, T, T, F, T, F, T),
              values = 1,
-             label  = c("sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7", "sc8",
-                        "sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7", "sc8"),
+             label  = c("sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7","sc8", 
+                        "sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7","sc8"),
              name   = "Scalar"),
 
-    mxBounds(c("sc1", "sc4", "sc6", "sc7"), 0, NA), # creates bounds for these objects when = TRUE
+    mxBounds(c("sc1", "sc3", "sc4", "sc6", "sc8"), 0, NA), # creates bounds for these objects when = TRUE
 
 		# MZ expected covariance matrix
 		mxAlgebra(Scalar %&% rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZm"), 
@@ -3680,22 +2028,22 @@ IPM_allvar_nopsy_sexmean <- mxModel("IPM_allvar_nopsy_sexmean",
 
 	mxModel("MZM",
 		mxData(observed = dat.twin.MZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_nopsy_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_noanx_norm_reg),
 		mxFitFunctionML()
 	),
 	mxModel("MZF",
 		mxData(observed = dat.twin.MZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_nopsy_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_noanx_norm_reg),
 		mxFitFunctionML()
 	),
 	mxModel("DZM",
 		mxData(observed = dat.twin.DZm, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_nopsy_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_noanx_norm_reg),
 		mxFitFunctionML()
 	),
 	mxModel("DZF",
 		mxData(observed = dat.twin.DZf, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_nopsy_norm_reg),
+		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_noanx_norm_reg),
 		mxFitFunctionML()
 	),
 
@@ -3715,20 +2063,22 @@ IPM_allvar_nopsy_sexmean <- mxModel("IPM_allvar_nopsy_sexmean",
 ```
 
 ```{r run ACE mdoel for psychosis}
-IPM_allvar_nopsy_sexmean_fit <- mxTryHard(IPM_allvar_nopsy_sexmean, intervals = TRUE)
-summary(IPM_allvar_nopsy_sexmean_fit, verbose = TRUE)
+IPM_allvar_noanx_sexmean_fit <- mxTryHard(IPM_allvar_noanx_sexmean, intervals = FALSE)
+summary(IPM_allvar_noanx_sexmean_fit, verbose = TRUE)
 ```
 
-```{r output for IPM_allvar_nopsy_sexmean_fit}
-IPM_esitmates_ACE_8var(data = IPM_allvar_nopsy_sexmean_fit,
+#### Output
+
+```{r output for IPM_allvar_noanx_sexmean_fit}
+IPM_esitmates_ACE_8var_noCI(data = IPM_allvar_noanx_sexmean_fit,
                   variable1 = "Isolation12",
-                  variable2 = "Anxiety12",
-                  variable3 = "Depression12",
-                  variable4 = "Conduct12",
+                  variable2 = "Depression12",
+                  variable3 = "Conduct12",
+                  variable4 = "Psychosis12",
                   variable5 = "Isolation18",
-                  variable6 = "Anxiety18",
-                  variable7 = "Depression18",
-                  variable8 = "Conduct18",
+                  variable6 = "Depression18",
+                  variable7 = "Conduct18",
+                  variable8 = "Psychosis18",
                   model = "ACE",
                   uniACEestimates = TRUE,
                   pathestimates = TRUE,
@@ -3738,200 +2088,63 @@ IPM_esitmates_ACE_8var(data = IPM_allvar_nopsy_sexmean_fit,
                   common_factor_contribution = TRUE)
 ```
 
+```{r check for negative loadings}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_sexmean_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_sexmean_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_sexmean_fit)
 
-# All variables 
-
-This section will run a model with all variables apart from psychosis, and then again with all 5 variables. 
-
-```{r number of variables (phenotypes)}
-# number of variables
-nv <- 10    					    # number of variables - 2 for each construct (2*5)
-ntv <- nv*2 				      # number of twin variables
-nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
-
-# number of common factors 
-nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
-
-# Set if the parameters are estimated (TRUE) or not (FALSE) 
-Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
-
-# Create start values for 2 common ACE Factors - set the start values for common 
-Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
-Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
-Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_sexmean_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_sexmean_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_sexmean_fit)
 ```
 
-## No sex differences
+This is the same A1 factors as above that need constraining - conduct12. 
 
-### ACE
+#### Submodels - update with specific
 
-```{r ACE model for IPM_allvar_noanx}
-IPM_allvar <- mxModel("IPM_allvar",
-	mxModel("ACE",
-    # Common ace paths
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ac2Values, name = "ac"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Cc2Values, name = "cc"),
-    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, values = Ec2Values, name = "ec"),
-    		
-    # Specific ace paths
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "as"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.01, name = "cs"),
-    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, values = 0.6,  name = "es"),
-		
-		# ACE variance components
-    mxAlgebra(ac %*% t(ac) + as %*% t(as), name = "A"), 
-    mxAlgebra(cc %*% t(cc) + cs %*% t(cs), name = "C"),
-    mxAlgebra(ec %*% t(ec) + es %*% t(es), name = "E"),
-    mxAlgebra(A + C + E, name = "V"),
-		
-		# Calculate standard deviation for standardization
-    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
-    mxAlgebra(solve(sqrt(I*V)), name = "iSD"), # extracting the variances from the diagonal of the covariance matrix V 
-		
-		# Expected means vector
-    mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = 0.01, name = "expMean"), 
+##### Common factors
 
-    # Genetic and environmental correlations (correlated factor solution)
-    mxAlgebra(solve(sqrt(I*V)) %&% V, name = "Rph"),
-    mxAlgebra(solve(sqrt(I*A)) %&% A, name = "Ra"),
-    mxAlgebra(solve(sqrt(I*C)) %&% C, name = "Rc"),
-    mxAlgebra(solve(sqrt(I*E)) %&% E, name = "Re"),
+For the common factors there are negative stac/stcc/stec estimates coming from:
+* A1 factors for *conduct12(ac7)* and A2 for *isolation18(ac11)*
 
-    # Standardised components of variance
-    mxAlgebra(A/V, name = "h2"),
-    mxAlgebra(C/V, name = "c2"),
-    mxAlgebra(E/V, name = "e2"),
-    
-    # Standardise common parameters (unsquared)
-    mxAlgebra(iSD %*% ac, name = "stac"),
-    mxAlgebra(iSD %*% cc, name = "stcc"),
-    mxAlgebra(iSD %*% ec, name = "stec"),
-    
-    # Standardise common parameters (Squared)
-    mxAlgebra(stac*stac, name = "stac2"),
-    mxAlgebra(stcc*stcc, name = "stcc2"),
-    mxAlgebra(stec*stec, name = "stec2"),
-    
-    # Standardise specific parameters (unsquared)
-    mxAlgebra(iSD %*% as, name = "stas"),
-    mxAlgebra(iSD %*% cs, name = "stcs"),
-    mxAlgebra(iSD %*% es, name = "stes"),
-    
-    # Standardise specific parameters (Squared)
-    mxAlgebra(stas*stas, name = "stas2"),
-    mxAlgebra(stcs*stcs, name = "stcs2"),
-    mxAlgebra(stes*stes, name = "stes2"),	
-	
-		# MZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, A+C), cbind(A+C, A+C+E)), name = "expCovMZ"),
-		
-		# DZ expected covariance matrix
-		mxAlgebra(rbind(cbind(A+C+E, (0.5%x%A)+C), cbind((0.5%x%A)+C, A+C+E)), name = "expCovDZ")
-		
-	),
-	
-	mxModel("MZ",
-		mxData(observed = dat.twin.MZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovMZ", means = "ACE.expMean", dimnames = selvars_norm_reg),
-		mxFitFunctionML()
-	),
-	mxModel("DZ",
-		mxData(observed = dat.twin.DZ, type = "raw"),
-		mxExpectationNormal(covariance = "ACE.expCovDZ", means = "ACE.expMean", dimnames = selvars_norm_reg),
-		mxFitFunctionML()
-	),
+```{r Common constrained submodel}
+# create a "copy" of the model
+IPM_allvar_noanx_sexmean_sub1modelc <- mxModel(IPM_allvar_noanx_sexmean_fit, name = "IPM_allvar_noanx_sexmean_sub1c") 
 
-	mxAlgebra(MZ.objective + DZ.objective, name = "m2LL"),
-	mxFitFunctionAlgebra("m2LL"),
-	mxCI(c("ACE.stac2", "ACE.stcc2", "ACE.stec2", "ACE.stas2", "ACE.stcs2", "ACE.stes2", "ACE.Rph"))
-)
+# set parameters identified above to be zero
+IPM_allvar_noanx_sexmean_sub1modelc <- omxSetParameters(IPM_allvar_noanx_sexmean_sub1modelc,
+                                         labels = c("ac7", "ac11"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_noanx_sexmean_sub1modelc <- omxAssignFirstParameters(IPM_allvar_noanx_sexmean_sub1modelc)
+
+# Run sunmodels
+IPM_allvar_noanx_sexmean_sub1modelc_fit <- mxTryHard(IPM_allvar_noanx_sexmean_sub1modelc, intervals = FALSE)
+
+# create summary
+IPM_allvar_noanx_sexmean_sub1modelc_sum <- summary(IPM_allvar_noanx_sexmean_sub1modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_noanx_sexmean_fit, IPM_allvar_noanx_sexmean_sub1modelc_fit)
 ```
 
-```{r run ACE mdoel for all variables}
-IPM_allvar_fit <- mxTryHard(IPM_allvar, intervals = TRUE)
-summary(IPM_allvar_fit)
+```{r results from IPM_allvar_noanx_sub1models_fit}
+# common unsquared parameters
+mxEval(ACE.stac, IPM_allvar_noanx_sexmean_sub1modelc_fit)
+mxEval(ACE.stcc, IPM_allvar_noanx_sexmean_sub1modelc_fit)
+mxEval(ACE.stec, IPM_allvar_noanx_sexmean_sub1modelc_fit)
+
+# specific unsquared parameters
+mxEval(ACE.stas, IPM_allvar_noanx_sexmean_sub1modelc_fit)
+mxEval(ACE.stcs, IPM_allvar_noanx_sexmean_sub1modelc_fit)
+mxEval(ACE.stes, IPM_allvar_noanx_sexmean_sub1modelc_fit)
 ```
 
-```{r output for IPM_allvar_nopsy_fit}
-IPM_esitmates_ACE_10var(data = IPM_allvar_fit,
-                  variable1 = "Isolation12",
-                  variable2 = "Anxiety12",
-                  variable3 = "Depression12",
-                  variable4 = "Conduct12",
-                  variable5 = "Psychosis12",
-                  variable6 = "Isolation18",
-                  variable7 = "Anxiety18",
-                  variable8 = "Depression18",
-                  variable9 = "Conduct18",
-                  variable10 = "Psychosis18",
-                  model = "ACE",
-                  uniACEestimates = TRUE,
-                  pathestimates = TRUE,
-                  A_percent = TRUE,
-                  C_percent = TRUE,
-                  E_percent = TRUE,
-                  common_factor_contribution = TRUE)
-```
+We now need to constrain *ac15* and *cc4*.
 
-According to D Pelt, we can set the specific variances to be 0 to save them coming out strange. 
-
-Here we can check all the output to see if any of the variances are negative - this can sometimes be called  a Heywood case, which means that more than 100% of the variable's variance is explained by the (latent) factor(s), which implies that the residual variance is negative. For a model with one factor, it means that the (standardized) loading is larger than 1.00.
-
-From results below:
-
-* The specific variances for A factors of anxiety18, depression18, and conduct18 are *negative*
-* The specific variances for C factors of depression12 and conduct18 are *negative*
-* The common variances for C1 factors of anxiety12, psychosis12, and anxiety18 are *negative*
-* The common variances for E1 factors of conduct18 and psychosis18 are *negative*
-
-```{r checknegative variances for common and specific paths}
-# check the common and specific a parameters (unstandardised and unsquared)
-IPM_allvar_fit$ACE$as
-IPM_allvar_fit$ACE$ac
-
-# check the common and specific a parameters (unstandardised and unsquared)
-IPM_allvar_fit$ACE$cs
-IPM_allvar_fit$ACE$cc
-
-# check the common and specific a parameters (unstandardised and unsquared)
-IPM_allvar_fit$ACE$es
-IPM_allvar_fit$ACE$ec
-```
-
-Do we need to use the following:
-omxSetParameters( AEModel, labels=c("c11", "c22", "c33", "c21", "c31", "c23"), free=F, values=0)
- 
-Or does specifying the chunk below work okay?
-
-```{r constrain the specific factors to be 0}
-# specify constrained specific paths
-IPM_allvar_scon <- mxModel(IPM_allvar, name = "IPM_allvar_scon",
-     mxModel(IPM_allvar_fit$ACE,
-     mxMatrix("Diag", nrow = nv, ncol = nv, free = c(T, T, T, T, T, T, F, F, F, T), name = "as")   # specific a for anx18, dep18 and conduct18 are set to 0
-    )
-)
-
-# run AE IPM
-IPM_allvar_scon_fit <- mxTryHard(IPM_allvar_scon, intervals = TRUE)
-
-# check
-IPM_allvar_scon_fit$ACE$as
-
-# Compare ACE and AE
-mxCompare(IPM_allvar_fit, IPM_allvar_scon_fit)
-```
-
-
-
-
-Univariate heritabilities:
-Isolation 12     0.419
-Anxiety 12       0.272
-Depression 12    0.211
-Conduct 12       0.197
-Isolation 18     0.450
-Anxiety 18       0.235
-Depression 18    0.315
-Conduct 18       0.195
-
+***
 
