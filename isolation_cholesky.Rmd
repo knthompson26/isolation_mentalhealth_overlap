@@ -232,25 +232,6 @@ dat$sisoy10norm_reg <- (resid(lm(data = dat, sisoy10norm ~ sex, na.action = na.e
 dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude)))
 ```
 
-## Standardising
-
-Create *z scores* for all variables. 
-
-```{r scale variables and combine to MZ dataset}
-# create a scaled version of the continuous variables - z scores for all variables
-scaled_continuous_data <- as.data.frame(scale(dat[selvars_norm_all], center = TRUE, scale = TRUE))
-
-# rename variables to show that they are z scores 
-colnames(scaled_continuous_data) <- paste0("z_score_", colnames(scaled_continuous_data))
-
-# combine the scaled data to the main dataset for  and DZ twins
-dat <- cbind(dat, scaled_continuous_data)
-
-colnames(dat)
-```
-
-Sex does not predict any of the isolation variables. 
-
 # Create twin dataset
 
 To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
