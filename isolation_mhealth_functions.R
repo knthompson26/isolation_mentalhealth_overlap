@@ -10,7 +10,25 @@ library(tidyr)
 library(tidyverse)
 library(dplyr)     # conflicts with tidyverse for e.g. rename and row_number
 
-# Univariate 
+###########################################################################################
+###### Data prep 
+###########################################################################################
+
+# heat map
+reorder_cor_matrix <- function(cor_matrix){  # reorder matrix
+  dd <- as.dist((1-cor_matrix)/2)  # use correlation between variables as distance
+  hc <- hclust(dd)
+  cor_matrix <- cor_matrix[hc$order, hc$order]
+}
+
+get_upper_tri <- function(cor_matrix){  # Get upper triangle of the correlation matrix
+  cor_matrix[lower.tri(cor_matrix)]<- NA
+  return(cor_matrix)
+}
+
+###########################################################################################
+###### Univariate 
+###########################################################################################
 
 ## ACE estimates
 ACE_esitmates_table <- function(data, variable, age){
@@ -24,9 +42,20 @@ ACE_esitmates_table <- function(data, variable, age){
   return(table)
 }
 
+ACE_esitmates_table_8varCI <- function(data, variables){
+  table <- as.tibble(data$CI) %>%
+    mutate(ACE = c(rep("h2", 8), rep("c2", 8), rep("e2", 8))) %>%
+    mutate(Variable = rep(variables, 3)) %>%
+    select(Variable, ACE, lbound, estimate, ubound) %>%
+    mutate(across(is.numeric, round, digits = 3))
+  
+  return(table)
+}
+
+###########################################################################################
+###### Sex differences
 ###########################################################################################
 
-# Sex diffs 
 ACEhet_esitmates_table <- function(data, variable, age){
     table <- as.tibble(data$CI) %>%
       mutate(ACE = c("h2m", "c2m", "e2m", "h2f", "c2f", "e2f")) %>%
@@ -39,8 +68,8 @@ ACEhet_esitmates_table <- function(data, variable, age){
 }
 
 ###########################################################################################
-
-# Bivariate script
+###### Bivariate 
+###########################################################################################
 
 ## ACE estimates for bivariate model - same variable at age 12 and 18
 ACE_esitmates_table_crosstime <- function(data, variable){
@@ -55,12 +84,9 @@ ACE_esitmates_table_crosstime <- function(data, variable){
 }
 
 ###########################################################################################
-
-### ADD CHOLESKY ESTIMATES FUNCTION HERE
-
+###### Independent pathway model (IPM)
 ###########################################################################################
 
-# IPM
 # This function can be used to create output from a two time-point 4 variable IPM model. This model includes 2 common *ACE* factors, 1 represents shared A/C/E at all time points and all variables in the model, the second common factor represents shared A/C/E between variables at the second point in time. This output function can produce the following: 
 # * "uniACEestimates" represents univariate ACE estimates. These are the model estimates h2, c2, and e2 for each variable incuded in the model. To call this output uniACEestimates = TRUE.
 # * "pathestimates" represents common and specific factor path estimates for A/C/E. This is all the standardised and squared path estimates in the model, for common and specific factors of A, C, and E. To call this output pathestimates = TRUE.
@@ -83,8 +109,10 @@ ACE_esitmates_table_crosstime <- function(data, variable){
 
 
 ###########################################################################################
-#########   8 variable IPM output
+###### 8 variable IPM output
 ###########################################################################################
+
+######## RENAME TO BE IPM_ace_estimates ????????????????????????
 
 IPM_esitmates_ACE_8var <- function(data, variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8, model, uniACEestimates, pathestimates, A_percent, C_percent, E_percent, common_factor_contribution){ 
   # create summary object of the openmx model
@@ -109,7 +137,7 @@ IPM_esitmates_ACE_8var <- function(data, variable1, variable2, variable3, variab
     select(model, variable, h2, c2, e2) 
   
   uniACEestimates_table_rounded <- uniACEestimates_table %>%
-    mutate(across(is.numeric, round, digits = 3))
+    mutate(across(is.numeric, round, digits = 5))
   
   if(uniACEestimates == TRUE){print(uniACEestimates_table_rounded)} 
   
@@ -164,7 +192,7 @@ IPM_esitmates_ACE_8var <- function(data, variable1, variable2, variable3, variab
   pathestimates_table <- rbind(ACE_CI.common, ACE_CI.specific)
   
   pathestimates_table_rounded <- pathestimates_table %>%
-    mutate(across(is.numeric, round, digits = 5))
+    mutate(across(is.numeric, round, digits = 3))
   
   if(pathestimates == TRUE){print(pathestimates_table_rounded)} 
   
@@ -413,7 +441,7 @@ IPM_esitmates_ACE_8var <- function(data, variable1, variable2, variable3, variab
 
 
 ###########################################################################################
-#########   8 variable IPM output - NO CONFIDENCE INTERVALS
+###### 8 variable IPM output - NO CONFIDENCE INTERVALS
 ###########################################################################################
 
 # You may want to run your scripts without calculating confidence intervals (intervals = FALSE) to save time. This output function will display the output when your model mxTryHard(model, intervals = FALSE). 
@@ -746,12 +774,670 @@ IPM_esitmates_ACE_8var_noCI <- function(data, variable1, variable2, variable3, v
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ###########################################################################################
-#########   10 variable IPM output
+###### 8 variable IPM output - het for conduct included
+###########################################################################################
+
+IPM_esitmates_ACE_8var_het <- function(data, variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8, model, uniACEestimates, pathestimates, A_percent, C_percent, E_percent, common_factor_contribution){ 
+  # create summary object of the openmx model
+  summary <- summary(data, verbose = TRUE)
+  
+  # create matrix containing the model estimated phenotypic correlations
+  Rphm <- mxEval(ACE.Rphm, data)
+  Rphf <- mxEval(ACE.Rphf, data)
+  
+  # create table containing the univariate ACE estimates
+  h2m <- as.data.frame(diag(mxEval(ACE.h2m, data))) # heritability for males
+  colnames(h2m) <- c("h2m")
+  h2f <- as.data.frame(diag(mxEval(ACE.h2f, data))) # heritability for females
+  colnames(h2f) <- c("h2f")
+  
+  c2m <- as.data.frame(diag(mxEval(ACE.c2m, data))) # shared environment 
+  colnames(c2m) <- c("c2m")
+  c2f <- as.data.frame(diag(mxEval(ACE.c2f, data))) # shared environment 
+  colnames(c2f) <- c("c2f")
+  
+  e2m <- as.data.frame(diag(mxEval(ACE.e2m, data))) # unique environment
+  colnames(e2m) <- c("e2m")
+  e2f <- as.data.frame(diag(mxEval(ACE.e2f, data))) # unique environment
+  colnames(e2f) <- c("e2f")
+  
+  uniACEestimates_table_m <- cbind(h2m, c2m, e2m) %>%           # bind all together into a table
+    mutate(variable = c(variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8)) %>%
+    mutate(model = model) %>%
+    mutate(sex = "Male") %>%
+    select(model, variable, sex, h2 = h2m, c2 = c2m, e2 = e2m) 
+  
+  uniACEestimates_table_f <- cbind(h2f, c2f, e2f) %>%           # bind all together into a table
+    mutate(variable = c(variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8)) %>%
+    mutate(model = model) %>%
+    mutate(sex = "Female") %>%
+    select(model, variable, sex, h2 = h2f, c2 = c2f, e2 = e2f) 
+  
+  uniACEestimates_table <- rbind(uniACEestimates_table_m, uniACEestimates_table_f)
+  
+  uniACEestimates_table_rounded <- uniACEestimates_table %>%
+    mutate(across(is.numeric, round, digits = 3))
+  
+  if(uniACEestimates == TRUE){print(uniACEestimates_table_rounded)} 
+  
+  # create data frame with all the path estimates and confidence intervals
+  ACE_CI <- as.data.frame(summary$CI)
+  ACE_CI <- ACE_CI %>%
+    mutate(parameter = rownames(ACE_CI)) %>%
+    as_tibble()
+  
+  # from this, create a table containing estimates for common factors (squared and standardised)
+  ACE_CI.common_m <- ACE_CI %>%
+    filter(grepl('ACE.stac2m|ACE.stcc2m|ACE.stec2m', parameter)) %>% # squared and standardised estimates 
+    mutate(ACE = c(rep("A1",8), rep("A2",8), rep("C1",8), rep("C2",8), rep("E1",8), rep("E2",8))) %>%
+    mutate(variable = rep(c(variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8),6)) %>%
+    mutate(factor = "Common") %>%
+    mutate(model = model) %>%
+    mutate(sex = "Male") %>%
+    select(model, sex, factor, ACE, variable, lbound, estimate, ubound) 
+  
+  ACE_CI.common_f <- ACE_CI %>%
+    filter(grepl('ACE.stac2f|ACE.stcc2f|ACE.stec2f', parameter)) %>% # squared and standardised estimates 
+    mutate(ACE = c(rep("A1",8), rep("A2",8), rep("C1",8), rep("C2",8), rep("E1",8), rep("E2",8))) %>%
+    mutate(variable = rep(c(variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8),6)) %>%
+    mutate(factor = "Common") %>%
+    mutate(model = model) %>%
+    mutate(sex = "Female") %>%
+    select(model, sex, factor, ACE, variable, lbound, estimate, ubound) 
+  
+  # create a table containing (non-zero) estimates for specific factors (squared and standardised)
+  ACE_CI.specific_m <- ACE_CI %>%
+    filter(parameter == "ACE.stas2m[1,1]" |   # specific A - this is a long way to do this but couldn't get grepl to work on [1,1] etc
+             parameter == "ACE.stas2m[2,2]" | 
+             parameter == "ACE.stas2m[3,3]" | 
+             parameter == "ACE.stas2m[4,4]" | 
+             parameter == "ACE.stas2m[5,5]" | 
+             parameter == "ACE.stas2m[6,6]" | 
+             parameter == "ACE.stas2m[7,7]" | 
+             parameter == "ACE.stas2m[8,8]" |
+             parameter == "ACE.stcs2m[1,1]" |   # specific C
+             parameter == "ACE.stcs2m[2,2]" | 
+             parameter == "ACE.stcs2m[3,3]" | 
+             parameter == "ACE.stcs2m[4,4]" | 
+             parameter == "ACE.stcs2m[5,5]" | 
+             parameter == "ACE.stcs2m[6,6]" | 
+             parameter == "ACE.stcs2m[7,7]" | 
+             parameter == "ACE.stcs2m[8,8]" |
+             parameter == "ACE.stes2m[1,1]" |   # specific E
+             parameter == "ACE.stes2m[2,2]" | 
+             parameter == "ACE.stes2m[3,3]" | 
+             parameter == "ACE.stes2m[4,4]" | 
+             parameter == "ACE.stes2m[5,5]" | 
+             parameter == "ACE.stes2m[6,6]" | 
+             parameter == "ACE.stes2m[7,7]" | 
+             parameter == "ACE.stes2m[8,8]") %>%
+    mutate(ACE = c(rep("A",8), rep("C",8), rep("E",8))) %>%
+    mutate(variable = rep(c(variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8),3)) %>%
+    mutate(factor = "Specific") %>%
+    mutate(model = model) %>%
+    mutate(sex = "Male") %>%
+    select(model, sex, factor, ACE, variable, lbound, estimate, ubound) 
+  
+  ACE_CI.specific_f <- ACE_CI %>%
+    filter(parameter == "ACE.stas2f[1,1]" |   # specific A - this is a long way to do this but couldn't get grepl to work on [1,1] etc
+             parameter == "ACE.stas2f[2,2]" | 
+             parameter == "ACE.stas2f[3,3]" | 
+             parameter == "ACE.stas2f[4,4]" | 
+             parameter == "ACE.stas2f[5,5]" | 
+             parameter == "ACE.stas2f[6,6]" | 
+             parameter == "ACE.stas2f[7,7]" | 
+             parameter == "ACE.stas2f[8,8]" |
+             parameter == "ACE.stcs2f[1,1]" |   # specific C
+             parameter == "ACE.stcs2f[2,2]" | 
+             parameter == "ACE.stcs2f[3,3]" | 
+             parameter == "ACE.stcs2f[4,4]" | 
+             parameter == "ACE.stcs2f[5,5]" | 
+             parameter == "ACE.stcs2f[6,6]" | 
+             parameter == "ACE.stcs2f[7,7]" | 
+             parameter == "ACE.stcs2f[8,8]" |
+             parameter == "ACE.stes2f[1,1]" |   # specific E
+             parameter == "ACE.stes2f[2,2]" | 
+             parameter == "ACE.stes2f[3,3]" | 
+             parameter == "ACE.stes2f[4,4]" | 
+             parameter == "ACE.stes2f[5,5]" | 
+             parameter == "ACE.stes2f[6,6]" | 
+             parameter == "ACE.stes2f[7,7]" | 
+             parameter == "ACE.stes2f[8,8]") %>%
+    mutate(ACE = c(rep("A",8), rep("C",8), rep("E",8))) %>%
+    mutate(variable = rep(c(variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8),3)) %>%
+    mutate(factor = "Specific") %>%
+    mutate(model = model) %>%
+    mutate(sex = "Female") %>%
+    select(model, sex, factor, ACE, variable, lbound, estimate, ubound) 
+  
+  # combine the common and specific path estimates
+  pathestimates_table_m <- rbind(ACE_CI.common_m, ACE_CI.specific_m)
+  pathestimates_table_f <- rbind(ACE_CI.common_f, ACE_CI.specific_f)
+  
+  pathestimates_table_rounded_m <- pathestimates_table_m %>%
+    mutate(across(is.numeric, round, digits = 3))
+  pathestimates_table_rounded_f <- pathestimates_table_f %>%
+    mutate(across(is.numeric, round, digits = 3))
+  
+  if(pathestimates == TRUE){print(pathestimates_table_rounded_m)} 
+  if(pathestimates == TRUE){print(pathestimates_table_rounded_f)} 
+  
+  # create table that shows out of the total contribution of all A factors, what % is due to common and specific 
+  A_percentages_m <- pathestimates_table_m %>% 
+    filter(grepl('A1|A2|A', ACE)) %>%
+    select(-ubound, -lbound, -factor) %>%
+    pivot_wider(names_from = ACE, values_from = estimate) %>%
+    mutate(total_var = A1 + A2 + A) %>%
+    mutate(across(A1:A, ~ round(.x/total_var*100, 3))) %>%
+    mutate(Total = round(A1 + A2 + A, 3)) %>%
+    select(variable,
+           `A1c %` = A1,
+           `A2c %` = A2,
+           `As %` = A,
+           Total)
+  
+  h2_joined_m <- uniACEestimates_table %>%
+    filter(sex == "Male") %>%
+    select(variable, h2) %>%
+    mutate(across(h2, ~ round(.x*100, 3)))
+  
+  A_percentages_joined_m <- plyr::join_all(list(A_percentages_m, h2_joined_m),
+                                         by = "variable") %>%
+    mutate(sex = "Male") %>%
+    select(sex, variable, h2, `A1c %`, `A2c %`, `As %`, Total)
+  
+  A_percentages_f <- pathestimates_table_f %>% 
+    filter(grepl('A1|A2|A', ACE)) %>%
+    select(-ubound, -lbound, -factor) %>%
+    pivot_wider(names_from = ACE, values_from = estimate) %>%
+    mutate(total_var = A1 + A2 + A) %>%
+    mutate(across(A1:A, ~ round(.x/total_var*100, 3))) %>%
+    mutate(Total = round(A1 + A2 + A, 3)) %>%
+    select(variable,
+           `A1c %` = A1,
+           `A2c %` = A2,
+           `As %` = A,
+           Total)
+  
+  h2_joined_f <- uniACEestimates_table %>%
+    filter(sex == "Female") %>%
+    select(variable, h2) %>%
+    mutate(across(h2, ~ round(.x*100, 3)))
+  
+  A_percentages_joined_f <- plyr::join_all(list(A_percentages_f, h2_joined_f),
+                                           by = "variable") %>%
+    mutate(sex = "Female") %>%
+    select(sex, variable, h2, `A1c %`, `A2c %`, `As %`, Total)
+  
+  A_percentages_joined <- rbind(A_percentages_joined_m, A_percentages_joined_f)
+  
+  if(A_percent == TRUE){print(A_percentages_joined)}
+  
+  # create table that shows out of the total contribution of all C factors, what % is due to common and specific 
+  C_percentages_m <- pathestimates_table_m %>%
+    filter(grepl('C1|C2|C', ACE)) %>%
+    select(-ubound, -lbound, -factor) %>%
+    pivot_wider(names_from = ACE, values_from = estimate) %>%
+    mutate(total_var = C1 + C2 + C) %>%
+    mutate(across(C1:C, ~ round(.x/total_var*100, 3))) %>%
+    mutate(Total = round(C1 + C2 + C, 3)) %>%
+    select(variable,
+           `C1c %` = C1,
+           `C2c %` = C2,
+           `Cs %` = C,
+           Total)
+  
+  c2_joined_m <- uniACEestimates_table %>%
+    filter(sex == "Male") %>%
+    select(variable, c2) %>%
+    mutate(across(c2, ~ round(.x*100, 3)))
+  
+  C_percentages_joined_m <- plyr::join_all(list(C_percentages_m, c2_joined_m),
+                                         by = "variable") %>%
+    mutate(sex = "Male") %>%
+    select(sex, variable, c2, `C1c %`, `C2c %`, `Cs %`, Total)
+  
+  C_percentages_f <- pathestimates_table_f %>%
+    filter(grepl('C1|C2|C', ACE)) %>%
+    select(-ubound, -lbound, -factor) %>%
+    pivot_wider(names_from = ACE, values_from = estimate) %>%
+    mutate(total_var = C1 + C2 + C) %>%
+    mutate(across(C1:C, ~ round(.x/total_var*100, 3))) %>%
+    mutate(Total = round(C1 + C2 + C, 3)) %>%
+    select(variable,
+           `C1c %` = C1,
+           `C2c %` = C2,
+           `Cs %` = C,
+           Total)
+  
+  c2_joined_f <- uniACEestimates_table %>%
+    filter(sex == "Female") %>%
+    select(variable, c2) %>%
+    mutate(across(c2, ~ round(.x*100, 3)))
+  
+  C_percentages_joined_f <- plyr::join_all(list(C_percentages_f, c2_joined_f),
+                                           by = "variable") %>%
+    mutate(sex = "Female") %>%
+    select(sex, variable, c2, `C1c %`, `C2c %`, `Cs %`, Total)
+  
+  C_percentages_joined <- rbind(C_percentages_joined_m, C_percentages_joined_f)
+  
+  if(C_percent == TRUE){print(C_percentages_joined)}
+  
+  # create table that shows out of the total contribution of all E factors, what % is due to common and specific 
+  E_percentages_m <- pathestimates_table_m %>%
+    filter(grepl('E1|E2|E', ACE)) %>%
+    select(-ubound, -lbound, -factor) %>%
+    pivot_wider(names_from = ACE, values_from = estimate) %>%
+    mutate(total_var = E1 + E2 + E) %>%
+    mutate(across(E1:E, ~ round(.x/total_var*100, 3))) %>%
+    mutate(Total = round(E1 + E2 + E, 3)) %>%
+    select(variable,
+           `E1c %` = E1,
+           `E2c %` = E2,
+           `Es %` = E,
+           Total)
+  
+  e2_joined_m <- uniACEestimates_table %>%
+    filter(sex == "Male") %>%
+    select(variable, e2) %>%
+    mutate(across(e2, ~ round(.x*100, 3)))
+  
+  E_percentages_joined_m <- plyr::join_all(list(E_percentages_m, e2_joined_m),
+                                         by = "variable") %>%
+    mutate(sex = "Male") %>%
+    select(sex, variable, e2, `E1c %`, `E2c %`, `Es %`, Total)
+  
+  E_percentages_f <- pathestimates_table_f %>%
+    filter(grepl('E1|E2|E', ACE)) %>%
+    select(-ubound, -lbound, -factor) %>%
+    pivot_wider(names_from = ACE, values_from = estimate) %>%
+    mutate(total_var = E1 + E2 + E) %>%
+    mutate(across(E1:E, ~ round(.x/total_var*100, 3))) %>%
+    mutate(Total = round(E1 + E2 + E, 3)) %>%
+    select(variable,
+           `E1c %` = E1,
+           `E2c %` = E2,
+           `Es %` = E,
+           Total)
+  
+  e2_joined_f <- uniACEestimates_table %>%
+    filter(sex == "Female") %>%
+    select(variable, e2) %>%
+    mutate(across(e2, ~ round(.x*100, 3)))
+  
+  E_percentages_joined_f <- plyr::join_all(list(E_percentages_f, e2_joined_f),
+                                         by = "variable") %>%
+    mutate(sex = "Female") %>%
+    select(sex, variable, e2, `E1c %`, `E2c %`, `Es %`, Total)
+  
+  E_percentages_joined <- rbind(E_percentages_joined_m, E_percentages_joined_f)
+  
+  if(E_percent == TRUE){print(E_percentages_joined)}
+  
+  # create a table using paths tracing to calculate the % of the phenotypic correlation that is due to the A, C, and E common factors. This essentially shows "how much of the association between variable1 and variable2 is due to shared genetic and environmental factors". 
+  # First, contribution of A to the phenotypic correlation
+  Ra_contribution_percent_m <- pathestimates_table_m %>%
+    filter(grepl('A1|A2', ACE)) %>%
+    filter(ACE != "A2" | (variable != variable1 & variable != variable2 & variable != variable3 & variable != variable4)) %>% # remove common factor A2 for variable1 and 2
+    select(-ubound, -lbound, -factor) %>%
+    mutate(across(variable, ~ str_replace(., variable1, "variable1"))) %>% # rename variables to apply equations
+    mutate(across(variable, ~ str_replace(., variable2, "variable2"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable3, "variable3"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable4, "variable4"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable5, "variable5"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable6, "variable6"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable7, "variable7"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable8, "variable8"))) %>% 
+    pivot_wider(names_from = c(variable, ACE), values_from = estimate) %>%
+    mutate(variable1_variable2 = sqrt(variable1_A1 * variable2_A1)/Rphm[2,1]) %>% #square root common paths, times together, and divide my appropriate Rph
+    mutate(variable1_variable3 = sqrt(variable1_A1 * variable3_A1)/Rphm[3,1]) %>%
+    mutate(variable1_variable4 = sqrt(variable1_A1 * variable4_A1)/Rphm[4,1]) %>%
+    mutate(variable1_variable5 = sqrt(variable1_A1 * variable5_A1)/Rphm[5,1]) %>%
+    mutate(variable1_variable6 = sqrt(variable1_A1 * variable6_A1)/Rphm[6,1]) %>%
+    mutate(variable1_variable7 = sqrt(variable1_A1 * variable7_A1)/Rphm[7,1]) %>%
+    mutate(variable1_variable8 = sqrt(variable1_A1 * variable8_A1)/Rphm[8,1]) %>%
+    mutate(variable2_variable3 = sqrt(variable2_A1 * variable3_A1)/Rphm[3,2]) %>% # var 2 associated with all others
+    mutate(variable2_variable4 = sqrt(variable2_A1 * variable4_A1)/Rphm[4,2]) %>% 
+    mutate(variable2_variable5 = sqrt(variable2_A1 * variable5_A1)/Rphm[5,2]) %>% 
+    mutate(variable2_variable6 = sqrt(variable2_A1 * variable6_A1)/Rphm[6,2]) %>% 
+    mutate(variable2_variable7 = sqrt(variable2_A1 * variable7_A1)/Rphm[7,2]) %>% 
+    mutate(variable2_variable8 = sqrt(variable2_A1 * variable8_A1)/Rphm[8,2]) %>% 
+    mutate(variable3_variable4 = sqrt(variable3_A1 * variable4_A1)/Rphm[4,3]) %>% # var 3 associated with all others
+    mutate(variable3_variable5 = sqrt(variable3_A1 * variable5_A1)/Rphm[5,3]) %>% 
+    mutate(variable3_variable6 = sqrt(variable3_A1 * variable6_A1)/Rphm[6,3]) %>% 
+    mutate(variable3_variable7 = sqrt(variable3_A1 * variable7_A1)/Rphm[7,3]) %>% 
+    mutate(variable3_variable8 = sqrt(variable3_A1 * variable8_A1)/Rphm[8,3]) %>% 
+    mutate(variable4_variable5 = sqrt(variable4_A1 * variable5_A1)/Rphm[5,4]) %>% # var 4 associated with all others
+    mutate(variable4_variable6 = sqrt(variable4_A1 * variable6_A1)/Rphm[6,4]) %>% 
+    mutate(variable4_variable7 = sqrt(variable4_A1 * variable7_A1)/Rphm[7,4]) %>% 
+    mutate(variable4_variable8 = sqrt(variable4_A1 * variable8_A1)/Rphm[8,4]) %>% 
+    mutate(variable5_variable6 = (sqrt(variable5_A1 * variable6_A1) + sqrt(variable5_A2 * variable6_A2))/Rphm[6,5]) %>% # var 5 associated with all others
+    mutate(variable5_variable7 = (sqrt(variable5_A1 * variable7_A1) + sqrt(variable5_A2 * variable7_A2))/Rphm[7,5]) %>% 
+    mutate(variable5_variable8 = (sqrt(variable5_A1 * variable8_A1) + sqrt(variable5_A2 * variable8_A2))/Rphm[8,5]) %>% 
+    mutate(variable6_variable7 = (sqrt(variable6_A1 * variable7_A1) + sqrt(variable6_A2 * variable7_A2))/Rphm[7,6]) %>% # var 6 associated with all others 
+    mutate(variable6_variable8 = (sqrt(variable6_A1 * variable8_A1) + sqrt(variable6_A2 * variable8_A2))/Rphm[8,6]) %>% 
+    mutate(variable7_variable8 = (sqrt(variable7_A1 * variable8_A1) + sqrt(variable7_A2 * variable8_A2))/Rphm[8,7]) %>% # var 7 & 8
+    select(variable1_variable2:variable7_variable8) %>%  
+    pivot_longer(cols = starts_with("variable"), names_to = "phenotypic correlation", values_to = "Ac % contribution") %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable1", variable1))) %>% # name the variables back 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable2", variable2))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable3", variable3))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable4", variable4))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable5", variable5))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable6", variable6))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable7", variable7))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable8", variable8)))
+  
+  # Second, contribution of C to the phenotypic correlation
+  Rc_contribution_percent_m <- pathestimates_table_m %>%
+    filter(grepl('C1|C2', ACE)) %>%
+    filter(ACE != "C2" | (variable != variable1 & variable != variable2 & variable != variable3 & variable != variable4)) %>% # remove common factor C2 for variable 1 and 2
+    select(-ubound, -lbound, -factor) %>%
+    mutate(across(variable, ~ str_replace(., variable1, "variable1"))) %>% # rename variables to apply equations
+    mutate(across(variable, ~ str_replace(., variable2, "variable2"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable3, "variable3"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable4, "variable4"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable5, "variable5"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable6, "variable6"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable7, "variable7"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable8, "variable8"))) %>% 
+    pivot_wider(names_from = c(variable, ACE), values_from = estimate) %>%
+    mutate(variable1_variable2 = sqrt(variable1_C1 * variable2_C1)/Rphm[2,1]) %>% #square root common paths, times together, and divide my appropriate Rph
+    mutate(variable1_variable3 = sqrt(variable1_C1 * variable3_C1)/Rphm[3,1]) %>%
+    mutate(variable1_variable4 = sqrt(variable1_C1 * variable4_C1)/Rphm[4,1]) %>%
+    mutate(variable1_variable5 = sqrt(variable1_C1 * variable5_C1)/Rphm[5,1]) %>%
+    mutate(variable1_variable6 = sqrt(variable1_C1 * variable6_C1)/Rphm[6,1]) %>%
+    mutate(variable1_variable7 = sqrt(variable1_C1 * variable7_C1)/Rphm[7,1]) %>%
+    mutate(variable1_variable8 = sqrt(variable1_C1 * variable8_C1)/Rphm[8,1]) %>%
+    mutate(variable2_variable3 = sqrt(variable2_C1 * variable3_C1)/Rphm[3,2]) %>% # var 2 associated with all others
+    mutate(variable2_variable4 = sqrt(variable2_C1 * variable4_C1)/Rphm[4,2]) %>% 
+    mutate(variable2_variable5 = sqrt(variable2_C1 * variable5_C1)/Rphm[5,2]) %>% 
+    mutate(variable2_variable6 = sqrt(variable2_C1 * variable6_C1)/Rphm[6,2]) %>% 
+    mutate(variable2_variable7 = sqrt(variable2_C1 * variable7_C1)/Rphm[7,2]) %>% 
+    mutate(variable2_variable8 = sqrt(variable2_C1 * variable8_C1)/Rphm[8,2]) %>% 
+    mutate(variable3_variable4 = sqrt(variable3_C1 * variable4_C1)/Rphm[4,3]) %>% # var 3 associated with all others
+    mutate(variable3_variable5 = sqrt(variable3_C1 * variable5_C1)/Rphm[5,3]) %>% 
+    mutate(variable3_variable6 = sqrt(variable3_C1 * variable6_C1)/Rphm[6,3]) %>% 
+    mutate(variable3_variable7 = sqrt(variable3_C1 * variable7_C1)/Rphm[7,3]) %>% 
+    mutate(variable3_variable8 = sqrt(variable3_C1 * variable8_C1)/Rphm[8,3]) %>% 
+    mutate(variable4_variable5 = sqrt(variable4_C1 * variable5_C1)/Rphm[5,4]) %>% # var 4 associated with all others
+    mutate(variable4_variable6 = sqrt(variable4_C1 * variable6_C1)/Rphm[6,4]) %>% 
+    mutate(variable4_variable7 = sqrt(variable4_C1 * variable7_C1)/Rphm[7,4]) %>% 
+    mutate(variable4_variable8 = sqrt(variable4_C1 * variable8_C1)/Rphm[8,4]) %>% 
+    mutate(variable5_variable6 = (sqrt(variable5_C1 * variable6_C1) + sqrt(variable5_C2 * variable6_C2))/Rphm[6,5]) %>% # var 5 associated with all others
+    mutate(variable5_variable7 = (sqrt(variable5_C1 * variable7_C1) + sqrt(variable5_C2 * variable7_C2))/Rphm[7,5]) %>% 
+    mutate(variable5_variable8 = (sqrt(variable5_C1 * variable8_C1) + sqrt(variable5_C2 * variable8_C2))/Rphm[8,5]) %>% 
+    mutate(variable6_variable7 = (sqrt(variable6_C1 * variable7_C1) + sqrt(variable6_C2 * variable7_C2))/Rphm[7,6]) %>% # var 6 associated with all others 
+    mutate(variable6_variable8 = (sqrt(variable6_C1 * variable8_C1) + sqrt(variable6_C2 * variable8_C2))/Rphm[8,6]) %>% 
+    mutate(variable7_variable8 = (sqrt(variable7_C1 * variable8_C1) + sqrt(variable7_C2 * variable8_C2))/Rphm[8,7]) %>% # var 7 & 8
+    select(variable1_variable2:variable7_variable8) %>%
+    pivot_longer(cols = starts_with("variable"), names_to = "phenotypic correlation", values_to = "Cc % contribution") %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable1", variable1))) %>% # name the variables back 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable2", variable2))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable3", variable3))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable4", variable4))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable5", variable5))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable6", variable6))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable7", variable7))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable8", variable8))) 
+  
+  # Third, contribution of E to the phenotypic correlation
+  Re_contribution_percent_m <- pathestimates_table_m %>%
+    filter(grepl('E1|E2', ACE)) %>%
+    filter(ACE != "E2" | (variable != variable1 & variable != variable2 & variable != variable3 & variable != variable4)) %>% # remove common factor E2 for variable 1 and 2
+    select(-ubound, -lbound, -factor) %>%
+    mutate(across(variable, ~ str_replace(., variable1, "variable1"))) %>% # rename variables to apply equations
+    mutate(across(variable, ~ str_replace(., variable2, "variable2"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable3, "variable3"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable4, "variable4"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable5, "variable5"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable6, "variable6"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable7, "variable7"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable8, "variable8"))) %>% 
+    pivot_wider(names_from = c(variable, ACE), values_from = estimate) %>%
+    mutate(variable1_variable2 = sqrt(variable1_E1 * variable2_E1)/Rphm[2,1]) %>% #square root common paths, times together, and divide my appropriate Rph
+    mutate(variable1_variable3 = sqrt(variable1_E1 * variable3_E1)/Rphm[3,1]) %>%
+    mutate(variable1_variable4 = sqrt(variable1_E1 * variable4_E1)/Rphm[4,1]) %>%
+    mutate(variable1_variable5 = sqrt(variable1_E1 * variable5_E1)/Rphm[5,1]) %>%
+    mutate(variable1_variable6 = sqrt(variable1_E1 * variable6_E1)/Rphm[6,1]) %>%
+    mutate(variable1_variable7 = sqrt(variable1_E1 * variable7_E1)/Rphm[7,1]) %>%
+    mutate(variable1_variable8 = sqrt(variable1_E1 * variable8_E1)/Rphm[8,1]) %>%
+    mutate(variable2_variable3 = sqrt(variable2_E1 * variable3_E1)/Rphm[3,2]) %>% # var 2 associated with all others
+    mutate(variable2_variable4 = sqrt(variable2_E1 * variable4_E1)/Rphm[4,2]) %>% 
+    mutate(variable2_variable5 = sqrt(variable2_E1 * variable5_E1)/Rphm[5,2]) %>% 
+    mutate(variable2_variable6 = sqrt(variable2_E1 * variable6_E1)/Rphm[6,2]) %>% 
+    mutate(variable2_variable7 = sqrt(variable2_E1 * variable7_E1)/Rphm[7,2]) %>% 
+    mutate(variable2_variable8 = sqrt(variable2_E1 * variable8_E1)/Rphm[8,2]) %>% 
+    mutate(variable3_variable4 = sqrt(variable3_E1 * variable4_E1)/Rphm[4,3]) %>% # var 3 associated with all others
+    mutate(variable3_variable5 = sqrt(variable3_E1 * variable5_E1)/Rphm[5,3]) %>% 
+    mutate(variable3_variable6 = sqrt(variable3_E1 * variable6_E1)/Rphm[6,3]) %>% 
+    mutate(variable3_variable7 = sqrt(variable3_E1 * variable7_E1)/Rphm[7,3]) %>% 
+    mutate(variable3_variable8 = sqrt(variable3_E1 * variable8_E1)/Rphm[8,3]) %>% 
+    mutate(variable4_variable5 = sqrt(variable4_E1 * variable5_E1)/Rphm[5,4]) %>% # var 4 associated with all others
+    mutate(variable4_variable6 = sqrt(variable4_E1 * variable6_E1)/Rphm[6,4]) %>% 
+    mutate(variable4_variable7 = sqrt(variable4_E1 * variable7_E1)/Rphm[7,4]) %>% 
+    mutate(variable4_variable8 = sqrt(variable4_E1 * variable8_E1)/Rphm[8,4]) %>% 
+    mutate(variable5_variable6 = (sqrt(variable5_E1 * variable6_E1) + sqrt(variable5_E2 * variable6_E2))/Rphm[6,5]) %>% # var 5 associated with all others
+    mutate(variable5_variable7 = (sqrt(variable5_E1 * variable7_E1) + sqrt(variable5_E2 * variable7_E2))/Rphm[7,5]) %>% 
+    mutate(variable5_variable8 = (sqrt(variable5_E1 * variable8_E1) + sqrt(variable5_E2 * variable8_E2))/Rphm[8,5]) %>% 
+    mutate(variable6_variable7 = (sqrt(variable6_E1 * variable7_E1) + sqrt(variable6_E2 * variable7_E2))/Rphm[7,6]) %>% # var 6 associated with all others 
+    mutate(variable6_variable8 = (sqrt(variable6_E1 * variable8_E1) + sqrt(variable6_E2 * variable8_E2))/Rphm[8,6]) %>% 
+    mutate(variable7_variable8 = (sqrt(variable7_E1 * variable8_E1) + sqrt(variable7_E2 * variable8_E2))/Rphm[8,7]) %>% # var 7 & 8
+    select(variable1_variable2:variable7_variable8) %>%
+    pivot_longer(cols = starts_with("variable"), names_to = "phenotypic correlation", values_to = "Ec % contribution") %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable1", variable1))) %>% # name the variables back 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable2", variable2))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable3", variable3))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable4", variable4))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable5", variable5))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable6", variable6))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable7", variable7))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable8", variable8))) 
+  
+  # bind the contribution of A, C, and E together into one table
+  contribution_percent_table_m <- plyr::join_all(list(Ra_contribution_percent_m, Rc_contribution_percent_m, Re_contribution_percent_m),
+                                               by = "phenotypic correlation")
+  
+  contribution_percent_table_m <- contribution_percent_table_m %>% 
+    mutate(total = `Ac % contribution` + `Cc % contribution` + `Ec % contribution`) %>% 
+    mutate(sex = "Male") %>%
+    mutate(across(is.numeric, ~ round(.x*100, 3)))
+  
+  # FEMALE
+  Ra_contribution_percent_f <- pathestimates_table_f %>%
+    filter(grepl('A1|A2', ACE)) %>%
+    filter(ACE != "A2" | (variable != variable1 & variable != variable2 & variable != variable3 & variable != variable4)) %>% # remove common factor A2 for variable1 and 2
+    select(-ubound, -lbound, -factor) %>%
+    mutate(across(variable, ~ str_replace(., variable1, "variable1"))) %>% # rename variables to apply equations
+    mutate(across(variable, ~ str_replace(., variable2, "variable2"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable3, "variable3"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable4, "variable4"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable5, "variable5"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable6, "variable6"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable7, "variable7"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable8, "variable8"))) %>% 
+    pivot_wider(names_from = c(variable, ACE), values_from = estimate) %>%
+    mutate(variable1_variable2 = sqrt(variable1_A1 * variable2_A1)/Rphf[2,1]) %>% #square root common paths, times together, and divide my appropriate Rph
+    mutate(variable1_variable3 = sqrt(variable1_A1 * variable3_A1)/Rphf[3,1]) %>%
+    mutate(variable1_variable4 = sqrt(variable1_A1 * variable4_A1)/Rphf[4,1]) %>%
+    mutate(variable1_variable5 = sqrt(variable1_A1 * variable5_A1)/Rphf[5,1]) %>%
+    mutate(variable1_variable6 = sqrt(variable1_A1 * variable6_A1)/Rphf[6,1]) %>%
+    mutate(variable1_variable7 = sqrt(variable1_A1 * variable7_A1)/Rphf[7,1]) %>%
+    mutate(variable1_variable8 = sqrt(variable1_A1 * variable8_A1)/Rphf[8,1]) %>%
+    mutate(variable2_variable3 = sqrt(variable2_A1 * variable3_A1)/Rphf[3,2]) %>% # var 2 associated with all others
+    mutate(variable2_variable4 = sqrt(variable2_A1 * variable4_A1)/Rphf[4,2]) %>% 
+    mutate(variable2_variable5 = sqrt(variable2_A1 * variable5_A1)/Rphf[5,2]) %>% 
+    mutate(variable2_variable6 = sqrt(variable2_A1 * variable6_A1)/Rphf[6,2]) %>% 
+    mutate(variable2_variable7 = sqrt(variable2_A1 * variable7_A1)/Rphf[7,2]) %>% 
+    mutate(variable2_variable8 = sqrt(variable2_A1 * variable8_A1)/Rphf[8,2]) %>% 
+    mutate(variable3_variable4 = sqrt(variable3_A1 * variable4_A1)/Rphf[4,3]) %>% # var 3 associated with all others
+    mutate(variable3_variable5 = sqrt(variable3_A1 * variable5_A1)/Rphf[5,3]) %>% 
+    mutate(variable3_variable6 = sqrt(variable3_A1 * variable6_A1)/Rphf[6,3]) %>% 
+    mutate(variable3_variable7 = sqrt(variable3_A1 * variable7_A1)/Rphf[7,3]) %>% 
+    mutate(variable3_variable8 = sqrt(variable3_A1 * variable8_A1)/Rphf[8,3]) %>% 
+    mutate(variable4_variable5 = sqrt(variable4_A1 * variable5_A1)/Rphf[5,4]) %>% # var 4 associated with all others
+    mutate(variable4_variable6 = sqrt(variable4_A1 * variable6_A1)/Rphf[6,4]) %>% 
+    mutate(variable4_variable7 = sqrt(variable4_A1 * variable7_A1)/Rphf[7,4]) %>% 
+    mutate(variable4_variable8 = sqrt(variable4_A1 * variable8_A1)/Rphf[8,4]) %>% 
+    mutate(variable5_variable6 = (sqrt(variable5_A1 * variable6_A1) + sqrt(variable5_A2 * variable6_A2))/Rphf[6,5]) %>% # var 5 associated with all others
+    mutate(variable5_variable7 = (sqrt(variable5_A1 * variable7_A1) + sqrt(variable5_A2 * variable7_A2))/Rphf[7,5]) %>% 
+    mutate(variable5_variable8 = (sqrt(variable5_A1 * variable8_A1) + sqrt(variable5_A2 * variable8_A2))/Rphf[8,5]) %>% 
+    mutate(variable6_variable7 = (sqrt(variable6_A1 * variable7_A1) + sqrt(variable6_A2 * variable7_A2))/Rphf[7,6]) %>% # var 6 associated with all others 
+    mutate(variable6_variable8 = (sqrt(variable6_A1 * variable8_A1) + sqrt(variable6_A2 * variable8_A2))/Rphf[8,6]) %>% 
+    mutate(variable7_variable8 = (sqrt(variable7_A1 * variable8_A1) + sqrt(variable7_A2 * variable8_A2))/Rphf[8,7]) %>% # var 7 & 8
+    select(variable1_variable2:variable7_variable8) %>%  
+    pivot_longer(cols = starts_with("variable"), names_to = "phenotypic correlation", values_to = "Ac % contribution") %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable1", variable1))) %>% # name the variables back 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable2", variable2))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable3", variable3))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable4", variable4))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable5", variable5))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable6", variable6))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable7", variable7))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable8", variable8)))
+  
+  # Second, contribution of C to the phenotypic correlation
+  Rc_contribution_percent_f <- pathestimates_table_f %>%
+    filter(grepl('C1|C2', ACE)) %>%
+    filter(ACE != "C2" | (variable != variable1 & variable != variable2 & variable != variable3 & variable != variable4)) %>% # remove common factor C2 for variable 1 and 2
+    select(-ubound, -lbound, -factor) %>%
+    mutate(across(variable, ~ str_replace(., variable1, "variable1"))) %>% # rename variables to apply equations
+    mutate(across(variable, ~ str_replace(., variable2, "variable2"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable3, "variable3"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable4, "variable4"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable5, "variable5"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable6, "variable6"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable7, "variable7"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable8, "variable8"))) %>% 
+    pivot_wider(names_from = c(variable, ACE), values_from = estimate) %>%
+    mutate(variable1_variable2 = sqrt(variable1_C1 * variable2_C1)/Rphf[2,1]) %>% #square root common paths, times together, and divide my appropriate Rph
+    mutate(variable1_variable3 = sqrt(variable1_C1 * variable3_C1)/Rphf[3,1]) %>%
+    mutate(variable1_variable4 = sqrt(variable1_C1 * variable4_C1)/Rphf[4,1]) %>%
+    mutate(variable1_variable5 = sqrt(variable1_C1 * variable5_C1)/Rphf[5,1]) %>%
+    mutate(variable1_variable6 = sqrt(variable1_C1 * variable6_C1)/Rphf[6,1]) %>%
+    mutate(variable1_variable7 = sqrt(variable1_C1 * variable7_C1)/Rphf[7,1]) %>%
+    mutate(variable1_variable8 = sqrt(variable1_C1 * variable8_C1)/Rphf[8,1]) %>%
+    mutate(variable2_variable3 = sqrt(variable2_C1 * variable3_C1)/Rphf[3,2]) %>% # var 2 associated with all others
+    mutate(variable2_variable4 = sqrt(variable2_C1 * variable4_C1)/Rphf[4,2]) %>% 
+    mutate(variable2_variable5 = sqrt(variable2_C1 * variable5_C1)/Rphf[5,2]) %>% 
+    mutate(variable2_variable6 = sqrt(variable2_C1 * variable6_C1)/Rphf[6,2]) %>% 
+    mutate(variable2_variable7 = sqrt(variable2_C1 * variable7_C1)/Rphf[7,2]) %>% 
+    mutate(variable2_variable8 = sqrt(variable2_C1 * variable8_C1)/Rphf[8,2]) %>% 
+    mutate(variable3_variable4 = sqrt(variable3_C1 * variable4_C1)/Rphf[4,3]) %>% # var 3 associated with all others
+    mutate(variable3_variable5 = sqrt(variable3_C1 * variable5_C1)/Rphf[5,3]) %>% 
+    mutate(variable3_variable6 = sqrt(variable3_C1 * variable6_C1)/Rphf[6,3]) %>% 
+    mutate(variable3_variable7 = sqrt(variable3_C1 * variable7_C1)/Rphf[7,3]) %>% 
+    mutate(variable3_variable8 = sqrt(variable3_C1 * variable8_C1)/Rphf[8,3]) %>% 
+    mutate(variable4_variable5 = sqrt(variable4_C1 * variable5_C1)/Rphf[5,4]) %>% # var 4 associated with all others
+    mutate(variable4_variable6 = sqrt(variable4_C1 * variable6_C1)/Rphf[6,4]) %>% 
+    mutate(variable4_variable7 = sqrt(variable4_C1 * variable7_C1)/Rphf[7,4]) %>% 
+    mutate(variable4_variable8 = sqrt(variable4_C1 * variable8_C1)/Rphf[8,4]) %>% 
+    mutate(variable5_variable6 = (sqrt(variable5_C1 * variable6_C1) + sqrt(variable5_C2 * variable6_C2))/Rphf[6,5]) %>% # var 5 associated with all others
+    mutate(variable5_variable7 = (sqrt(variable5_C1 * variable7_C1) + sqrt(variable5_C2 * variable7_C2))/Rphf[7,5]) %>% 
+    mutate(variable5_variable8 = (sqrt(variable5_C1 * variable8_C1) + sqrt(variable5_C2 * variable8_C2))/Rphf[8,5]) %>% 
+    mutate(variable6_variable7 = (sqrt(variable6_C1 * variable7_C1) + sqrt(variable6_C2 * variable7_C2))/Rphf[7,6]) %>% # var 6 associated with all others 
+    mutate(variable6_variable8 = (sqrt(variable6_C1 * variable8_C1) + sqrt(variable6_C2 * variable8_C2))/Rphf[8,6]) %>% 
+    mutate(variable7_variable8 = (sqrt(variable7_C1 * variable8_C1) + sqrt(variable7_C2 * variable8_C2))/Rphf[8,7]) %>% # var 7 & 8
+    select(variable1_variable2:variable7_variable8) %>%
+    pivot_longer(cols = starts_with("variable"), names_to = "phenotypic correlation", values_to = "Cc % contribution") %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable1", variable1))) %>% # name the variables back 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable2", variable2))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable3", variable3))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable4", variable4))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable5", variable5))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable6", variable6))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable7", variable7))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable8", variable8))) 
+  
+  # Third, contribution of E to the phenotypic correlation
+  Re_contribution_percent_f <- pathestimates_table_f %>%
+    filter(grepl('E1|E2', ACE)) %>%
+    filter(ACE != "E2" | (variable != variable1 & variable != variable2 & variable != variable3 & variable != variable4)) %>% # remove common factor E2 for variable 1 and 2
+    select(-ubound, -lbound, -factor) %>%
+    mutate(across(variable, ~ str_replace(., variable1, "variable1"))) %>% # rename variables to apply equations
+    mutate(across(variable, ~ str_replace(., variable2, "variable2"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable3, "variable3"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable4, "variable4"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable5, "variable5"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable6, "variable6"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable7, "variable7"))) %>% 
+    mutate(across(variable, ~ str_replace(., variable8, "variable8"))) %>% 
+    pivot_wider(names_from = c(variable, ACE), values_from = estimate) %>%
+    mutate(variable1_variable2 = sqrt(variable1_E1 * variable2_E1)/Rphf[2,1]) %>% #square root common paths, times together, and divide my appropriate Rph
+    mutate(variable1_variable3 = sqrt(variable1_E1 * variable3_E1)/Rphf[3,1]) %>%
+    mutate(variable1_variable4 = sqrt(variable1_E1 * variable4_E1)/Rphf[4,1]) %>%
+    mutate(variable1_variable5 = sqrt(variable1_E1 * variable5_E1)/Rphf[5,1]) %>%
+    mutate(variable1_variable6 = sqrt(variable1_E1 * variable6_E1)/Rphf[6,1]) %>%
+    mutate(variable1_variable7 = sqrt(variable1_E1 * variable7_E1)/Rphf[7,1]) %>%
+    mutate(variable1_variable8 = sqrt(variable1_E1 * variable8_E1)/Rphf[8,1]) %>%
+    mutate(variable2_variable3 = sqrt(variable2_E1 * variable3_E1)/Rphf[3,2]) %>% # var 2 associated with all others
+    mutate(variable2_variable4 = sqrt(variable2_E1 * variable4_E1)/Rphf[4,2]) %>% 
+    mutate(variable2_variable5 = sqrt(variable2_E1 * variable5_E1)/Rphf[5,2]) %>% 
+    mutate(variable2_variable6 = sqrt(variable2_E1 * variable6_E1)/Rphf[6,2]) %>% 
+    mutate(variable2_variable7 = sqrt(variable2_E1 * variable7_E1)/Rphf[7,2]) %>% 
+    mutate(variable2_variable8 = sqrt(variable2_E1 * variable8_E1)/Rphf[8,2]) %>% 
+    mutate(variable3_variable4 = sqrt(variable3_E1 * variable4_E1)/Rphf[4,3]) %>% # var 3 associated with all others
+    mutate(variable3_variable5 = sqrt(variable3_E1 * variable5_E1)/Rphf[5,3]) %>% 
+    mutate(variable3_variable6 = sqrt(variable3_E1 * variable6_E1)/Rphf[6,3]) %>% 
+    mutate(variable3_variable7 = sqrt(variable3_E1 * variable7_E1)/Rphf[7,3]) %>% 
+    mutate(variable3_variable8 = sqrt(variable3_E1 * variable8_E1)/Rphf[8,3]) %>% 
+    mutate(variable4_variable5 = sqrt(variable4_E1 * variable5_E1)/Rphf[5,4]) %>% # var 4 associated with all others
+    mutate(variable4_variable6 = sqrt(variable4_E1 * variable6_E1)/Rphf[6,4]) %>% 
+    mutate(variable4_variable7 = sqrt(variable4_E1 * variable7_E1)/Rphf[7,4]) %>% 
+    mutate(variable4_variable8 = sqrt(variable4_E1 * variable8_E1)/Rphf[8,4]) %>% 
+    mutate(variable5_variable6 = (sqrt(variable5_E1 * variable6_E1) + sqrt(variable5_E2 * variable6_E2))/Rphf[6,5]) %>% # var 5 associated with all others
+    mutate(variable5_variable7 = (sqrt(variable5_E1 * variable7_E1) + sqrt(variable5_E2 * variable7_E2))/Rphf[7,5]) %>% 
+    mutate(variable5_variable8 = (sqrt(variable5_E1 * variable8_E1) + sqrt(variable5_E2 * variable8_E2))/Rphf[8,5]) %>% 
+    mutate(variable6_variable7 = (sqrt(variable6_E1 * variable7_E1) + sqrt(variable6_E2 * variable7_E2))/Rphf[7,6]) %>% # var 6 associated with all others 
+    mutate(variable6_variable8 = (sqrt(variable6_E1 * variable8_E1) + sqrt(variable6_E2 * variable8_E2))/Rphf[8,6]) %>% 
+    mutate(variable7_variable8 = (sqrt(variable7_E1 * variable8_E1) + sqrt(variable7_E2 * variable8_E2))/Rphf[8,7]) %>% # var 7 & 8
+    select(variable1_variable2:variable7_variable8) %>%
+    pivot_longer(cols = starts_with("variable"), names_to = "phenotypic correlation", values_to = "Ec % contribution") %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable1", variable1))) %>% # name the variables back 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable2", variable2))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable3", variable3))) %>% 
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable4", variable4))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable5", variable5))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable6", variable6))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable7", variable7))) %>%
+    mutate(across(`phenotypic correlation`, ~ str_replace(., "variable8", variable8))) 
+  
+  # bind the contribution of A, C, and E together into one table
+  contribution_percent_table_f <- plyr::join_all(list(Ra_contribution_percent_f, Rc_contribution_percent_f, Re_contribution_percent_f),
+                                                 by = "phenotypic correlation")
+  
+  contribution_percent_table_f <- contribution_percent_table_f %>% 
+    mutate(total = `Ac % contribution` + `Cc % contribution` + `Ec % contribution`) %>% 
+    mutate(sex = "Female") %>%
+    mutate(across(is.numeric, ~ round(.x*100, 3)))
+  
+  contribution_percent_table <- rbind(contribution_percent_table_m, contribution_percent_table_f)
+  
+  if(common_factor_contribution == TRUE){print(contribution_percent_table)}
+}
+
+###########################################################################################
+###### 10 variable IPM output
 ########################################################################################### 
 
 #### RENAME VARIABLE1, VARIABLE2, TO VARIABLEA, VARIABLEB 
-
 
 IPM_esitmates_ACE_10var <- function(data, variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8, variable9, variable10, model, uniACEestimates, pathestimates, A_percent, C_percent, E_percent, common_factor_contribution){ 
   # create summary object of the openmx model
@@ -1139,7 +1825,7 @@ IPM_esitmates_ACE_10var <- function(data, variable1, variable2, variable3, varia
 
 
 ###########################################################################################
-#########   10 variable IPM output - NO CONFIDENCE INTERVALS
+###### 10 variable IPM output - NO CONFIDENCE INTERVALS
 ###########################################################################################
 
 # You may want to run your scripts without calculating confidence intervals (intervals = FALSE) to save time. This output function will display the output when your model mxTryHard(model, intervals = FALSE). 

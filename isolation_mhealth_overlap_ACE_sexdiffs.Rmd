@@ -408,37 +408,37 @@ We first normalised the twin variables, then regress out sex. We don't regress o
 ```{r Regress out age and sex}
 # twin 1 - elder
 ## isolation
-dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) 
-dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude)))
+dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) + 1
+dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude))) + 1
 ## anxiety
-dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude)))
-dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude)))
+dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude))) + 1
+dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude))) + 1
 ## depression
-dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude)))
-dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude)))
+dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude))) + 1
+dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude))) + 1
 ## conduct
-dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude)))
-dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude)))
+dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude))) + 1
+dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude))) + 1
 ## psychosis
-dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude)))
-dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude)))
+dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude))) + 1
+dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude))) + 1
 
 # twin 2 - younger
 ## isolation
-dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude))) 
-dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude)))
+dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude)))  + 1
+dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude))) + 1
 ## anxiety
-dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude)))
-dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude)))
+dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude))) + 1
+dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude))) + 1
 ## depression
-dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude)))
-dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude)))
+dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude))) + 1
+dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude))) + 1
 ## conduct
-dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude)))
-dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude)))
+dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude))) + 1
+dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude))) + 1
 ## psychosis
-dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude)))
-dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude)))
+dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude))) + 1
+dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude))) + 1
 ```
 
 ## Create twin dataset
@@ -616,7 +616,7 @@ hetace_isolation12	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, mod
 
 ```{r run het model for social isolation 12}
 # Run
-hetace_fit_isolation12 <- mxRun(hetace_isolation12, intervals = TRUE)
+hetace_fit_isolation12 <- mxTryHard(hetace_isolation12, intervals = TRUE)
 hetace_isolation12_summ <- summary(hetace_fit_isolation12)
 
 # Table
@@ -633,7 +633,7 @@ homace_isolation12	<- omxSetParameters(homace_isolation12,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_isolation12	<- mxRun(homace_isolation12, intervals = TRUE)
+homace_fit_isolation12	<- mxTryHard(homace_isolation12, intervals = TRUE)
 homace_fit_isolation12_summ	<- summary(homace_fit_isolation12)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -679,7 +679,7 @@ hetace_isolation18	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, mod
 
 ```{r run het model for social isolation 18}
 # Run
-hetace_fit_isolation18 <- mxRun(hetace_isolation18, intervals = TRUE)
+hetace_fit_isolation18 <- mxTryHard(hetace_isolation18, intervals = TRUE)
 hetace_isolation18_summ <- summary(hetace_fit_isolation18)
 
 # Table
@@ -696,7 +696,7 @@ homace_isolation18	<- omxSetParameters(homace_isolation18,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_isolation18	<- mxRun(homace_isolation18, intervals = TRUE)
+homace_fit_isolation18	<- mxTryHard(homace_isolation18, intervals = TRUE)
 homace_fit_isolation18_summ	<- summary(homace_fit_isolation18)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -744,7 +744,7 @@ hetace_anxiety12	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, model
 
 ```{r run het model for anxiety 12}
 # Run
-hetace_fit_anxiety12 <- mxRun(hetace_anxiety12, intervals = TRUE)
+hetace_fit_anxiety12 <- mxTryHard(hetace_anxiety12, intervals = TRUE)
 hetace_anxiety12_summ <- summary(hetace_fit_anxiety12)
 
 # Table
@@ -761,7 +761,7 @@ homace_anxiety12	<- omxSetParameters(homace_anxiety12,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_anxiety12	<- mxRun(homace_anxiety12, intervals = TRUE)
+homace_fit_anxiety12	<- mxTryHard(homace_anxiety12, intervals = TRUE)
 homace_fit_anxiety12_summ	<- summary(homace_fit_anxiety12)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -807,7 +807,7 @@ hetace_anxiety18	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, model
 
 ```{r run het model for anxiety 18}
 # Run
-hetace_fit_anxiety18 <- mxRun(hetace_anxiety18, intervals = TRUE)
+hetace_fit_anxiety18 <- mxTryHard(hetace_anxiety18, intervals = TRUE)
 hetace_anxiety18_summ <- summary(hetace_fit_anxiety18)
 
 # Table
@@ -824,7 +824,7 @@ homace_anxiety18	<- omxSetParameters(homace_anxiety18,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_anxiety18	<- mxRun(homace_anxiety18, intervals = TRUE)
+homace_fit_anxiety18	<- mxTryHard(homace_anxiety18, intervals = TRUE)
 homace_fit_anxiety18_summ	<- summary(homace_fit_anxiety18)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -872,7 +872,7 @@ hetace_depression12	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, mo
 
 ```{r run het model for depression 12}
 # Run
-hetace_fit_depression12 <- mxRun(hetace_depression12, intervals = TRUE)
+hetace_fit_depression12 <- mxTryHard(hetace_depression12, intervals = TRUE)
 hetace_depression12_summ <- summary(hetace_fit_depression12)
 
 # Table
@@ -889,7 +889,7 @@ homace_depression12	<- omxSetParameters(homace_depression12,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_depression12	<- mxRun(homace_depression12, intervals = TRUE)
+homace_fit_depression12	<- mxTryHard(homace_depression12, intervals = TRUE)
 homace_fit_depression12_summ	<- summary(homace_fit_depression12)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -935,7 +935,7 @@ hetace_depression18	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, mo
 
 ```{r run het model for depression 18}
 # Run
-hetace_fit_depression18 <- mxRun(hetace_depression18, intervals = TRUE)
+hetace_fit_depression18 <- mxTryHard(hetace_depression18, intervals = TRUE)
 hetace_depression18_summ <- summary(hetace_fit_depression18)
 
 # Table
@@ -952,7 +952,7 @@ homace_depression18	<- omxSetParameters(homace_depression18,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_depression18	<- mxRun(homace_depression18, intervals = TRUE)
+homace_fit_depression18	<- mxTryHard(homace_depression18, intervals = TRUE)
 homace_fit_depression18_summ	<- summary(homace_fit_depression18)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -1000,7 +1000,7 @@ hetace_conduct12	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, model
 
 ```{r run het model for conduct 12}
 # Run
-hetace_fit_conduct12 <- mxRun(hetace_conduct12, intervals = TRUE)
+hetace_fit_conduct12 <- mxTryHard(hetace_conduct12, intervals = TRUE)
 hetace_conduct12_summ <- summary(hetace_fit_conduct12)
 
 # Table
@@ -1017,7 +1017,7 @@ homace_conduct12	<- omxSetParameters(homace_conduct12,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_conduct12	<- mxRun(homace_conduct12, intervals = TRUE)
+homace_fit_conduct12	<- mxTryHard(homace_conduct12, intervals = TRUE)
 homace_fit_conduct12_summ	<- summary(homace_fit_conduct12)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -1063,7 +1063,7 @@ hetace_conduct18	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, model
 
 ```{r run het model for conduct 18}
 # Run
-hetace_fit_conduct18 <- mxRun(hetace_conduct18, intervals = TRUE)
+hetace_fit_conduct18 <- mxTryHard(hetace_conduct18, intervals = TRUE)
 hetace_conduct18_summ <- summary(hetace_fit_conduct18)
 
 # Table
@@ -1080,7 +1080,7 @@ homace_conduct18	<- omxSetParameters(homace_conduct18,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_conduct18	<- mxRun(homace_conduct18, intervals = TRUE)
+homace_fit_conduct18	<- mxTryHard(homace_conduct18, intervals = TRUE)
 homace_fit_conduct18_summ	<- summary(homace_fit_conduct18)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -1128,7 +1128,7 @@ hetace_psychosis12	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, mod
 
 ```{r run het model for psychosis 12}
 # Run
-hetace_fit_psychosis12 <- mxRun(hetace_psychosis12, intervals = TRUE)
+hetace_fit_psychosis12 <- mxTryHard(hetace_psychosis12, intervals = TRUE)
 hetace_psychosis12_summ <- summary(hetace_fit_psychosis12)
 
 # Table
@@ -1145,7 +1145,7 @@ homace_psychosis12	<- omxSetParameters(homace_psychosis12,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_psychosis12	<- mxRun(homace_psychosis12, intervals = TRUE)
+homace_fit_psychosis12	<- mxTryHard(homace_psychosis12, intervals = TRUE)
 homace_fit_psychosis12_summ	<- summary(homace_fit_psychosis12)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -1191,7 +1191,7 @@ hetace_psychosis18	<-mxModel("univHetACE", parsm, parsf, modelMZM, modelDZM, mod
 
 ```{r run het model for psychosis 18}
 # Run
-hetace_fit_psychosis18 <- mxRun(hetace_psychosis18, intervals = TRUE)
+hetace_fit_psychosis18 <- mxTryHard(hetace_psychosis18, intervals = TRUE)
 hetace_psychosis18_summ <- summary(hetace_fit_psychosis18)
 
 # Table
@@ -1208,7 +1208,7 @@ homace_psychosis18	<- omxSetParameters(homace_psychosis18,
                                 labels = c("am11", "cm11", "em11", "af11", "cf11", "ef11"), free = TRUE, values = 0.6,
                                 newlabels = c("a11", "c11", "e11", "a11", "c11", "e11"))
 
-homace_fit_psychosis18	<- mxRun(homace_psychosis18, intervals = TRUE)
+homace_fit_psychosis18	<- mxTryHard(homace_psychosis18, intervals = TRUE)
 homace_fit_psychosis18_summ	<- summary(homace_fit_psychosis18)
 
 # parameter estimates (check that hf2,cf2 and ef2 are the same)
@@ -1220,6 +1220,7 @@ homace_psychosis18_table
 # compare het and hom
 mxCompare(hetace_fit_psychosis18, homace_fit_psychosis18)
 ```
+
 
 ***
 
@@ -1409,10 +1410,12 @@ ScACE_isolation12_sum <- summary(ScACE_isolation12_fit)
 
 ```{r output social isolation 12 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_isolation12_table <- ACE_esitmates_table(
   data = ScACE_isolation12_sum, 
   variable = "Social isolation",
   age = "12")
+
+scalar_isolation12_table
 
 # scalar estimate
 mxEval(MZF.ScF, ScACE_isolation12_fit)
@@ -1439,7 +1442,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_isolation12 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_isolation12 <- mxTryHard(ACEModel, intervals = TRUE)
 isolation12_estimates <- summary(ACEFit_isolation12)
 
 # Table
@@ -1506,10 +1509,12 @@ ScACE_isolation18_sum <- summary(ScACE_isolation18_fit)
 
 ```{r output social isolation 18 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_isolation18_table <- ACE_esitmates_table(
   data = ScACE_isolation18_sum, 
   variable = "Social isolation",
   age = "18")
+
+scalar_isolation18_table
 
 # scalar estimate? 
 mxEval(MZF.ScF, ScACE_isolation18_fit)
@@ -1536,7 +1541,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_isolation18 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_isolation18 <- mxTryHard(ACEModel, intervals = TRUE)
 isolation18_estimates <- summary(ACEFit_isolation18)
 
 # Table
@@ -1635,7 +1640,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_anxiety12 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_anxiety12 <- mxTryHard(ACEModel, intervals = TRUE)
 anxiety12_estimates <- summary(ACEFit_anxiety12)
 
 # Table
@@ -1732,7 +1737,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_anxiety18 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_anxiety18 <- mxTryHard(ACEModel, intervals = TRUE)
 anxiety18_estimates <- summary(ACEFit_anxiety18)
 
 # Table
@@ -1801,10 +1806,12 @@ ScACE_depression12_sum <- summary(ScACE_depression12_fit)
 
 ```{r output social depression 12 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_depression12_table <- ACE_esitmates_table(
   data = ScACE_depression12_sum, 
   variable = "Depression",
   age = "12")
+
+scalar_depression12_table
 
 # scalar estimate 
 mxEval(MZF.ScF, ScACE_depression12_fit)
@@ -1831,7 +1838,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_depression12 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_depression12 <- mxTryHard(ACEModel, intervals = TRUE)
 depression12_estimates <- summary(ACEFit_depression12)
 
 # Table
@@ -1896,10 +1903,12 @@ ScACE_depression18_sum <- summary(ScACE_depression18_fit)
 
 ```{r output social depression 18 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_depression18_table <- ACE_esitmates_table(
   data = ScACE_depression18_sum, 
   variable = "Depression",
   age = "18")
+
+scalar_depression18_table
 
 # scalar estimate 
 mxEval(MZF.ScF, ScACE_depression18_fit)
@@ -1926,7 +1935,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_depression18 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_depression18 <- mxTryHard(ACEModel, intervals = TRUE)
 depression18_estimates <- summary(ACEFit_depression18)
 
 # Table
@@ -1994,10 +2003,12 @@ ScACE_conduct12_sum <- summary(ScACE_conduct12_fit)
 
 ```{r output social conduct 12 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_conduct12_table <- ACE_esitmates_table(
   data = ScACE_conduct12_sum, 
   variable = "Conduct disorder",
   age = "12")
+
+scalar_conduct12_table
 
 # scalar estimate 
 mxEval(MZF.ScF, ScACE_conduct12_fit)
@@ -2024,7 +2035,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_conduct12 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_conduct12 <- mxTryHard(ACEModel, intervals = TRUE)
 conduct12_estimates <- summary(ACEFit_conduct12)
 
 # Table
@@ -2090,10 +2101,12 @@ ScACE_conduct18_sum <- summary(ScACE_conduct18_fit)
 
 ```{r output conduct 18 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_conduct18_table <- ACE_esitmates_table(
   data = ScACE_conduct18_sum, 
   variable = "Conduct disorder",
   age = "18")
+
+scalar_conduct18_table
 
 # scalar estimate 
 mxEval(MZF.ScF, ScACE_conduct18_fit)
@@ -2120,7 +2133,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_conduct18 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_conduct18 <- mxTryHard(ACEModel, intervals = TRUE)
 conduct18_estimates <- summary(ACEFit_conduct18)
 
 # Table
@@ -2189,10 +2202,12 @@ ScACE_psychosis12_sum <- summary(ScACE_psychosis12_fit)
 
 ```{r output psychosis 12 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_psychosis12_table <- ACE_esitmates_table(
   data = ScACE_psychosis12_sum, 
   variable = "Psychosis",
   age = "12")
+
+scalar_psychosis12_table
 
 # scalar estimate 
 mxEval(MZF.ScF, ScACE_psychosis12_fit)
@@ -2219,7 +2234,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_psychosis12 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_psychosis12 <- mxTryHard(ACEModel, intervals = TRUE)
 psychosis12_estimates <- summary(ACEFit_psychosis12)
 
 # Table
@@ -2285,10 +2300,12 @@ ScACE_psychosis18_sum <- summary(ScACE_psychosis18_fit)
 
 ```{r output psychosis 18 scalar}
 # ACE estimates
-ACE_esitmates_table(
+scalar_psychosis18_table <- ACE_esitmates_table(
   data = ScACE_psychosis18_sum, 
   variable = "Psychosis",
   age = "18")
+
+scalar_psychosis18_table
 
 # scalar estimate 
 mxEval(MZF.ScF, ScACE_psychosis18_fit)
@@ -2315,7 +2332,7 @@ Conf	  	<- mxCI(c('ACE.h2', 'ACE.c2', 'ACE.e2'))
 ACEModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf) 
 
 # Run
-ACEFit_psychosis18 <- mxRun(ACEModel, intervals = TRUE)
+ACEFit_psychosis18 <- mxTryHard(ACEModel, intervals = TRUE)
 psychosis18_estimates <- summary(ACEFit_psychosis18)
 
 # Table 
@@ -2342,5 +2359,63 @@ Compare to heterogeneity model:
 mxCompare(hetace_fit_psychosis18, ScACE_psychosis18_fit)
 ```
 
-**The scalar model is still the best fit for psychosis age 18** - compared to the heterogeneity model. 
+**The scalar model is still the best fit for psychosis age 18** - compared to the heterogeneity model.
+
+# Output tables
+
+```{r output tables}
+ACE_estimates_hetace <- rbind(hetace_isolation12_table, 
+                          #   hetace_anxiety12_table,
+                              hetace_depression12_table,
+                              hetace_conduct12_table,
+                              hetace_psychosis12_table, 
+                              hetace_isolation18_table,
+                          #   hetace_anxiety18_table,
+                              hetace_depression18_table,  
+                              hetace_conduct18_table,
+                              hetace_psychosis18_table) 
+
+ACE_estimates_hetace
+
+ACE_estimates_homace <- rbind(homace_isolation12_table, 
+                          #   homace_anxiety12_table,
+                              homace_depression12_table,
+                              homace_conduct12_table,
+                              homace_psychosis12_table, 
+                              homace_isolation18_table,
+                          #   homace_anxiety18_table,
+                              homace_depression18_table,  
+                              homace_conduct18_table,
+                              homace_psychosis18_table)  
+
+ACE_estimates_homace
+
+ACE_estimates <- rbind(isolation12_table, 
+                          #   anxiety12_table,
+                              depression12_table,
+                              conduct12_table,
+                              psychosis12_table, 
+                              isolation18_table,
+                          #   anxiety18_table,
+                              depression18_table,  
+                              conduct18_table,
+                              psychosis18_table) 
+
+ACE_estimates
+
+ACE_estimates_scalar <- rbind(scalar_isolation12_table, 
+                          #   scalar_anxiety12_table,
+                              scalar_depression12_table,
+                              scalar_conduct12_table,
+                              scalar_psychosis12_table, 
+                              scalar_isolation18_table,
+                          #   scalar_anxiety18_table,
+                              scalar_depression18_table,  
+                              scalar_conduct18_table,
+                              scalar_psychosis18_table) 
+
+ACE_estimates_scalar
+```
+
+
 
