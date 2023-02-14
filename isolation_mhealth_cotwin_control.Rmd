@@ -1,0 +1,553 @@
+---
+title: "The overlap between social isolation and mental health problems: co-twin control design" 
+output:  
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    number_sections: false
+    highlight: monochrome
+    theme: flatly
+    code_folding: show
+    includes:
+      after_body: footer.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      prompt = FALSE,
+                      cache = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      results = 'markup')
+
+options(bitmapType = 'quartz') # to render fonts better
+```
+
+```{r Clear global environment, include=FALSE}
+remove(list = ls())
+```
+
+```{r Load packages, include=FALSE}
+library(knitr)
+library(haven)
+library(psych) 
+library(bestNormalize)
+library(tidyr)
+library(tidyverse)
+library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
+```
+
+# Source functions
+
+```{r source functions, include=FALSE}
+source("isolation_mhealth_functions.R")
+```
+
+# Read in data
+
+```{r source the data file path, include=FALSE}
+# source raw data directory
+source("../isolation_mentalhealth_data_path.R")
+```
+
+```{r read in dta data file, include=FALSE}
+dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
+colnames(dat.raw)
+```
+
+### Column names
+
+KT: NEED TO ADD IN VICTIMISATION VARIABLES
+
+```{r select variables needed}
+dat <- dat.raw %>%
+  dplyr::select(
+         atwinid,
+         btwinid,
+         familyid,
+         rorderp5,
+         torder,
+         zygosity,
+         sampsex,
+         sisoe12,
+         sisoy12,
+         masce12,     # anxiety
+         mascy12,   
+         cdie12,      # depression
+         cdiy12,
+         conec12,     # antisocial behaviour / conduct disorder
+         conyc12,
+         psysympe12,  # psychosis - why is this not the tot scale variable - to give more variation?
+         psysympy12,
+         socisoe18,
+         socisoy18,
+         gadsxe18,    # anxiety
+         gadsxy18,
+         mdesxe18,    # depression
+         mdesxy18,
+         cdsxe18,     # antisocial behaviour / conduct disorder
+         cdsxy18,
+         psyexpe18,   # psychotic experiences
+         psyexpy18,
+         
+  )
+
+colnames(dat)
+```
+
+### Recode variables into factors {.tabset .tabset-fade}
+
+#### Sex
+
+```{r recode sex}
+dat <- dat %>%
+  mutate(
+    sex = 
+      recode_factor(as_factor(sampsex),
+        "1" = "Male",
+        "2" = "Female"))
+
+table(dat$sex)
+```
+
+#### Zygosity
+
+```{r recode zygosity}
+dat <- dat %>%
+  mutate(
+    zygosity = 
+      recode_factor(as_factor(zygosity),
+        "1" = "MZ",
+        "2" = "DZ"))
+table(dat$zygosity)
+```
+
+### Convert variables to numeric
+
+```{r create numeric isolation variables}
+dat <- dat %>%
+  mutate(
+    sisoe12 = as.numeric(sisoe12),
+    sisoy12 = as.numeric(sisoy12),
+    masce12 = as.numeric(masce12),       # anxiety
+    mascy12 = as.numeric(mascy12),   
+    cdie12 = as.numeric(cdie12),         # depression
+    cdiy12 = as.numeric(cdiy12),
+    conec12 = as.numeric(conec12),       # antisocial behaviour / conduct disorder
+    conyc12 = as.numeric(conyc12),
+    psysympe12 = as.numeric(psysympe12), # psychosis - why is this not the tot scale variable - to give more variation?
+    psysympy12 = as.numeric(psysympy12),
+    socisoe18 = as.numeric(socisoe18),
+    socisoy18 = as.numeric(socisoy18),
+    gadsxe18 = as.numeric(gadsxe18),     # anxiety
+    gadsxy18 = as.numeric(gadsxy18),
+    mdesxe18 = as.numeric(mdesxe18),     # depression
+    mdesxy18 = as.numeric(mdesxy18),
+    cdsxe18 = as.numeric(cdsxe18),       # antisocial behaviour / conduct disorder
+    cdsxy18 = as.numeric(cdsxy18),
+    psyexpe18 = as.numeric(psyexpe18),   # psychotic experiences
+    psyexpy18 = as.numeric(psyexpy18)
+  ) %>%
+  select(                                # remove variables not needed
+    -c(sampsex)
+  )
+```
+
+# Data prep
+
+## Rank transformation
+
+Almost all variables are non-normal. We will use the van der Waerden's rank-based transformation as used in [Rimfeld et al 2021](https://acamh.onlinelibrary.wiley.com/doi/full/10.1002/jcv2.12053). For analyses using transformed data, they conducted the van der Waerden transformation prior to residualizing for age and sex as recommended by [Pain et al. 2018](https://www.nature.com/articles/s41431-018-0159-6).  
+
+I will transform all variables to get the normalised estimate.
+
+```{r rank transform variables elder variables}
+# isolation age 12
+sisoe12_n <- bestNormalize(dat$sisoe12)    # select the type of transformation needed
+dat$sisoe12norm <- predict(sisoe12_n)      # create normalised variable
+hist(dat$sisoe12norm)                  
+summary(dat$sisoe12norm)
+
+# isolation age 18
+socisoe18_n <- bestNormalize(dat$socisoe18)    
+dat$socisoe18norm <- predict(socisoe18_n)  
+hist(dat$socisoe18norm)                  
+summary(dat$socisoe18norm)
+
+# depression age 12
+cdie12_n <- bestNormalize(dat$cdie12)    
+dat$cdie12norm <- predict(cdie12_n)  
+hist(dat$cdie12norm)                  
+summary(dat$cdie12norm)
+
+# depression age 18
+mdesxe18_n <- bestNormalize(dat$mdesxe18)    
+dat$mdesxe18norm <- predict(mdesxe18_n)  
+hist(dat$mdesxe18norm)                  
+summary(dat$mdesxe18norm)
+
+# conduct age 12
+conec12_n <- bestNormalize(dat$conec12)    
+dat$conec12norm <- predict(conec12_n)  
+hist(dat$conec12norm)                  
+summary(dat$conec12norm)
+
+# conduct age 18
+cdsxe18_n <- bestNormalize(dat$cdsxe18)    
+dat$cdsxe18norm <- predict(cdsxe18_n)  
+hist(dat$cdsxe18norm)                  
+summary(dat$cdsxe18norm)
+
+# psychosis age 12
+psysympe12_n <- bestNormalize(dat$psysympe12)    
+dat$psysympe12norm <- predict(psysympe12_n)  
+hist(dat$psysympe12norm)                  
+summary(dat$psysympe12norm)
+
+# psychosis age 18
+psyexpe18_n <- bestNormalize(dat$psyexpe18)    
+dat$psyexpe18norm <- predict(psyexpe18_n)  
+hist(dat$psyexpe18norm)                  
+summary(dat$psyexpe18norm)
+```
+
+```{r rank transform variables younger variables}
+# isolation age 12
+sisoy12_n <- bestNormalize(dat$sisoy12)    # select the type of transformation needed
+dat$sisoy12norm <- predict(sisoy12_n)  # create normalised variable
+hist(dat$sisoy12norm)                  
+summary(dat$sisoy12norm)
+
+# isolation age 18
+socisoy18_n <- bestNormalize(dat$socisoy18)    
+dat$socisoy18norm <- predict(socisoy18_n)  
+hist(dat$socisoy18norm)                  
+summary(dat$socisoy18norm)
+
+# depression age 12
+cdiy12_n <- bestNormalize(dat$cdiy12)    
+dat$cdiy12norm <- predict(cdiy12_n)  
+hist(dat$cdiy12norm)                  
+summary(dat$cdiy12norm)
+
+# depression age 18
+mdesxy18_n <- bestNormalize(dat$mdesxy18)    
+dat$mdesxy18norm <- predict(mdesxy18_n)  
+hist(dat$mdesxy18norm)                  
+summary(dat$mdesxy18norm)
+
+# conduct age 12
+conyc12_n <- bestNormalize(dat$conyc12)    
+dat$conyc12norm <- predict(conyc12_n)  
+hist(dat$conyc12norm)                  
+summary(dat$conyc12norm)
+
+# conduct age 18
+cdsxy18_n <- bestNormalize(dat$cdsxy18)    
+dat$cdsxy18norm <- predict(cdsxy18_n)  
+hist(dat$cdsxy18norm)                  
+summary(dat$cdsxy18norm)
+
+# psychosis age 12
+psysympy12_n <- bestNormalize(dat$psysympy12)    
+dat$psysympy12norm <- predict(psysympy12_n)  
+hist(dat$psysympy12norm)                  
+summary(dat$psysympy12norm)
+
+# psychosis age 18
+psyexpy18_n <- bestNormalize(dat$psyexpy18)    
+dat$psyexpy18norm <- predict(psyexpy18_n)  
+hist(dat$psyexpy18norm)                  
+summary(dat$psyexpy18norm)
+```
+
+## Twin difference variables
+
+```{r subtract elder from younger variables}
+# social isolation
+dat <- dat %>%
+  mutate(isolation12norm_diff = 
+           sisoe12norm - sisoy12norm)
+dat <- dat %>%
+  mutate(isolation18norm_diff = 
+           socisoe18norm - socisoy18norm)
+# depression
+dat <- dat %>%
+  mutate(depression12norm_diff = 
+           cdie12norm - cdiy12norm)
+dat <- dat %>%
+  mutate(depression18norm_diff = 
+           mdesxe18norm - mdesxy18norm)
+# conduct
+dat <- dat %>%
+  mutate(conduct12norm_diff = 
+           conec12norm - conyc12norm)
+dat <- dat %>%
+  mutate(conduct18norm_diff = 
+           cdsxe18norm - cdsxy18norm)
+# psychosis
+dat <- dat %>%
+  mutate(psychosis12norm_diff = 
+           psysympe12norm - psysympy12norm)
+dat <- dat %>%
+  mutate(psychosis18norm_diff = 
+           psyexpe18norm - psyexpy18norm)
+```
+
+## Filter out double entry
+
+```{r filter on rorderp5}
+dat.half <- dat %>%
+  filter(rorderp5 == 1)
+```
+
+# Variable lists
+
+```{r variable lists}
+diff_vars_norm <- c("isolation12norm_diff", "depression12norm_diff", "conduct12norm_diff", "psychosis12norm_diff",  "isolation18norm_diff", "depression18norm_diff", "conduct18norm_diff", "psychosis18norm_diff")
+```
+
+# Correlation matrices
+
+## MZ and DZ
+
+```{r check the phenotypic correlations}
+# overall
+cor(dat.half[, diff_vars_norm], use = "complete")
+```
+
+### Heat map
+
+```{r list of variables for heatmap}
+name.list <- c(
+  "Isolation12",
+  "Depression12",
+  "Conduct12",
+  "Psychosis12",
+  "Isolation18",
+  "Depression18",
+  "Conduct18",
+  "Psychosis18"
+)
+```
+
+```{r heat map of all correlations}
+# create data frame with just numeric antecedent variables
+variable_data_frame <- as.data.frame(dat.half[,diff_vars_norm])
+colnames(variable_data_frame) <- name.list
+
+# get correlation matrix
+isolation_cor_matrix <- cor(variable_data_frame, method = "pearson", use = "complete.obs")
+
+# reorder the correlation matrix
+cor_matrix_full <- reorder_cor_matrix(isolation_cor_matrix)
+  
+# melt the values
+metled_cor_matrix <- reshape::melt(cor_matrix_full, na.rm = TRUE)
+
+# correlation heat map
+correlation_heat_map <- ggplot(metled_cor_matrix, aes(X2, X1, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "#343d99", high = "#a50026", mid = "white",
+   midpoint = 0, limit = c(-1,1), space = "Lab",
+    name="Pearson\nCorrelation") +
+  theme_minimal() +
+  labs(y = "",
+       x = "",
+       title = "Correlation heat map") +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),
+       axis.text.y = element_text(size = 12),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 4)
+
+correlation_heat_map
+```
+
+Correlations that are ~0.1 (with social isolation diff scores):
+
+Concurrent
+* Isolation12 and Conduct12
+* Isolation12 and Depression12
+* Isolation12 and Psychosis12
+* Isolation18 and Conduct18
+* Isolation18 and Depression18
+* Isolation18 and Psychosis18
+
+Longitudinal
+* Isolation12 and Psychosis18
+* Isolation12 and Isolation18
+* Isolation18 and Depression12
+
+Eyeball conclusions:
+
+* Concurrent associations most apparent
+* Isolation associated with later psychotic symptoms
+* Depression symptoms associated with later isolation
+
+## MZ only
+
+```{r filter for MZ only}
+dat.MZ <- dat %>%
+  filter(zygosity == "MZ")
+
+dat.MZ.half <- dat.half %>%
+  filter(zygosity == "MZ")
+```
+
+```{r check the phenotypic correlations using MZ only}
+# overall
+cor(dat.MZ.half[, diff_vars_norm], use = "complete")
+```
+
+### Heat map
+
+```{r heat map of all correlations using MZ only}
+# create data frame with just numeric antecedent variables
+variable_data_frame <- as.data.frame(dat.MZ.half[,diff_vars_norm])
+colnames(variable_data_frame) <- name.list
+
+# get correlation matrix
+isolation_cor_matrix <- cor(variable_data_frame, method = "pearson", use = "complete.obs")
+
+# reorder the correlation matrix
+cor_matrix_full <- reorder_cor_matrix(isolation_cor_matrix)
+  
+# melt the values
+metled_cor_matrix <- reshape::melt(cor_matrix_full, na.rm = TRUE)
+
+# correlation heat map
+correlation_heat_map <- ggplot(metled_cor_matrix, aes(X2, X1, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "#343d99", high = "#a50026", mid = "white",
+   midpoint = 0, limit = c(-1,1), space = "Lab",
+    name="Pearson\nCorrelation") +
+  theme_minimal() +
+  labs(y = "",
+       x = "",
+       title = "Correlation heat map") +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),
+       axis.text.y = element_text(size = 12),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 4)
+
+correlation_heat_map
+```
+
+# Regression
+
+## Univariate models
+
+### Mental health predicting social isolation 
+
+```{r without diff scores linear regression mhealth predicting isolation}
+# MZ and DZ
+reguni_dep12_iso18 <- lm(data = dat, socisoe18norm ~ cdie12norm, na.action = na.exclude)
+summary(reguni_dep12_iso18)
+
+reguni_con12_iso18 <- lm(data = dat, socisoe18norm ~ conec12norm, na.action = na.exclude)
+summary(reguni_con12_iso18)
+
+reguni_psy12_iso18 <- lm(data = dat, socisoe18norm ~ psysympe12norm, na.action = na.exclude)
+summary(reguni_psy12_iso18)
+
+# MZ only
+reguni_dep12_iso18_MZ <- lm(data = dat.MZ, socisoe18norm ~ cdie12norm, na.action = na.exclude)
+summary(reguni_dep12_iso18_MZ)
+
+reguni_con12_iso18_MZ <- lm(data = dat.MZ, socisoe18norm ~ conec12norm, na.action = na.exclude)
+summary(reguni_con12_iso18_MZ)
+
+reguni_psy12_iso18_MZ <- lm(data = dat.MZ, socisoe18norm ~ psysympe12norm, na.action = na.exclude)
+summary(reguni_psy12_iso18_MZ)
+```
+
+All above are significant. 
+
+```{r diffscores linear regression mhealth predicting isolation}
+# MZ and DZ
+reguni_diff_dep12_iso18 <- lm(data = dat.half, isolation18norm_diff ~ depression12norm_diff, na.action = na.exclude)
+summary(reguni_diff_dep12_iso18)
+
+reguni_diff_con12_iso18 <- lm(data = dat.half, isolation18norm_diff ~ conduct12norm_diff, na.action = na.exclude)
+summary(reguni_diff_con12_iso18)
+
+reguni_diff_psy12_iso18 <- lm(data = dat.half, isolation18norm_diff ~ psychosis12norm_diff, na.action = na.exclude)
+summary(reguni_diff_psy12_iso18)
+
+# MZ only
+reguni_diff_dep12_iso18_MZ <- lm(data = dat.MZ.half, isolation18norm_diff ~ depression12norm_diff, na.action = na.exclude)
+summary(reguni_diff_dep12_iso18_MZ)
+
+reguni_diff_con12_iso18_MZ <- lm(data = dat.MZ.half, isolation18norm_diff ~ conduct12norm_diff, na.action = na.exclude)
+summary(reguni_diff_con12_iso18_MZ)
+
+reguni_diff_psy12_iso18_MZ <- lm(data = dat.MZ.half, isolation18norm_diff ~ psychosis12norm_diff, na.action = na.exclude)
+summary(reguni_diff_psy12_iso18_MZ)
+```
+
+Depression predicts isolation, when using MZ this effect goes away (p=0.049). 
+
+### Social isolation predicting mental health problems
+
+```{r without diff scores linear regression isolation predicting mhealth}
+# MZ and DZ
+reguni_iso12_dep18 <- lm(data = dat, mdesxe18norm ~ sisoe12norm, na.action = na.exclude)
+summary(reguni_iso12_dep18)
+
+reguni_iso12_con18 <- lm(data = dat, cdsxe18norm ~ sisoe12norm, na.action = na.exclude)
+summary(reguni_iso12_con18)
+
+reguni_iso12_psy18 <- lm(data = dat, psyexpe18norm ~ sisoe12norm, na.action = na.exclude)
+summary(reguni_iso12_psy18)
+
+# MZ only
+reguni_iso12_dep18_MZ <- lm(data = dat.MZ, mdesxe18norm ~ sisoe12norm, na.action = na.exclude)
+summary(reguni_iso12_dep18_MZ)
+
+reguni_iso12_con18_MZ <- lm(data = dat.MZ, cdsxe18norm ~ sisoe12norm, na.action = na.exclude)
+summary(reguni_iso12_con18_MZ)
+
+reguni_iso12_psy18_MZ <- lm(data = dat.MZ, psyexpe18norm ~ sisoe12norm, na.action = na.exclude)
+summary(reguni_iso12_psy18_MZ)
+```
+
+All above are significant effects. 
+
+```{r diffscores linear regression isolation predicting mhealth}
+# MZ and DZ
+reguni_diff_iso12_dep18 <- lm(data = dat.half, depression18norm_diff ~ isolation12norm_diff, na.action = na.exclude)
+summary(reguni_diff_iso12_dep18)
+
+reguni_diff_iso12_con18 <- lm(data = dat.half, conduct18norm_diff ~ isolation12norm_diff, na.action = na.exclude)
+summary(reguni_diff_iso12_con18)
+
+reguni_diff_iso12_psy18 <- lm(data = dat.half, psychosis18norm_diff ~ isolation12norm_diff, na.action = na.exclude)
+summary(reguni_diff_iso12_psy18)
+
+# MZ only
+reguni_diff_iso12_dep18_MZ <- lm(data = dat.MZ.half, depression18norm_diff ~ isolation12norm_diff, na.action = na.exclude)
+summary(reguni_diff_iso12_dep18_MZ)
+
+reguni_diff_iso12_con18_MZ <- lm(data = dat.MZ.half, conduct18norm_diff ~ isolation12norm_diff, na.action = na.exclude)
+summary(reguni_diff_iso12_con18_MZ)
+
+reguni_diff_iso12_psy18_MZ <- lm(data = dat.MZ.half, psychosis18norm_diff ~ isolation12norm_diff, na.action = na.exclude)
+summary(reguni_diff_iso12_psy18_MZ)
+```
+
+All above are nonsignificant. Isolation predicts psychosis in whole sample, when just MZ, this is nonsignificant. 
+
+
+**When using MZ twins only, we are controlling for any genetic effects. All apparent associations become non-sognificant. It does not make sense to proceed with our plan to look at environmental moderators as the association is driven by shared genetic factors. Things that make MZ twins different do not show this association.**
+
+
