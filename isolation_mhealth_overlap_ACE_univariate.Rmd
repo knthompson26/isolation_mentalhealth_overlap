@@ -320,6 +320,10 @@ Almost all variables are non-normal. We will use the van der Waerden's rank-base
 I will transform all variables to get the normalised estimate.
 
 ```{r rank transform variables elder variables}
+# isolation age 12 - test log transformation rather than bestnormalise
+dat$sisoe12norm_test <- log(dat$sisoe12)
+hist(dat$sisoe12norm_test)
+
 # isolation age 12
 sisoe12_n <- bestNormalize(dat$sisoe12)    # select the type of transformation needed
 dat$sisoe12norm <- predict(sisoe12_n)      # create normalised variable
@@ -450,37 +454,37 @@ We first normalised the twin variables, then regress out sex. We don't regress o
 ```{r Regress out age and sex}
 # twin 1 - elder
 ## isolation
-dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) 
-dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude)))
+dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) +1
+dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude))) +1
 ## anxiety
-dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude)))
-dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude)))
+dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude))) +1
+dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude))) +1
 ## depression
-dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude)))
-dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude)))
+dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude))) +1
+dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude))) +1
 ## conduct
-dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude)))
-dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude)))
+dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude))) +1
+dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude))) +1
 ## psychosis
-dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude)))
-dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude)))
+dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude))) +1
+dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude))) +1
 
 # twin 2 - younger
 ## isolation
-dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude))) 
-dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude)))
+dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude))) +1
+dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude))) +1
 ## anxiety
-dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude)))
-dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude)))
+dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude))) +1
+dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude))) +1
 ## depression
-dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude)))
-dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude)))
+dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude))) +1
+dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude))) +1
 ## conduct
-dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude)))
-dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude)))
+dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude))) +1
+dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude))) +1
 ## psychosis
-dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude)))
-dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude)))
+dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude))) +1
+dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude))) +1
 ```
 
 ## Standardising
@@ -1259,16 +1263,770 @@ Psychosis	18	e2	0.721
 ## All ACE estimates
 
 ```{r ACE estimates table for all variables}
-ACE_estimates <- rbind(isolation12_table, 
-                             isolation18_table,
-                             anxiety12_table,
-                             anxiety18_table,
-                             depression12_table,
-                             depression18_table,
-                             conduct12_table,
-                             conduct18_table,
-                             psychosis12_table, 
-                             psychosis18_table) 
+ACE_estimates <- rbind(isolation12_table,
+                     # anxiety12_table,
+                     depression12_table,
+                     conduct12_table,
+                     psychosis12_table, 
+                     isolation18_table,
+                     depression18_table,
+                     # anxiety18_table,
+                     conduct18_table,
+                     psychosis18_table) 
 
 ACE_estimates
 ```
+
+# Multivariate correlated factors
+
+## Age 12 variables 
+
+Here we will run a correlated factors model on all the age 12 variables (without anxiety)
+
+```{r number of variables (phenotypes)}
+# number of variables
+nv <- 4    					      # number of variables 
+ntv <- nv*2 				      # number of twin variables
+
+# default optimizer 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+
+selvars_chosen <- c("sisoe12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg",
+                    "sisoy12norm_reg", "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg")
+```
+
+```{r start values}
+# start values
+svM	  <- c(rep(0.7, ntv))	  # means               
+svSD  <- c(rep(1.1, ntv))   # standard deviations
+svRmz <- c(rep(0.3, 6))     # correlations for MZ
+svRdz <- c(rep(0.15, 6))    # correlations for DZ 
+
+rowVars	<- rep('Vars', nv)                          
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+
+# labels
+means_4var <- c("m1", "m2", "m3", "m4", "m1", "m2", "m3", "m4")	        
+patha_4var <- c("a11", "a21","a31","a41","a22","a32","a42","a33","a43","a44")
+pathc_4var <- c("c11", "c21","c31","c41","c22","c32","c42","c33","c43","c44")
+pathe_4var <- c("e11", "e21","e31","e41","e22","e32","e42","e33","e43","e44")
+```
+
+```{r model estimation}
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = patha_4var, name = "a")
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = pathc_4var, name = "c")
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = pathe_4var, name = "e")
+
+MeanG	<- mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM, labels = means_4var, name = "ExpMean")
+
+# Non-standardized variance components
+covA	<- mxAlgebra(expression = a %*% t(a), name = "A")
+covC	<- mxAlgebra(expression = c %*% t(c), name = "C") 
+covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
+
+# Standardized variance components
+covP <- mxAlgebra(expression = A + C + E, name = "V" )  # total variance in the phenotype
+StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
+StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
+StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
+
+matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
+# matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
+rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
+rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") 
+rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
+
+rphace <- mxAlgebra(expression = cbind((sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])),  # path tracing var1 to var2 A
+                                       (sqrt(h2[1,1])*Ra[3,1]*sqrt(h2[3,3])),  # path tracing var1 to var3 A
+                                       (sqrt(h2[1,1])*Ra[4,1]*sqrt(h2[4,4])),  # path tracing var1 to var4 A
+                                       (sqrt(h2[2,2])*Ra[3,2]*sqrt(h2[3,3])),  # path tracing var2 to var3 A
+                                       (sqrt(h2[2,2])*Ra[4,2]*sqrt(h2[4,4])),  # path tracing var2 to var4 A
+                                       (sqrt(h2[3,3])*Ra[4,3]*sqrt(h2[4,4])),  # path tracing var3 to var4 A
+                                       
+                                       (sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])),  # path tracing var1 to var2 C
+                                       (sqrt(c2[1,1])*Rc[3,1]*sqrt(c2[3,3])),  # path tracing var1 to var3 C
+                                       (sqrt(c2[1,1])*Rc[4,1]*sqrt(c2[4,4])),  # path tracing var1 to var4 C
+                                       (sqrt(c2[2,2])*Rc[3,2]*sqrt(c2[3,3])),  # path tracing var2 to var3 C
+                                       (sqrt(c2[2,2])*Rc[4,2]*sqrt(c2[4,4])),  # path tracing var2 to var4 C
+                                       (sqrt(c2[3,3])*Rc[4,3]*sqrt(c2[4,4])),  # path tracing var3 to var4 C
+                                       
+                                       (sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])),  # path tracing var1 to var2 E
+                                       (sqrt(e2[1,1])*Re[3,1]*sqrt(e2[3,3])),  # path tracing var1 to var3 E
+                                       (sqrt(e2[1,1])*Re[4,1]*sqrt(e2[4,4])),  # path tracing var1 to var4 E
+                                       (sqrt(e2[2,2])*Re[3,2]*sqrt(e2[3,3])),  # path tracing var2 to var3 E
+                                       (sqrt(e2[2,2])*Re[4,2]*sqrt(e2[4,4])),  # path tracing var2 to var4 E
+                                       (sqrt(e2[3,3])*Re[4,3]*sqrt(e2[4,4]))   # path tracing var3 to var4 E
+                                       ), 
+                    name = "RphACE" )
+
+# standardise estimates
+#estVars	<- mxAlgebra(expression = cbind(h2, c2, e2), name = "Est", dimnames = list(rowVars,colVars)) # is this needed?
+
+# expected variance/covariance matrices
+covMZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
+                                          cbind(A+C, A+C+E)), name = "expCovMZ" )
+covDZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, 0.5%x%A+C),
+                                          cbind(0.5%x%A+C, A+C+E)), name = "expCovDZ" )
+
+# data objects 
+dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
+dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
+
+fitFunction <- mxFitFunctionML()
+```
+
+```{r ACE confidence intervals}
+# h2, c2, e2 
+Conf1	<- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]'))
+# factor correlation - off-diagonal
+Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]', 'Rph[3,1]', 'Ra[3,1]', 'Rc[3,1]', 'Re[3,1]', 'Rph[4,1]', 'Ra[4,1]', 'Rc[4,1]', 'Re[4,1]', 'Rph[3,2]', 'Ra[3,2]', 'Rc[3,2]', 'Re[3,2]', 'Rph[4,2]', 'Ra[4,2]', 'Rc[4,2]', 'Re[4,2]', 'Rph[4,3]', 'Ra[4,3]', 'Rc[4,3]', 'Re[4,3]')) 
+```
+
+```{r ACE model estimation}
+# enter the variables 
+objMZ	<- mxExpectationNormal(covariance = "expCovMZ", means = "ExpMean", dimnames = selvars_chosen)
+objDZ	<- mxExpectationNormal(covariance = "expCovDZ", means = "ExpMean", dimnames = selvars_chosen)
+
+# all parameters to be estimated 
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rC, rE, MeanG, rphace)
+
+# add these to the model for MZ and DZ with the matrices we have created
+modelMZ	<- mxModel(pars, covMZ, dataMZ, objMZ, fitFunction, name = "MZ")
+modelDZ	<- mxModel(pars, covDZ, dataDZ, objDZ, fitFunction, name = "DZ")
+
+# fitting
+minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj <- mxFitFunctionAlgebra("m2LL")
+
+# full model
+AceModel_4var <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1)
+
+# run ACE
+AceFit_4var12 <- mxTryHard(AceModel_4var, intervals = TRUE)
+```
+
+```{r run ACE model}
+# summary - this shows the position in the cells for each matrix 
+AceSumm12 <- summary(AceFit_4var12, verbose = TRUE)
+
+# h2 
+round(mxEval(ACE.h2, AceFit_4var12), 3) 
+
+# c2
+round(mxEval(ACE.c2, AceFit_4var12), 3) 
+
+# e2
+round(mxEval(ACE.e2, AceFit_4var12), 3) 
+
+table12 <- as.tibble(AceSumm12$CI) %>%
+    mutate(ACE = c(rep("h2", 4), rep("c2", 4), rep("e2", 4))) %>%
+    mutate(Variable = rep(c("Isolation12",
+                            "Depression12",
+                            "Conduct12", 
+                            "Psychosis12"), 3)) %>%
+    select(Variable, ACE, lbound, estimate, ubound) %>%
+    mutate(across(is.numeric, round, digits = 3))
+
+table12
+```
+
+## Age 18 variables
+
+Here we will run a correlated factors model on all the age 18 variables (without anxiety)
+
+```{r number of variables (phenotypes)}
+# number of variables
+nv <- 4    					      # number of variables 
+ntv <- nv*2 				      # number of twin variables
+
+# default optimizer 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+
+selvars_chosen <- c("socisoe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                    "socisoy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+```
+
+```{r start values}
+# start values
+svM	  <- c(rep(0.7, ntv))	  # means               
+svSD  <- c(rep(1.1, ntv))   # standard deviations
+svRmz <- c(rep(0.3, 6))     # correlations for MZ
+svRdz <- c(rep(0.15, 6))    # correlations for DZ 
+
+rowVars	<- rep('Vars', nv)                          
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+
+# labels
+means_4var <- c("m1", "m2", "m3", "m4", "m1", "m2", "m3", "m4")	        
+patha_4var <- c("a11", "a21","a31","a41","a22","a32","a42","a33","a43","a44")
+pathc_4var <- c("c11", "c21","c31","c41","c22","c32","c42","c33","c43","c44")
+pathe_4var <- c("e11", "e21","e31","e41","e22","e32","e42","e33","e43","e44")
+```
+
+```{r model estimation}
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = patha_4var, name = "a")
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = pathc_4var, name = "c")
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), labels = pathe_4var, name = "e")
+
+MeanG	<- mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM, labels = means_4var, name = "ExpMean")
+
+# Non-standardized variance components
+covA	<- mxAlgebra(expression = a %*% t(a), name = "A")
+covC	<- mxAlgebra(expression = c %*% t(c), name = "C") 
+covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
+
+# Standardized variance components
+covP <- mxAlgebra(expression = A + C + E, name = "V" )  # total variance in the phenotype
+StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
+StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
+StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
+
+matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
+# matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
+rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
+rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") 
+rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
+
+rphace <- mxAlgebra(expression = cbind((sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])),  # path tracing var1 to var2 A
+                                       (sqrt(h2[1,1])*Ra[3,1]*sqrt(h2[3,3])),  # path tracing var1 to var3 A
+                                       (sqrt(h2[1,1])*Ra[4,1]*sqrt(h2[4,4])),  # path tracing var1 to var4 A
+                                       (sqrt(h2[2,2])*Ra[3,2]*sqrt(h2[3,3])),  # path tracing var2 to var3 A
+                                       (sqrt(h2[2,2])*Ra[4,2]*sqrt(h2[4,4])),  # path tracing var2 to var4 A
+                                       (sqrt(h2[3,3])*Ra[4,3]*sqrt(h2[4,4])),  # path tracing var3 to var4 A
+                                       
+                                       (sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])),  # path tracing var1 to var2 C
+                                       (sqrt(c2[1,1])*Rc[3,1]*sqrt(c2[3,3])),  # path tracing var1 to var3 C
+                                       (sqrt(c2[1,1])*Rc[4,1]*sqrt(c2[4,4])),  # path tracing var1 to var4 C
+                                       (sqrt(c2[2,2])*Rc[3,2]*sqrt(c2[3,3])),  # path tracing var2 to var3 C
+                                       (sqrt(c2[2,2])*Rc[4,2]*sqrt(c2[4,4])),  # path tracing var2 to var4 C
+                                       (sqrt(c2[3,3])*Rc[4,3]*sqrt(c2[4,4])),  # path tracing var3 to var4 C
+                                       
+                                       (sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])),  # path tracing var1 to var2 E
+                                       (sqrt(e2[1,1])*Re[3,1]*sqrt(e2[3,3])),  # path tracing var1 to var3 E
+                                       (sqrt(e2[1,1])*Re[4,1]*sqrt(e2[4,4])),  # path tracing var1 to var4 E
+                                       (sqrt(e2[2,2])*Re[3,2]*sqrt(e2[3,3])),  # path tracing var2 to var3 E
+                                       (sqrt(e2[2,2])*Re[4,2]*sqrt(e2[4,4])),  # path tracing var2 to var4 E
+                                       (sqrt(e2[3,3])*Re[4,3]*sqrt(e2[4,4]))   # path tracing var3 to var4 E
+                                       ), 
+                    name = "RphACE" )
+
+# standardise estimates
+#estVars	<- mxAlgebra(expression = cbind(h2, c2, e2), name = "Est", dimnames = list(rowVars,colVars)) # is this needed?
+
+# expected variance/covariance matrices
+covMZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
+                                          cbind(A+C, A+C+E)), name = "expCovMZ" )
+covDZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, 0.5%x%A+C),
+                                          cbind(0.5%x%A+C, A+C+E)), name = "expCovDZ" )
+
+# data objects 
+dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
+dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
+
+fitFunction <- mxFitFunctionML()
+```
+
+```{r ACE confidence intervals}
+# h2, c2, e2 
+Conf1	<- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]'))
+# factor correlation - off-diagonal
+Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]', 'Rph[3,1]', 'Ra[3,1]', 'Rc[3,1]', 'Re[3,1]', 'Rph[4,1]', 'Ra[4,1]', 'Rc[4,1]', 'Re[4,1]', 'Rph[3,2]', 'Ra[3,2]', 'Rc[3,2]', 'Re[3,2]', 'Rph[4,2]', 'Ra[4,2]', 'Rc[4,2]', 'Re[4,2]', 'Rph[4,3]', 'Ra[4,3]', 'Rc[4,3]', 'Re[4,3]')) 
+```
+
+```{r ACE model estimation}
+# enter the variables 
+objMZ	<- mxExpectationNormal(covariance = "expCovMZ", means = "ExpMean", dimnames = selvars_chosen)
+objDZ	<- mxExpectationNormal(covariance = "expCovDZ", means = "ExpMean", dimnames = selvars_chosen)
+
+# all parameters to be estimated 
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rC, rE, MeanG, rphace)
+
+# add these to the model for MZ and DZ with the matrices we have created
+modelMZ	<- mxModel(pars, covMZ, dataMZ, objMZ, fitFunction, name = "MZ")
+modelDZ	<- mxModel(pars, covDZ, dataDZ, objDZ, fitFunction, name = "DZ")
+
+# fitting
+minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj <- mxFitFunctionAlgebra("m2LL")
+
+# full model
+AceModel_4var18 <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1)
+
+# run ACE
+AceFit_4var18 <- mxTryHard(AceModel_4var18, intervals = TRUE)
+```
+
+```{r run ACE model}
+# summary - this shows the position in the cells for each matrix 
+AceSumm18 <- summary(AceFit_4var18, verbose = TRUE)
+
+# h2 
+round(mxEval(ACE.h2, AceFit_4var18), 3) 
+
+# c2
+round(mxEval(ACE.c2, AceFit_4var18), 3) 
+
+# e2
+round(mxEval(ACE.e2, AceFit_4var18), 3) 
+
+table18 <- as.tibble(AceSumm18$CI) %>%
+    mutate(ACE = c(rep("h2", 4), rep("c2", 4), rep("e2", 4))) %>%
+    mutate(Variable = rep(c("Isolation18",
+                            "Depression18",
+                            "Conduct18", 
+                            "Psychosis18"), 3)) %>%
+    select(Variable, ACE, lbound, estimate, ubound) %>%
+    mutate(across(is.numeric, round, digits = 3))
+
+table18
+```
+
+## All variables (w/o anxiety)
+
+Here we will run a correlated factors model on all the age 18 variables (without anxiety)
+
+```{r number of variables (phenotypes)}
+# number of variables
+nv <- 8    					      # number of variables 
+ntv <- nv*2 				      # number of twin variables
+
+# default optimizer 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+
+selvars_chosen <- c("sisoe12norm",   "cdie12norm",   "conec12norm", "psysympe12norm", 
+                    "socisoe18norm", "mdesxe18norm", "cdsxe18norm", "psyexpe18norm",
+                    "sisoy12norm",   "cdiy12norm",   "conyc12norm", "psysympy12norm", 
+                    "socisoy18norm", "mdesxy18norm", "cdsxy18norm", "psyexpy18norm")
+```
+
+```{r start values}
+# start values
+svM	  <- c(rep(0.7, ntv))	  # means               
+svSD  <- c(rep(1.1, ntv))   # standard deviations
+svRmz <- c(rep(0.3, 6))     # correlations for MZ
+svRdz <- c(rep(0.15, 6))    # correlations for DZ 
+
+rowVars	<- rep('Vars', nv)                          
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+
+# labels
+means_8var <- c("m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8")
+patha_8var <- c("a11","a21","a31","a41","a51","a61","a71","a81",
+                "a22","a32","a42","a52","a62","a72","a82",
+                "a33","a43","a53","a63","a73","a83",
+                "a44","a54","a64","a74","a84",
+                "a55","a65","a75","a85",
+                "a66","a76","a86",
+                "a77","a87",
+                "a88")
+pathc_8var <- c("c11","c21","c31","c41","c51","c61","c71","c81",
+                "c22","c32","c42","c52","c62","c72","c82",
+                "c33","c43","c53","c63","c73","c83",
+                "c44","c54","c64","c74","c84",
+                "c55","c65","c75","c85",
+                "c66","c76","c86",
+                "c77","c87",
+                "c88")
+pathe_8var <- c("e11","e21","e31","e41","e51","e61","e71","e81",
+                "e22","e32","e42","e52","e62","e72","e82",
+                "e33","e43","e53","e63","e73","e83",
+                "e44","e54","e64","e74","e84",
+                "e55","e65","e75","e85",
+                "e66","e76","e86",
+                "e77","e87",
+                "e88")
+```
+
+```{r model estimation}
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 36)), labels = patha_8var, name = "a")
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 36)), labels = pathc_8var, name = "c")
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 36)), labels = pathe_8var, name = "e")
+
+MeanG	<- mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM, labels = means_8var, name = "ExpMean")
+
+# Non-standardized variance components
+covA	<- mxAlgebra(expression = a %*% t(a), name = "A")
+covC	<- mxAlgebra(expression = c %*% t(c), name = "C") 
+covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
+
+# Standardized variance components
+covP <- mxAlgebra(expression = A + C + E, name = "V" )  # total variance in the phenotype
+StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
+StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
+StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
+
+matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
+# matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
+rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
+rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") 
+rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
+
+rphace <- mxAlgebra(expression = cbind((sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2]))/Rph[2,1],  # path tracing var1 to var2 A 
+                                       (sqrt(h2[1,1])*Ra[3,1]*sqrt(h2[3,3]))/Rph[3,1],  # path tracing var1 to var3 A
+                                       (sqrt(h2[1,1])*Ra[4,1]*sqrt(h2[4,4]))/Rph[4,1],  # path tracing var1 to var4 A
+                                       (sqrt(h2[1,1])*Ra[5,1]*sqrt(h2[5,5]))/Rph[5,1],  # path tracing var1 to var5 A
+                                       (sqrt(h2[1,1])*Ra[6,1]*sqrt(h2[6,6]))/Rph[6,1],  # path tracing var1 to var6 A
+                                       (sqrt(h2[1,1])*Ra[7,1]*sqrt(h2[7,7]))/Rph[7,1],  # path tracing var1 to var7 A
+                                       (sqrt(h2[1,1])*Ra[8,1]*sqrt(h2[8,8]))/Rph[8,1],  # path tracing var1 to var8 A
+                                       (sqrt(h2[2,2])*Ra[3,2]*sqrt(h2[3,3]))/Rph[3,2],  # path tracing var2 to var3 A
+                                       (sqrt(h2[2,2])*Ra[4,2]*sqrt(h2[4,4]))/Rph[4,2],  # path tracing var2 to var4 A
+                                       (sqrt(h2[2,2])*Ra[5,2]*sqrt(h2[5,5]))/Rph[5,2],  # path tracing var2 to var5 A
+                                       (sqrt(h2[2,2])*Ra[6,2]*sqrt(h2[6,6]))/Rph[6,2],  # path tracing var2 to var6 A
+                                       (sqrt(h2[2,2])*Ra[7,2]*sqrt(h2[7,7]))/Rph[7,2],  # path tracing var2 to var7 A
+                                       (sqrt(h2[2,2])*Ra[8,2]*sqrt(h2[8,8]))/Rph[8,2],  # path tracing var2 to var8 A
+                                       (sqrt(h2[3,3])*Ra[4,3]*sqrt(h2[4,4]))/Rph[4,3],  # path tracing var3 to var4 A
+                                       (sqrt(h2[3,3])*Ra[5,3]*sqrt(h2[5,5]))/Rph[5,3],  # path tracing var3 to var5 A
+                                       (sqrt(h2[3,3])*Ra[6,3]*sqrt(h2[6,6]))/Rph[6,3],  # path tracing var3 to var6 A
+                                       (sqrt(h2[3,3])*Ra[7,3]*sqrt(h2[7,7]))/Rph[7,3],  # path tracing var3 to var7 A
+                                       (sqrt(h2[3,3])*Ra[8,3]*sqrt(h2[8,8]))/Rph[8,3],  # path tracing var3 to var8 A
+                                       (sqrt(h2[4,4])*Ra[5,4]*sqrt(h2[5,5]))/Rph[5,4],  # path tracing var4 to var5 A
+                                       (sqrt(h2[4,4])*Ra[6,4]*sqrt(h2[6,6]))/Rph[6,4],  # path tracing var4 to var6 A
+                                       (sqrt(h2[4,4])*Ra[7,4]*sqrt(h2[7,7]))/Rph[7,4],  # path tracing var4 to var7 A
+                                       (sqrt(h2[4,4])*Ra[8,4]*sqrt(h2[8,8]))/Rph[8,4],  # path tracing var4 to var8 A
+                                       (sqrt(h2[5,5])*Ra[6,5]*sqrt(h2[6,6]))/Rph[6,5],  # path tracing var5 to var6 A
+                                       (sqrt(h2[5,5])*Ra[7,5]*sqrt(h2[7,7]))/Rph[7,5],  # path tracing var5 to var7 A
+                                       (sqrt(h2[5,5])*Ra[8,5]*sqrt(h2[8,8]))/Rph[8,5],  # path tracing var5 to var8 A
+                                       (sqrt(h2[6,6])*Ra[6,5]*sqrt(h2[7,7]))/Rph[6,5],  # path tracing var6 to var7 A
+                                       (sqrt(h2[6,6])*Ra[8,5]*sqrt(h2[8,8]))/Rph[8,5],  # path tracing var6 to var8 A
+                                       (sqrt(h2[7,7])*Ra[8,7]*sqrt(h2[8,8]))/Rph[8,7],  # path tracing var7 to var8 A
+                                       
+                                       (sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2]))/Rph[2,1],  # path tracing var1 to var2 C 
+                                       (sqrt(c2[1,1])*Rc[3,1]*sqrt(c2[3,3]))/Rph[3,1],  # path tracing var1 to var3 C
+                                       (sqrt(c2[1,1])*Rc[4,1]*sqrt(c2[4,4]))/Rph[4,1],  # path tracing var1 to var4 C
+                                       (sqrt(c2[1,1])*Rc[5,1]*sqrt(c2[5,5]))/Rph[5,1],  # path tracing var1 to var5 C
+                                       (sqrt(c2[1,1])*Rc[6,1]*sqrt(c2[6,6]))/Rph[6,1],  # path tracing var1 to var6 C
+                                       (sqrt(c2[1,1])*Rc[7,1]*sqrt(c2[7,7]))/Rph[7,1],  # path tracing var1 to var7 C
+                                       (sqrt(c2[1,1])*Rc[8,1]*sqrt(c2[8,8]))/Rph[8,1],  # path tracing var1 to var8 C
+                                       (sqrt(c2[2,2])*Rc[3,2]*sqrt(c2[3,3]))/Rph[3,2],  # path tracing var2 to var3 C
+                                       (sqrt(c2[2,2])*Rc[4,2]*sqrt(c2[4,4]))/Rph[4,2],  # path tracing var2 to var4 C
+                                       (sqrt(c2[2,2])*Rc[5,2]*sqrt(c2[5,5]))/Rph[5,2],  # path tracing var2 to var5 C
+                                       (sqrt(c2[2,2])*Rc[6,2]*sqrt(c2[6,6]))/Rph[6,2],  # path tracing var2 to var6 C
+                                       (sqrt(c2[2,2])*Rc[7,2]*sqrt(c2[7,7]))/Rph[7,2],  # path tracing var2 to var7 C
+                                       (sqrt(c2[2,2])*Rc[8,2]*sqrt(c2[8,8]))/Rph[8,2],  # path tracing var2 to var8 C
+                                       (sqrt(c2[3,3])*Rc[4,3]*sqrt(c2[4,4]))/Rph[4,3],  # path tracing var3 to var4 C
+                                       (sqrt(c2[3,3])*Rc[5,3]*sqrt(c2[5,5]))/Rph[5,3],  # path tracing var3 to var5 C
+                                       (sqrt(c2[3,3])*Rc[6,3]*sqrt(c2[6,6]))/Rph[6,3],  # path tracing var3 to var6 C
+                                       (sqrt(c2[3,3])*Rc[7,3]*sqrt(c2[7,7]))/Rph[7,3],  # path tracing var3 to var7 C
+                                       (sqrt(c2[3,3])*Rc[8,3]*sqrt(c2[8,8]))/Rph[8,3],  # path tracing var3 to var8 C
+                                       (sqrt(c2[4,4])*Rc[5,4]*sqrt(c2[5,5]))/Rph[5,4],  # path tracing var4 to var5 C
+                                       (sqrt(c2[4,4])*Rc[6,4]*sqrt(c2[6,6]))/Rph[6,4],  # path tracing var4 to var6 C
+                                       (sqrt(c2[4,4])*Rc[7,4]*sqrt(c2[7,7]))/Rph[7,4],  # path tracing var4 to var7 C
+                                       (sqrt(c2[4,4])*Rc[8,4]*sqrt(c2[8,8]))/Rph[8,4],  # path tracing var4 to var8 C
+                                       (sqrt(c2[5,5])*Rc[6,5]*sqrt(c2[6,6]))/Rph[6,5],  # path tracing var5 to var6 C
+                                       (sqrt(c2[5,5])*Rc[7,5]*sqrt(c2[7,7]))/Rph[7,5],  # path tracing var5 to var7 C
+                                       (sqrt(c2[5,5])*Rc[8,5]*sqrt(c2[8,8]))/Rph[8,5],  # path tracing var5 to var8 C
+                                       (sqrt(c2[6,6])*Rc[6,5]*sqrt(c2[7,7]))/Rph[6,5],  # path tracing var6 to var7 C
+                                       (sqrt(c2[6,6])*Rc[8,5]*sqrt(c2[8,8]))/Rph[8,5],  # path tracing var6 to var8 C
+                                       (sqrt(c2[7,7])*Rc[8,7]*sqrt(c2[8,8]))/Rph[8,7],  # path tracing var7 to var8 C
+                                       
+                                       (sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2]))/Rph[2,1],  # path tracing var1 to var2 E 
+                                       (sqrt(e2[1,1])*Re[3,1]*sqrt(e2[3,3]))/Rph[3,1],  # path tracing var1 to var3 E
+                                       (sqrt(e2[1,1])*Re[4,1]*sqrt(e2[4,4]))/Rph[4,1],  # path tracing var1 to var4 E
+                                       (sqrt(e2[1,1])*Re[5,1]*sqrt(e2[5,5]))/Rph[5,1],  # path tracing var1 to var5 E
+                                       (sqrt(e2[1,1])*Re[6,1]*sqrt(e2[6,6]))/Rph[6,1],  # path tracing var1 to var6 E
+                                       (sqrt(e2[1,1])*Re[7,1]*sqrt(e2[7,7]))/Rph[7,1],  # path tracing var1 to var7 E
+                                       (sqrt(e2[1,1])*Re[8,1]*sqrt(e2[8,8]))/Rph[8,1],  # path tracing var1 to var8 E
+                                       (sqrt(e2[2,2])*Re[3,2]*sqrt(e2[3,3]))/Rph[3,2],  # path tracing var2 to var3 E
+                                       (sqrt(e2[2,2])*Re[4,2]*sqrt(e2[4,4]))/Rph[4,2],  # path tracing var2 to var4 E
+                                       (sqrt(e2[2,2])*Re[5,2]*sqrt(e2[5,5]))/Rph[5,2],  # path tracing var2 to var5 E
+                                       (sqrt(e2[2,2])*Re[6,2]*sqrt(e2[6,6]))/Rph[6,2],  # path tracing var2 to var6 E
+                                       (sqrt(e2[2,2])*Re[7,2]*sqrt(e2[7,7]))/Rph[7,2],  # path tracing var2 to var7 E
+                                       (sqrt(e2[2,2])*Re[8,2]*sqrt(e2[8,8]))/Rph[8,2],  # path tracing var2 to var8 E
+                                       (sqrt(e2[3,3])*Re[4,3]*sqrt(e2[4,4]))/Rph[4,3],  # path tracing var3 to var4 E
+                                       (sqrt(e2[3,3])*Re[5,3]*sqrt(e2[5,5]))/Rph[5,3],  # path tracing var3 to var5 E
+                                       (sqrt(e2[3,3])*Re[6,3]*sqrt(e2[6,6]))/Rph[6,3],  # path tracing var3 to var6 E
+                                       (sqrt(e2[3,3])*Re[7,3]*sqrt(e2[7,7]))/Rph[7,3],  # path tracing var3 to var7 E
+                                       (sqrt(e2[3,3])*Re[8,3]*sqrt(e2[8,8]))/Rph[8,3],  # path tracing var3 to var8 E
+                                       (sqrt(e2[4,4])*Re[5,4]*sqrt(e2[5,5]))/Rph[5,4],  # path tracing var4 to var5 E
+                                       (sqrt(e2[4,4])*Re[6,4]*sqrt(e2[6,6]))/Rph[6,4],  # path tracing var4 to var6 E
+                                       (sqrt(e2[4,4])*Re[7,4]*sqrt(e2[7,7]))/Rph[7,4],  # path tracing var4 to var7 E
+                                       (sqrt(e2[4,4])*Re[8,4]*sqrt(e2[8,8]))/Rph[8,4],  # path tracing var4 to var8 E
+                                       (sqrt(e2[5,5])*Re[6,5]*sqrt(e2[6,6]))/Rph[6,5],  # path tracing var5 to var6 E
+                                       (sqrt(e2[5,5])*Re[7,5]*sqrt(e2[7,7]))/Rph[7,5],  # path tracing var5 to var7 E
+                                       (sqrt(e2[5,5])*Re[8,5]*sqrt(e2[8,8]))/Rph[8,5],  # path tracing var5 to var8 E
+                                       (sqrt(e2[6,6])*Re[6,5]*sqrt(e2[7,7]))/Rph[6,5],  # path tracing var6 to var7 E
+                                       (sqrt(e2[6,6])*Re[8,5]*sqrt(e2[8,8]))/Rph[8,5],  # path tracing var6 to var8 E
+                                       (sqrt(e2[7,7])*Re[8,7]*sqrt(e2[8,8]))/Rph[8,7]   # path tracing var7 to var8 E
+                                      ), 
+                    name = "RphACE" ) # added /Rph to work out the % of the phenotypic correlation is due to these associations
+
+# standardise estimates
+#estVars	<- mxAlgebra(expression = cbind(h2, c2, e2), name = "Est", dimnames = list(rowVars,colVars)) # is this needed?
+
+# expected variance/covariance matrices
+covMZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
+                                          cbind(A+C, A+C+E)), name = "expCovMZ" )
+covDZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, 0.5%x%A+C),
+                                          cbind(0.5%x%A+C, A+C+E)), name = "expCovDZ" )
+
+# data objects 
+dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
+dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
+
+fitFunction <- mxFitFunctionML()
+```
+
+```{r ACE confidence intervals}
+# h2, c2, e2 
+Conf1	<- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'h2[5,5]', 'h2[6,6]', 'h2[7,7]', 'h2[8,8]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'c2[5,5]', 'c2[6,6]', 'c2[7,7]', 'c2[8,8]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]', 'e2[5,5]', 'e2[6,6]', 'e2[7,7]', 'e2[8,8]'))
+# factor correlation - off-diagonal
+# Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]', 'Rph[3,1]', 'Ra[3,1]', 'Rc[3,1]', 'Re[3,1]', 'Rph[4,1]', 'Ra[4,1]', 'Rc[4,1]', 'Re[4,1]', 'Rph[3,2]', 'Ra[3,2]', 'Rc[3,2]', 'Re[3,2]', 'Rph[4,2]', 'Ra[4,2]', 'Rc[4,2]', 'Re[4,2]', 'Rph[4,3]', 'Ra[4,3]', 'Rc[4,3]', 'Re[4,3]')) 
+```
+
+```{r ACE model estimation}
+# enter the variables 
+objMZ	<- mxExpectationNormal(covariance = "expCovMZ", means = "ExpMean", dimnames = selvars_chosen)
+objDZ	<- mxExpectationNormal(covariance = "expCovDZ", means = "ExpMean", dimnames = selvars_chosen)
+
+# all parameters to be estimated 
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rC, rE, MeanG, rphace)
+
+# add these to the model for MZ and DZ with the matrices we have created
+modelMZ	<- mxModel(pars, covMZ, dataMZ, objMZ, fitFunction, name = "MZ")
+modelDZ	<- mxModel(pars, covDZ, dataDZ, objDZ, fitFunction, name = "DZ")
+
+# fitting
+minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj <- mxFitFunctionAlgebra("m2LL")
+
+# full model
+AceModel_8var <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1)
+
+# run ACE
+AceFit_8var <- mxRun(AceModel_8var, intervals = TRUE)
+```
+
+```{r run ACE model}
+# summary - this shows the position in the cells for each matrix 
+AceSumm_8var <- summary(AceFit_8var, verbose = TRUE)
+
+AceSumm_8var$AIC.Mx
+
+# h2 
+round(diag(mxEval(ACE.h2, AceFit_8var)), 3) 
+
+# c2
+round(diag(mxEval(ACE.c2, AceFit_8var)), 3) 
+
+# e2
+round(diag(mxEval(ACE.e2, AceFit_8var)), 3) 
+
+ACE_esitmates_table_8varCI(data = AceSumm_8var,
+                       variables = c("Isolation12", 
+                                     "Depression12", 
+                                     "Conduct12", 
+                                     "Psychosis12", 
+                                     "Isolation18", 
+                                     "Depression18", 
+                                     "Conduct18", 
+                                     "Psychosis18"))
+
+# correlation between the A, C, and E factors - to what extend is variable one the same as variable two 
+AceFit_8var$ACE.Rph # total phenotypic correlation (including A, C, and E)
+AceFit_8var$ACE.Ra  # correlations between the a factors
+AceFit_8var$ACE.Rc  # correlations between the c factors
+AceFit_8var$ACE.Re  # correlations between the e factors
+
+t(as.data.frame(mxEval(ACE.RphACE, AceFit_8var))) # need to look at which association this is referring to 
+```
+
+***
+
+## All variables scalar
+
+```{r number of variables (phenotypes)}
+# number of variables
+nv <- 8    					      # number of variables 
+ntv <- nv*2 				      # number of twin variables
+
+# default optimizer 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+
+selvars_chosen <- c("sisoe12norm",   "cdie12norm",   "conec12norm", "psysympe12norm", 
+                    "socisoe18norm", "mdesxe18norm", "cdsxe18norm", "psyexpe18norm",
+                    "sisoy12norm",   "cdiy12norm",   "conyc12norm", "psysympy12norm", 
+                    "socisoy18norm", "mdesxy18norm", "cdsxy18norm", "psyexpy18norm")
+```
+
+```{r start values}
+# start values
+svM	  <- c(rep(0.7, ntv))	  # means               
+svSD  <- c(rep(1.1, ntv))   # standard deviations
+svRmz <- c(rep(0.3, 6))     # correlations for MZ
+svRdz <- c(rep(0.15, 6))    # correlations for DZ 
+
+rowVars	<- rep('Vars', nv)                          
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+
+# labels
+means_8var <- c("m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8")
+patha_8var <- c("a11","a21","a31","a41","a51","a61","a71","a81",
+                "a22","a32","a42","a52","a62","a72","a82",
+                "a33","a43","a53","a63","a73","a83",
+                "a44","a54","a64","a74","a84",
+                "a55","a65","a75","a85",
+                "a66","a76","a86",
+                "a77","a87",
+                "a88")
+pathc_8var <- c("c11","c21","c31","c41","c51","c61","c71","c81",
+                "c22","c32","c42","c52","c62","c72","c82",
+                "c33","c43","c53","c63","c73","c83",
+                "c44","c54","c64","c74","c84",
+                "c55","c65","c75","c85",
+                "c66","c76","c86",
+                "c77","c87",
+                "c88")
+pathe_8var <- c("e11","e21","e31","e41","e51","e61","e71","e81",
+                "e22","e32","e42","e52","e62","e72","e82",
+                "e33","e43","e53","e63","e73","e83",
+                "e44","e54","e64","e74","e84",
+                "e55","e65","e75","e85",
+                "e66","e76","e86",
+                "e77","e87",
+                "e88")
+```
+
+```{r labels for means, sds, and scalar}
+# labels for the means
+LabMM	  <- paste("mm", 1:nv, sep = "")		# Male singleton
+LabMF	  <- paste("mf", 1:nv, sep = "")		# Female singleton
+LabMMM	<- c(LabMM, LabMM)			          # male-male pairs
+LabMFF	<- c(LabMF, LabMF)			          # female-female pairs
+
+# labels for the A, C and E standard deviation matrices (paths from latent factors to variables) no sex dif
+LabAm	  <- paste("apm", 1:nv, sep = "")		
+LabCm	  <- paste("cpm", 1:nv, sep = "")		
+LabEm	  <- paste("epm", 1:nv, sep = "")		
+
+# labels for the scalar matrix
+LabS		<- paste("s", 1:nv, sep = "")		
+LabSS  	<- c(LabS, LabS)
+LabNA	  <- c("NA")
+# Labdos	<- c(LabNA, LabS) # dont think we need this one
+PatF		<- c(F)
+PatT		<- c(T)
+Pat	  	<- c(PatF, PatT)
+```
+
+```{r start values}
+Stpath	  <- c(.6) 			# change here according to the variances of the variables
+Stcor		  <- c(.6)
+Stmean	  <- 4.6
+StScalar	<-c(.8)				# change here to >1 if female variance is larger than males or if it is mixed
+DumOnes	  <-c(1)
+StSdos	  <- c(DumOnes,StScalar)		# Scalar for Males is just 1 - do we need this??
+```
+
+```{r model estimation}
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 36)), labels = patha_8var, name = "a")
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 36)), labels = pathc_8var, name = "c")
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 36)), labels = pathe_8var, name = "e")
+
+# Matrices to estimate Means for Male/Female pairs
+MeanMM	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMMM, name = "expMeanMM")
+MeanM		<- mxMatrix("Full", 1, nv,  free = TRUE, values = c(Stmean), 		     labels = LabMM, 	name = "expMeanM")
+MeanFF	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMFF,	name = "expMeanFF")
+MeanF		<- mxMatrix("Full", 1, nv,  free = TRUE, values = c(Stmean), 		     labels = LabMF, 	name = "expMeanF")
+
+# Non-standardized variance components
+covA	<- mxAlgebra(expression = a %*% t(a), name = "A")
+covC	<- mxAlgebra(expression = c %*% t(c), name = "C") 
+covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
+
+# Standardized variance components
+covP <- mxAlgebra(expression = A + C + E, name = "V" )  # total variance in the phenotype
+StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
+StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
+StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
+
+# scalar
+ScalarF	<- mxMatrix(type = "Diag", nrow = ntv, ncol = ntv, free = TRUE, values = StScalar, label = LabSS, name = "ScF")
+
+matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
+# matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
+rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
+rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") 
+rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
+
+# standardise estimates
+#estVars	<- mxAlgebra(expression = cbind(h2, c2, e2), name = "Est", dimnames = list(rowVars,colVars)) # is this needed?
+
+# expected variance/covariance matrices
+covMZM	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
+                                          cbind(A+C, A+C+E)), name = "expCovMZM" )
+covDZM	<- mxAlgebra(expression = rbind(cbind(A+C+E, 0.5%x%A+C),
+                                          cbind(0.5%x%A+C, A+C+E)), name = "expCovDZM" )
+
+covMZF	<- mxAlgebra(expression = ScF %&%(rbind(cbind(A+C+E, A+C),
+                                          cbind(A+C, A+C+E))), name = "expCovMZF" )
+covDZF	<- mxAlgebra(expression = ScF %&%(rbind(cbind(A+C+E, 0.5%x%A+C),
+                                          cbind(0.5%x%A+C, A+C+E))), name = "expCovDZF" )
+
+# data objects 
+dataMZM	<- mxData(dat.twin.MZm, type = "raw")
+dataMZF	<- mxData(dat.twin.MZf, type = "raw")
+dataDZM	<- mxData(dat.twin.DZm, type = "raw")
+dataDZF	<- mxData(dat.twin.DZf, type = "raw")
+
+fitFunction <- mxFitFunctionML()
+```
+
+```{r ACE confidence intervals}
+# h2, c2, e2 
+Conf1	<- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'h2[4,4]', 'h2[5,5]', 'h2[6,6]', 'h2[7,7]', 'h2[8,8]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'c2[4,4]', 'c2[5,5]', 'c2[6,6]', 'c2[7,7]', 'c2[8,8]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]', 'e2[4,4]', 'e2[5,5]', 'e2[6,6]', 'e2[7,7]', 'e2[8,8]'))
+# factor correlation - off-diagonal
+# Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]', 'Rph[3,1]', 'Ra[3,1]', 'Rc[3,1]', 'Re[3,1]', 'Rph[4,1]', 'Ra[4,1]', 'Rc[4,1]', 'Re[4,1]', 'Rph[3,2]', 'Ra[3,2]', 'Rc[3,2]', 'Re[3,2]', 'Rph[4,2]', 'Ra[4,2]', 'Rc[4,2]', 'Re[4,2]', 'Rph[4,3]', 'Ra[4,3]', 'Rc[4,3]', 'Re[4,3]')) 
+```
+
+**can't get this to run for some reason**
+
+```{r ACE model estimation}
+# enter the variables 
+objMZM	<- mxExpectationNormal(covariance = "expCovMZM", means = "ExpMeanMM", dimnames = selvars_chosen)
+objDZM	<- mxExpectationNormal(covariance = "expCovDZM", means = "ExpMeanMM", dimnames = selvars_chosen)
+objMZF	<- mxExpectationNormal(covariance = "expCovMZF", means = "ExpMeanFF", dimnames = selvars_chosen)
+objDZF	<- mxExpectationNormal(covariance = "expCovDZF", means = "ExpMeanFF", dimnames = selvars_chosen)
+
+# all parameters to be estimated 
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rC, rE)
+
+# add these to the model for MZ and DZ with the matrices we have created
+modelMZM	<- mxModel(pars, MeanM, MeanMM, covMZM, dataMZM, objMZM, fitFunction, name = "MZM")
+modelDZM	<- mxModel(pars, MeanM, MeanMM, covDZM, dataDZM, objDZM, fitFunction, name = "DZM")
+modelMZF	<- mxModel(pars, MeanF, MeanFF, covMZF, dataMZF, objMZF, fitFunction, name = "MZF")
+modelDZF	<- mxModel(pars, MeanF, MeanFF, covDZF, dataDZF, objDZF, fitFunction, name = "DZF")
+
+# fitting
+minus2ll <- mxAlgebra(expression = MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL")
+obj <- mxFitFunctionAlgebra("m2LL")
+
+# full model
+AceModel_8var_scalar <- mxModel("ACE", pars, modelMZM, modelDZM, modelMZF, modelDZF, minus2ll, obj, Conf1)
+
+# run ACE
+AceFit_8var_scalar <- mxRun(AceModel_8var_scalar, intervals = TRUE)
+AceFit_8var_scalar_sum <- summary(AceFit_8var_scalar)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

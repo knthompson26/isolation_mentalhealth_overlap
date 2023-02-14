@@ -656,7 +656,7 @@ svSD  <- c(rep(1.1, ntv))   # standard deviations
 svRmz <- c(rep(0.3, 6))   # correlations for MZ
 svRdz <- c(rep(0.15, 6))    # correlations for DZ 
 
-rowVars	<- rep('Vars', nv)
+rowVars	<- rep('Vars', nv)                          
 colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
 ```
 
