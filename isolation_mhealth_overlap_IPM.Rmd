@@ -2138,8 +2138,11 @@ These values and the AIC are identical to the ones from the original model - so 
 # Chosen model 
 
 ```{r save and load chosen model}
-saveRDS(IPM_allvar_noanx_scalarhet_sub2models_fit, file = "../../data_full/chosen_IPM_IPM_allvar_noanx_scalarhet_sub2models_fit.RDS") 
-IPM_allvar_noanx_scalarhet_sub2models_fit_loaded <- readRDS("../..//data_full/chosen_IPM_IPM_allvar_noanx_scalarhet_sub2models_fit.RDS")
+# save the chosen model
+# saveRDS(IPM_allvar_noanx_scalarhet_sub2models_fit, file = "../../data_full/chosen_IPM_IPM_allvar_noanx_scalarhet_sub2models_fit.RDS") 
+
+# load the chosen model (to stop re-running each time)
+IPM_allvar_noanx_scalarhet_sub2models_fit_loaded <- readRDS("../../data_full/chosen_IPM_IPM_allvar_noanx_scalarhet_sub2models_fit.RDS")
 ```
 
 ```{r output for IPM_allvar_noanx_sexmean_difstart_fit}
@@ -2153,11 +2156,11 @@ IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalarhet_sub2models_fit_load
                   variable7 = "Conduct18",
                   variable8 = "Psychosis18",
                   model = "ACE",
-                  uniACEestimates = FALSE,
-                  pathestimates = FALSE,
-                  A_percent = FALSE,
-                  C_percent = FALSE,
-                  E_percent = FALSE,
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
                   common_factor_contribution = TRUE)
 ```
 
@@ -2180,9 +2183,6 @@ The heritabilities differ slightly in the IPM compared to those in the univariat
 **For conduct disorder**: In Monika's paper, the conduct  A1 path in Monika's paper is 0.47 at age 11, and 0.4 at age 16 for comparison. In review on the genetics of conduct disorder by [Salvatore and Dick 2018](https://doi.org/10.1016/j.neubiorev.2016.06.034) they state that according to Gelhorn et al (2005), criterion-level heritability analyses indicated that specific DSM-IV conduct disorder criteria showed little to no heritability but rather high levels of shared environmental influence. In the multivariate studies, conduct disorder showed little unique genetic influence, and that this is actually shared with other externalising disorders. Kendler et al (2013) also found that there were multiple genetic influences on conduct disorder in males. They conclude the review by saying that conduct disorder has a complex genetic architecture, meaning that there are multiple sources of genetic influence on the various behaviors that are encompassed in conduct disorder diagnoses. That the genetic influences on conduct disorder broadly predispose individuals to a range of disinhibitory behaviors, rather than conduct disorder in particular.
 
 Results output fully provided in this doc: https://docs.google.com/document/d/1sFezCLJEG34U_9hq01NnfwXVk7ifv6mtK9P8iUFO51g/edit?usp=sharing 
-
-Last thing to do:
-* Once all models have been decided on, convert the specifying IPM into the functions created in ipm_functions.R
 
 ```{r contributeion % only}
 contribution_output <- IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalarhet_sub2models_fit_loaded,
@@ -2232,26 +2232,28 @@ extra <- rbind(Isolation12, Depression12, Conduct12, Psychosis12, Isolation18, D
 
 ## Heat map
 
+### Male
+
 ```{r Ac heat map}
 # reformat % matrix
-contribution_output_Ac_arrange1 <- contribution_output %>%
+contribution_output_Ac_arrange1_male <- contribution_output %>%
   filter(sex == "Male") %>%
   separate(`phenotypic correlation`, c("X1", "X2")) %>%
   select(X1, X2, value = `Ac % contribution`) %>%
   arrange(variable1)
 
-contribution_output_Ac_arrange2 <- contribution_output_Ac_arrange1 %>%
+contribution_output_Ac_arrange2_male <- contribution_output_Ac_arrange1 %>%
   mutate(X1_new = X2) %>%
   mutate(X2_new = X1) %>%
   select(X1 = X1_new,
          X2 = X2_new,
          value)
 
-contribution_output_Ac <- rbind(contribution_output_Ac_arrange1, contribution_output_Ac_arrange2, extra) %>%
+contribution_output_Ac_male <- rbind(contribution_output_Ac_arrange1_male, contribution_output_Ac_arrange2_male, extra) %>%
   arrange(X1)
 
 # heat map for Ac
-heat_map_Ac <- ggplot(contribution_output_Ac, aes(X1, X2, fill = value)) +
+heat_map_Ac_male <- ggplot(contribution_output_Ac_male, aes(X1, X2, fill = value)) +
  geom_tile(color = "white") +
  scale_fill_gradientn(colours = colour_purple,
    #midpoint = 50, 
@@ -2270,29 +2272,29 @@ heat_map_Ac <- ggplot(contribution_output_Ac, aes(X1, X2, fill = value)) +
  coord_fixed() +
   geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 2.5)
 
-heat_map_Ac
+heat_map_Ac_male
 ```
 
 ```{r Cc heat map}
 # reformat % matrix
-contribution_output_Cc_arrange1 <- contribution_output %>%
+contribution_output_Cc_arrange1_male <- contribution_output %>%
   filter(sex == "Male") %>%
   separate(`phenotypic correlation`, c("X1", "X2")) %>%
   select(X1, X2, value = `Cc % contribution`) %>%
   arrange(variable1)
 
-contribution_output_Cc_arrange2 <- contribution_output_Cc_arrange1 %>%
+contribution_output_Cc_arrange2_male <- contribution_output_Cc_arrange1 %>%
   mutate(X1_new = X2) %>%
   mutate(X2_new = X1) %>%
   select(X1 = X1_new,
          X2 = X2_new,
          value)
   
-contribution_output_Cc <- rbind(contribution_output_Cc_arrange1, contribution_output_Cc_arrange2, extra) %>%
+contribution_output_Cc_male <- rbind(contribution_output_Cc_arrange1_male, contribution_output_Cc_arrange2_male, extra) %>%
   arrange(X1)
 
 # heat map for Cc
-heat_map_Cc <- ggplot(contribution_output_Cc, aes(X1, X2, fill = value)) +
+heat_map_Cc_male <- ggplot(contribution_output_Cc_male, aes(X1, X2, fill = value)) +
  geom_tile(color = "white") +
  scale_fill_gradientn(colours = colour_purple,
    limit = c(0,100), space = "Lab",
@@ -2310,29 +2312,29 @@ heat_map_Cc <- ggplot(contribution_output_Cc, aes(X1, X2, fill = value)) +
  coord_fixed() +
   geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 2.5)
 
-heat_map_Cc
+heat_map_Cc_male
 ```
 
 ```{r Ec heat map}
 # reformat % matrix
-contribution_output_Ec_arrange1 <- contribution_output %>%
+contribution_output_Ec_arrange1_male <- contribution_output %>%
   filter(sex == "Male") %>%
   separate(`phenotypic correlation`, c("X1", "X2")) %>%
   select(X1, X2, value = `Ec % contribution`) %>%
   arrange(variable1)
 
-contribution_output_Ec_arrange2 <- contribution_output_Ec_arrange1 %>%
+contribution_output_Ec_arrange2_male <- contribution_output_Ec_arrange1 %>%
   mutate(X1_new = X2) %>%
   mutate(X2_new = X1) %>%
   select(X1 = X1_new,
          X2 = X2_new,
          value)
   
-contribution_output_Ec <- rbind(contribution_output_Ec_arrange1, contribution_output_Ec_arrange2, extra) %>%
+contribution_output_Ec_male <- rbind(contribution_output_Ec_arrange1_male, contribution_output_Ec_arrange2_male, extra) %>%
   arrange(X1)
 
 # heat map for Ec
-heat_map_Ec <- ggplot(contribution_output_Ec, aes(X1, X2, fill = value)) +
+heat_map_Ec_male <- ggplot(contribution_output_Ec_male, aes(X1, X2, fill = value)) +
  geom_tile(color = "white") +
  scale_fill_gradientn(colours = colour_purple,
    limit = c(0,100), space = "Lab",
@@ -2350,52 +2352,534 @@ heat_map_Ec <- ggplot(contribution_output_Ec, aes(X1, X2, fill = value)) +
  coord_fixed() +
   geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 2.5)
 
-heat_map_Ec
+heat_map_Ec_male
 ```
 
 ```{r combine and save heatmap}
-contribution <- ggpubr::ggarrange(heat_map_Ac, heat_map_Cc, heat_map_Ec, nrow = 3, labels = c('a', 'b', 'c'))
+contribution_male <- ggpubr::ggarrange(heat_map_Ac_male, heat_map_Cc_male, heat_map_Ec_male, nrow = 3, labels = c('a', 'b', 'c'))
 
-ggsave(contribution, file = "../../../preliminary_results/contribution_heatmap.jpeg", height = 10, width = 6)
+ggsave(contribution_male, file = "../../../preliminary_results/contribution_heatmap_male.jpeg", height = 10, width = 6)
+```
+
+### Female
+
+```{r Ac heat map}
+# reformat % matrix
+contribution_output_Ac_arrange1_female <- contribution_output %>%
+  filter(sex == "Female") %>%
+  separate(`phenotypic correlation`, c("X1", "X2")) %>%
+  select(X1, X2, value = `Ac % contribution`) %>%
+  arrange(variable1)
+
+contribution_output_Ac_arrange2_female <- contribution_output_Ac_arrange1 %>%
+  mutate(X1_new = X2) %>%
+  mutate(X2_new = X1) %>%
+  select(X1 = X1_new,
+         X2 = X2_new,
+         value)
+
+contribution_output_Ac_female <- rbind(contribution_output_Ac_arrange1_female, contribution_output_Ac_arrange2_female, extra) %>%
+  arrange(X1)
+
+# heat map for Ac
+heat_map_Ac_female <- ggplot(contribution_output_Ac_female, aes(X1, X2, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradientn(colours = colour_purple,
+   #midpoint = 50, 
+   limit = c(0,100), space = "Lab",
+    name="Ac % contribution") +
+  theme_minimal() +
+  labs(y = "",
+       x = ""
+       #,title = "Percentage of the association due to shared genetic effects"
+       ) +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 8, hjust = 1),
+       axis.text.y = element_text(size = 8),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 2.5)
+
+heat_map_Ac_female
+```
+
+```{r Cc heat map}
+# reformat % matrix
+contribution_output_Cc_arrange1_female <- contribution_output %>%
+  filter(sex == "Female") %>%
+  separate(`phenotypic correlation`, c("X1", "X2")) %>%
+  select(X1, X2, value = `Cc % contribution`) %>%
+  arrange(variable1)
+
+contribution_output_Cc_arrange2_female <- contribution_output_Cc_arrange1 %>%
+  mutate(X1_new = X2) %>%
+  mutate(X2_new = X1) %>%
+  select(X1 = X1_new,
+         X2 = X2_new,
+         value)
+  
+contribution_output_Cc_female <- rbind(contribution_output_Cc_arrange1_female, contribution_output_Cc_arrange2_female, extra) %>%
+  arrange(X1)
+
+# heat map for Cc
+heat_map_Cc_female <- ggplot(contribution_output_Cc_female, aes(X1, X2, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradientn(colours = colour_purple,
+   limit = c(0,100), space = "Lab",
+    name="Cc % contribution") +
+  theme_minimal() +
+  labs(y = "",
+       x = ""
+       #,title = "Percentage of the association due to shared common environment"
+       ) +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 8, hjust = 1),
+       axis.text.y = element_text(size = 8),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 2.5)
+
+heat_map_Cc_female
+```
+
+```{r Ec heat map}
+# reformat % matrix
+contribution_output_Ec_arrange1_female <- contribution_output %>%
+  filter(sex == "Female") %>%
+  separate(`phenotypic correlation`, c("X1", "X2")) %>%
+  select(X1, X2, value = `Ec % contribution`) %>%
+  arrange(variable1)
+
+contribution_output_Ec_arrange2_female <- contribution_output_Ec_arrange1 %>%
+  mutate(X1_new = X2) %>%
+  mutate(X2_new = X1) %>%
+  select(X1 = X1_new,
+         X2 = X2_new,
+         value)
+  
+contribution_output_Ec_female <- rbind(contribution_output_Ec_arrange1_female, contribution_output_Ec_arrange2_female, extra) %>%
+  arrange(X1)
+
+# heat map for Ec
+heat_map_Ec_female <- ggplot(contribution_output_Ec_female, aes(X1, X2, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradientn(colours = colour_purple,
+   limit = c(0,100), space = "Lab",
+    name="Ec % contribution") +
+  theme_minimal() +
+  labs(y = "",
+       x = ""
+       #,title = "Percentage of the association due to shared unique environmental experiences"
+       ) +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 8, hjust = 1),
+       axis.text.y = element_text(size = 8),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 2.5)
+
+heat_map_Ec_female
+```
+
+```{r combine and save heatmap}
+contribution_female <- ggpubr::ggarrange(heat_map_Ac_female, heat_map_Cc_female, heat_map_Ec_female, nrow = 3, labels = c('a', 'b', 'c'))
+
+ggsave(contribution_female, file = "../../../preliminary_results/contribution_heatmap_female.jpeg", height = 10, width = 6)
 ```
 
 ## Stacked bar
 
-```{r stacked bar chart for contribution %}
-contribution_output_arrange3 <- contribution_output %>%
-  filter(sex == "Male") %>%
-  select(-total, -sex) %>%
-  pivot_longer(!`phenotypic correlation`, names_to = "contribution", values_to = "percent")
-  
-  
-stacked_bar <- ggplot(contribution_output_arrange3, aes(fill=contribution, y=percent, x=`phenotypic correlation`)) + 
-  geom_bar(position="stack", stat="identity") +
-  coord_flip() +
-  scale_fill_manual(values = c("#7B287D", "#7067CF", "#CBF3D2"))
+### Male
 
-stacked_bar
+We want to only show the correlations that include social isolation. 
 
-# stacked bar chart for the phenotypic correlations that were above 0.15
-contribution_output_arrange4 <- contribution_output %>%
-  filter(sex == "Male",
-         `phenotypic correlation` != "Isolation12_Psychosis12",
-         `phenotypic correlation` != "Isolation12_Depression18",
-         `phenotypic correlation` != "Depression12_Conduct18",
-         `phenotypic correlation` != "Conduct12_Depression18",
-         `phenotypic correlation` != "Psychosis12_Isolation18",
-         `phenotypic correlation` != "Psychosis12_Depression18",
-         `phenotypic correlation` != "Psychosis12_Conduct18"
-  ) %>%
-  select(-total, -sex) %>%
-  pivot_longer(!`phenotypic correlation`, names_to = "contribution", values_to = "percent")
+```{r split the contribution output by sex}
+contribution_output.male <- contribution_output %>%
+  filter(sex == "Male")
 
-condensed_contribution_stacked_bar <- ggplot(contribution_output_arrange4, 
-                                 aes(fill=contribution, y=percent, x=`phenotypic correlation`)) + 
-  geom_bar(position="stack", stat="identity") +
-  coord_flip() +
-  scale_fill_manual(values = c("#7B287D", "#7067CF", "#CBF3D2"))
-
-ggsave(condensed_contribution_stacked_bar, file = "../../../preliminary_results/condensed_contribution_stackedbar.png", height = 8, width = 10)
+contribution_output.female <- contribution_output %>%
+  filter(sex == "Female")
 ```
 
+```{r phenotypic correlaitons from the model}
+# Call phenotypic correlations from the model
+Rphm <- mxEval(ACE.Rphm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+Rphf <- mxEval(ACE.Rphm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+```
 
+```{r long format pheno correlations males}
+Rphm.formatted <- contribution_output %>%
+  filter(sex == "Male") %>%
+  select(`phenotypic correlation`) %>%
+  mutate(
+    r = round(c(
+           Rphm[2,1],
+           Rphm[3,1],
+           Rphm[4,1],
+           Rphm[5,1],
+           Rphm[6,1],
+           Rphm[7,1],
+           Rphm[8,1],
+           Rphm[3,2],
+           Rphm[4,2],
+           Rphm[5,2],
+           Rphm[6,2],
+           Rphm[7,2],
+           Rphm[8,2],
+           Rphm[4,3],
+           Rphm[5,3],
+           Rphm[6,3],
+           Rphm[7,3],
+           Rphm[8,3],
+           Rphm[5,4],
+           Rphm[6,4],
+           Rphm[7,4],
+           Rphm[8,4],
+           Rphm[6,5],
+           Rphm[7,5],
+           Rphm[8,5],
+           Rphm[7,6],
+           Rphm[8,6],
+           Rphm[8,7]),3)
+)
+
+# join the correlations to the main output
+contribution_output.male.Rph <- plyr::join_all(list(contribution_output.male, Rphm.formatted), by = "phenotypic correlation")
+
+contribution_output.male.Rph
+```
+
+```{r long format pheno correlations females}
+Rphf.formatted <- contribution_output %>%
+  filter(sex == "Female") %>%
+  select(`phenotypic correlation`) %>%
+  mutate(
+    r = round(c(
+           Rphf[2,1],
+           Rphf[3,1],
+           Rphf[4,1],
+           Rphf[5,1],
+           Rphf[6,1],
+           Rphf[7,1],
+           Rphf[8,1],
+           Rphf[3,2],
+           Rphf[4,2],
+           Rphf[5,2],
+           Rphf[6,2],
+           Rphf[7,2],
+           Rphf[8,2],
+           Rphf[4,3],
+           Rphf[5,3],
+           Rphf[6,3],
+           Rphf[7,3],
+           Rphf[8,3],
+           Rphf[5,4],
+           Rphf[6,4],
+           Rphf[7,4],
+           Rphf[8,4],
+           Rphf[6,5],
+           Rphf[7,5],
+           Rphf[8,5],
+           Rphf[7,6],
+           Rphf[8,6],
+           Rphf[8,7]),3)
+)
+
+# join the correlations to the main output
+contribution_output.female.Rph <- plyr::join_all(list(contribution_output.female, Rphf.formatted), by = "phenotypic correlation")
+
+contribution_output.female.Rph
+```
+```{r order of variables in bar chat}
+cor.levels = c(
+  "Psychosis12 - Isolation18",
+  "Isolation12 - Psychosis18", 
+  "Conduct12 - Isolation18",
+  "Isolation12 - Conduct18",
+  "Depression12 - Isolation18",
+  "Isolation12 - Depression18",
+ # "Isolation12 - Isolation18", 
+  "Isolation18 - Psychosis18", 
+  "Isolation18 - Conduct18", 
+  "Isolation18 - Depression18",
+  "Isolation12 - Psychosis12", 
+  "Isolation12 - Conduct12", 
+  "Isolation12 - Depression12") 
+```
+
+```{r select only social isolation associations}
+# males
+contribution_output.male.formatted <- contribution_output.male.Rph %>%
+  filter(
+         `phenotypic correlation` == "Isolation12_Depression12"|
+         `phenotypic correlation` == "Isolation12_Conduct12"|
+         `phenotypic correlation` == "Isolation12_Psychosis12"|
+         `phenotypic correlation` == "Isolation18_Depression18"|
+         `phenotypic correlation` == "Isolation18_Conduct18"|
+         `phenotypic correlation` == "Isolation18_Psychosis18" |
+     #    `phenotypic correlation` == "Isolation12_Isolation18"|
+         `phenotypic correlation` == "Isolation12_Depression18"|
+         `phenotypic correlation` == "Isolation12_Conduct18"|
+         `phenotypic correlation` == "Isolation12_Psychosis18"|
+         `phenotypic correlation` == "Depression12_Isolation18"|
+         `phenotypic correlation` == "Conduct12_Isolation18"|
+         `phenotypic correlation` == "Psychosis12_Isolation18"
+  ) %>%
+  mutate(across(`phenotypic correlation`, ~ str_replace(., "_", " - "))) %>%
+  mutate(`phenotypic correlation` = factor(`phenotypic correlation`, levels = cor.levels))
+contribution_output.male.formatted # check
+
+# females
+contribution_output.female.formatted <- contribution_output.female.Rph %>%
+  filter(
+         `phenotypic correlation` == "Isolation12_Depression12"|
+         `phenotypic correlation` == "Isolation12_Conduct12"|
+         `phenotypic correlation` == "Isolation12_Psychosis12"|
+         `phenotypic correlation` == "Isolation18_Depression18"|
+         `phenotypic correlation` == "Isolation18_Conduct18"|
+         `phenotypic correlation` == "Isolation18_Psychosis18" |
+      #   `phenotypic correlation` == "Isolation12_Isolation18"|
+         `phenotypic correlation` == "Isolation12_Depression18"|
+         `phenotypic correlation` == "Isolation12_Conduct18"|
+         `phenotypic correlation` == "Isolation12_Psychosis18"|
+         `phenotypic correlation` == "Depression12_Isolation18"|
+         `phenotypic correlation` == "Conduct12_Isolation18"|
+         `phenotypic correlation` == "Psychosis12_Isolation18"
+  ) %>%
+  mutate(across(`phenotypic correlation`, ~ str_replace(., "_", " - "))) %>%
+  mutate(`phenotypic correlation` = factor(`phenotypic correlation`, levels = cor.levels))
+contribution_output.female.formatted # check
+```
+
+```{r relevel the factor and change formatting}
+# male
+contribution_output.male.formatted <- contribution_output.male.formatted %>% 
+  mutate(`phenotypic correlation` = 
+           fct_relevel(`phenotypic correlation`,
+            "Psychosis12 to Isolation18",
+            "Isolation12 to Psychosis18", 
+            "Conduct12 to Isolation18",
+            "Isolation12 to Conduct18",
+            "Depression12 to Isolation18",
+            "Isolation12 to Depression18",
+         #   "Isolation12 to Isolation18", 
+            "Isolation18 to Psychosis18", 
+            "Isolation18 to Conduct18", 
+            "Isolation18 to Depression18",
+            "Isolation12 to Psychosis12", 
+            "Isolation12 to Conduct12", 
+            "Isolation12 to Depression12")) %>%
+  mutate(direction = c(rep("Concurrent associations at age 12", 3), 
+                     #  "Longitudinal Isolation", 
+                       rep(c("Longitudinal associations with depression symptoms", 
+                             "Longitudinal associations with conduct problems", 
+                             "Longitudinal associations with psychotic experiences"
+                             ), 2), 
+                       rep("Concurrent associations at age 18", 3))) %>%
+  mutate(construct = c("Depression", 
+                       "Conduct", 
+                       "Psychosis", 
+                     #  "Isolation", 
+                       "Depression", 
+                       "Conduct", 
+                       "Psychosis", 
+                       "Depression", 
+                       "Conduct", 
+                       "Psychosis",
+                       "Depression", 
+                       "Conduct", 
+                       "Psychosis"))
+contribution_output.male.formatted
+
+# female
+contribution_output.female.formatted <- contribution_output.female.formatted %>% 
+  mutate(`phenotypic correlation` = 
+           fct_relevel(`phenotypic correlation`,
+            "Psychosis12 to Isolation18",
+            "Isolation12 to Psychosis18", 
+            "Conduct12 to Isolation18",
+            "Isolation12 to Conduct18",
+            "Depression12 to Isolation18",
+            "Isolation12 to Depression18",
+        #    "Isolation12 to Isolation18", 
+            "Isolation18 to Psychosis18", 
+            "Isolation18 to Conduct18", 
+            "Isolation18 to Depression18",
+            "Isolation12 to Psychosis12", 
+            "Isolation12 to Conduct12", 
+            "Isolation12 to Depression12")) %>%
+  mutate(direction = c(rep("Concurrent associations at age 12", 3), 
+                     #  "Longitudinal Isolation", 
+                       rep(c("Longitudinal associations with depression symptoms", 
+                             "Longitudinal associations with conduct problems", 
+                             "Longitudinal associations with psychotic experiences"
+                             ), 2), 
+                       rep("Concurrent associations at age 18", 3))) %>%
+  mutate(construct = c("Depression", 
+                       "Conduct", 
+                       "Psychosis", 
+                     #  "Isolation", 
+                       "Depression", 
+                       "Conduct", 
+                       "Psychosis", 
+                       "Depression", 
+                       "Conduct", 
+                       "Psychosis",
+                       "Depression", 
+                       "Conduct", 
+                       "Psychosis"))
+
+contribution_output.female.formatted
+```
+
+```{r extract the correlations into a separate vetor for transformation to long format}
+# male
+R_male <- as.vector(contribution_output.male.formatted$r) # export the ordered correlations as a vector
+labels_male <- unlist(lapply(as.character(R_male), function(x) c(x, rep("", 2)))) # create a vector of correlations with two spaces in between
+
+# female
+R_female <- as.vector(contribution_output.female.formatted$r) # export the ordered correlations as a vector
+labels_female <- unlist(lapply(as.character(R_female), function(x) c(x, rep("", 2)))) # create a vector of correlations with two spaces in between
+```
+
+We need to do the above in order to get the correlations to show nicely on the graph - not repeated three times for each A/C/E percentage. 
+
+```{r reordered long dataframe}
+# male 
+contribution_output.male.reorder <- contribution_output.male.formatted %>%
+  select(-total, -sex, -r) %>%
+  pivot_longer(!`phenotypic correlation` & !direction & !construct, 
+               names_to = "Percentage contribution", 
+               values_to = "Percent (%)") %>%
+  mutate(r = labels_male) %>%
+  mutate(position = 100)
+
+# female 
+contribution_output.female.reorder <- contribution_output.female.formatted %>%
+  select(-total, -sex, -r) %>%
+  pivot_longer(!`phenotypic correlation` & !direction & !construct, 
+               names_to = "Percentage contribution", 
+               values_to = "Percent (%)") %>%
+  mutate(r = labels_male) %>%
+  mutate(position = 100)
+```
+
+```{r stacked bar for males}
+stacked_bar_male <- ggplot(
+  contribution_output.male.reorder,
+  aes(fill = `Percentage contribution`,
+      y = `Percent (%)`,
+      x = `phenotypic correlation`)) + 
+  geom_bar(position = "stack", 
+           stat = "identity") +
+  geom_text(aes(x = `phenotypic correlation`, 
+                y = 35.5, 
+                label = r), 
+            size = 4, 
+            color = "black", 
+            position = "stack") +
+  geom_text(aes(label = round(`Percent (%)`)), 
+            position = position_stack(vjust = 0.5), 
+            size = 3, 
+            color = "#ffffff") +
+  scale_fill_manual(values = c("#7B287D", 
+                               "#7067CF", 
+                               "#CBF3D2"),
+                    labels = c("Additive genetic", 
+                               "Shared environment", 
+                               "Non-shared environment"),
+                    name = "Contribution to phenotypic correlation") + 
+  scale_y_continuous(breaks=c(0, 25, 50, 75, 100), 
+                     labels = c(0, 25, 50, 75, 100)) +
+  coord_flip() +
+  theme(
+    panel.grid.major.x = element_line(size = 0.5,
+                                          linetype = 'dashed',
+                                          colour = "gray"),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(colour = "black", size = 10),
+        axis.text.y = element_text(colour = "black", size = 10),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white"),
+        strip.text = element_text(size = 11)
+  ) +
+  ggforce::facet_col(vars(direction), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
+
+stacked_bar_male
+
+#  facet_grid(direction ~ ., scales = "free_y", space = "free") +
+# facet_wrap(~direction, 
+#            strip.position = "top",  
+#            nrow = 5, 
+#            drop = TRUE,
+#            scales = "free_y",
+#            space = "free_y") +
+```
+
+```{r save male stacked}
+ggsave(stacked_bar_male, file = "../../../preliminary_results/stackedbar_male.png", height = 6, width = 10)
+```
+
+```{r stacked bar for males}
+stacked_bar_female <- ggplot(
+  contribution_output.female.reorder,
+  aes(fill = `Percentage contribution`,
+      y = `Percent (%)`,
+      x = `phenotypic correlation`)) + 
+  geom_bar(position = "stack", 
+           stat = "identity") +
+  geom_text(aes(x = `phenotypic correlation`, 
+                y = 35.5, 
+                label = r), 
+            size = 4, 
+            color = "black", 
+            position = "stack") +
+  geom_text(aes(label = round(`Percent (%)`)), 
+            position = position_stack(vjust = 0.5), 
+            size = 3, 
+            color = "#ffffff") +
+  scale_fill_manual(values = c("#7B287D", 
+                               "#7067CF", 
+                               "#CBF3D2"),
+                    labels = c("Additive genetic", 
+                               "Shared environment", 
+                               "Non-shared environment"),
+                    name = "Contribution to phenotypic correlation") + 
+  scale_y_continuous(breaks=c(0, 25, 50, 75, 100), 
+                     labels = c(0, 25, 50, 75, 100)) +
+  coord_flip() +
+  theme(
+    panel.grid.major.x = element_line(size = 0.5,
+                                          linetype = 'dashed',
+                                          colour = "gray"),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(colour = "black", size = 10),
+        axis.text.y = element_text(colour = "black", size = 10),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white"),
+        strip.text = element_text(size = 11)
+  ) +
+  ggforce::facet_col(vars(direction), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
+
+stacked_bar_female
+```
+
+```{r save female stacked}
+ggsave(stacked_bar_female, file = "../../../preliminary_results/stackedbar_female.png", height = 6, width = 10)
+```
+
+***
+
+Last thing to do:
+* Once all models have been decided on, convert the specifying IPM into the functions created in ipm_functions.R

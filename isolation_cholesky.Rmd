@@ -932,7 +932,7 @@ AEModel	<- omxSetParameters(AEModel,
                             values = 0) 
 
 # run the model
-AEFit <- mxRun(AEModel, intervals = TRUE)
+AEFit <- mxTryHard(AEModel, intervals = TRUE)
 ```
 
 ## Output
@@ -996,6 +996,20 @@ round(mxEval(AE.ste2, AEFit), 3)
 Here are the Choleksy estimates shown in a figure:
 ![](cholesky_AE.jpg) 
 
+
+```{r table with all parameters with confidence intervals}
+as.tibble(AESumm$CI) %>%
+    mutate(ACE = c(rep("h2",4), rep("c2",4), rep("e2",4),
+                   rep(c("sta2", "stc2", "ste2"),10))) %>%
+    mutate(Age = c(rep(c("5", "7", "10", "12"), 3),
+                   rep("5 to 7", 3), rep("5 to 10", 3), rep("5 to 12", 3), 
+                   rep("7 to 10", 3), rep("7 to 12", 3), 
+                   rep("10 to 12", 3),
+                   rep("5", 3), rep("7", 3), rep("10", 3), rep("12", 3))) %>%
+    select(ACE, Age, lbound, estimate, ubound) %>% 
+    mutate(across(is.numeric, round, digits = 3))
+```
+
 ### Compare AE model fit to ACE and sat
 
 ```{r compare the AE fit to ACE and Sat}
@@ -1007,148 +1021,3 @@ mxCompare(SatFit, AEFit)
 * The AE model still fits significantly worse than the saturated model. 
 
 ***
-
-# Scalar AE model - in progress
-
-## Specify 
-
-```{r labels for means, sds, and scalar}
-# labels for the means
-LabMM	  <- paste("mm", 1:nv, sep = "")		# Male singleton
-LabMF	  <- paste("mf", 1:nv, sep = "")		# Female singleton
-LabMMM	<- c(LabMM, LabMM)			          # male-male pairs
-LabMFF	<- c(LabMF, LabMF)			          # female-female pairs
-
-# labels for the A, C and E standard deviation matrices (paths from latent factors to variables) no sex dif
-LabAm	  <- paste("apm", 1:nv, sep = "")		
-LabCm	  <- paste("cpm", 1:nv, sep = "")		
-LabEm	  <- paste("epm", 1:nv, sep = "")		
-
-# labels for the scalar matrix
-LabS		<- paste("s", 1:nv, sep = "")		
-LabSS  	<- c(LabS, LabS)
-LabNA	  <- c("NA")
-# Labdos	<- c(LabNA, LabS) # dont think we need this one
-PatF		<- c(F)
-PatT		<- c(T)
-Pat	  	<- c(PatF, PatT)
-```
-
-```{r start values}
-Stpath	  <- c(.6) 			# change here according to the variances of the variables
-Stcor		  <- c(.6)
-Stmean	  <- 4.6
-StScalar	<-c(.8)				# change here to >1 if female variance is larger than males or if it is mixed
-DumOnes	  <-c(1)
-StSdos	  <- c(DumOnes,StScalar)		# Scalar for Males is just 1 - do we need this??
-```
-
-```{r specify}
-# Matrices to estimate Means for Male/Female pairs
-MeanMM	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMMM, name = "expMeanMM")
-MeanM		<- mxMatrix("Full", 1, nv,  free = TRUE, values = c(Stmean), 		     labels = LabMM, 	name = "expMeanM")
-MeanFF	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMFF,	name = "expMeanFF")
-MeanF		<- mxMatrix("Full", 1, nv,  free = TRUE, values = c(Stmean), 		     labels = LabMF, 	name = "expMeanF")
-# MeanMF	<- mxMatrix("Full", 1, ntv, free = TRUE, values = c(Stmean,Stmean), 	labels=LabMMF, 	name="expMeanMF" )
-
-# ACE paths
-pathAm	<- mxMatrix(type = "Diag", nrow = nv, ncol = nv, free = TRUE, values = Stpath, label = LabAm, name = "am")
-pathCm	<- mxMatrix(type = "Diag", nrow = nv, ncol = nv, free = TRUE, values = Stpath, label = LabCm, name = "cm")
-pathEm	<- mxMatrix(type = "Diag", nrow = nv, ncol = nv, free = TRUE, values = Stpath, label = LabEm, name = "em")
-
-# Algebra to compute the variance components
-covAm		<- mxAlgebra(expression = am %*% t(am), name = "Am")
-covCm		<- mxAlgebra(expression = cm %*% t(cm), name = "Cm")
-covEm		<- mxAlgebra(expression = em %*% t(em), name = "Em")
-
-# Algebra to compute standardized variance components
-covm		<- mxAlgebra(expression = Am + Cm + Em, name = "Vm")
-StAm		<- mxAlgebra(expression = Am/Vm, name = "h2m")
-StCm		<- mxAlgebra(expression = Cm/Vm, name = "c2m")
-StEm		<- mxAlgebra(expression = Em/Vm, name = "e2m")
-
-# scalar
-ScalarF	<- mxMatrix(type = "Diag", nrow = 2, ncol = 2, free = TRUE, values = c(StScalar, StScalar), label = LabSS, name = "ScF")
-# ScalarOS	<- mxMatrix( type="Diag", nrow=2, ncol=2, free=Pat, values=StSdos, label=Labdos, name="ScOS")
-
-# Algebra for expected variance/covariance matrix in the 4 groups
-covMZM	<- mxAlgebra(expression = rbind(cbind(Am + Cm + Em, Am+Cm),	cbind(Am + Cm, Am + Cm + Em)), name = "ExpCovMZM")
-covDZM	<- mxAlgebra(expression = rbind(cbind(Am + Cm + Em, 0.5%x%Am + Cm),	cbind(0.5%x%Am + Cm, Am + Cm + Em)), name = "ExpCovDZM")
-
-covMZF	<- mxAlgebra(expression = ScF%&%(rbind(cbind(Am + Cm + Em, Am + Cm), cbind(Am + Cm, Am + Cm + Em))), name = "ExpCovMZF")
-covDZF	<- mxAlgebra(expression = ScF%&%(rbind(cbind(Am + Cm + Em, 0.5%x%Am + Cm), cbind(0.5%x%Am + Cm, Am + Cm + Em))), name = "ExpCovDZF")
-
-# covDOS	<-mxAlgebra( expression= ScOS %&% (rbind  ( cbind(Am+Cm+Em, 0.5%x%Am+Cm),	cbind(0.5%x%Am+Cm, Am+Cm+Em)	)),	name="ExpCovDOS")
-
-# Data objects for Multiple Groups
-dataMZM	<- mxData(dat.twin.MZm, type = "raw")
-dataMZF	<- mxData(dat.twin.MZf, type = "raw")
-dataDZM	<- mxData(dat.twin.DZm, type = "raw")
-dataDZF	<- mxData(dat.twin.DZf, type = "raw")
-
-fitFunction <- mxFitFunctionML()
-```
-
-```{r specify ACE model}
-pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), 
-                  labels = c("a11", "a21","a31","a41","a22","a32","a42","a33","a43","a44"), name = "a") 
-pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), 
-                  labels = c("c11", "c21","c31","c41","c22","c32","c42","c33","c43","c44"), name = "c")
-pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 10)), 
-                  labels = c("e11", "e21","e31","e41","e22","e32","e42","e33","e43","e44"), name = "e")
-
-# Matrices to estimate Means for Male/Female pairs
-MeanMM	<- mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMMM, name = "expMeanMM")
-MeanM		<- mxMatrix("Full", nrow = 1, ncol = nv,  free = TRUE, values = c(Stmean), 		     labels = LabMM, 	name = "expMeanM")
-MeanFF	<- mxMatrix("Full", nrow = 1, ncol = ntv, free = TRUE, values = c(Stmean, Stmean), labels = LabMFF,	name = "expMeanFF")
-MeanF		<- mxMatrix("Full", nrow = 1, ncol = nv,  free = TRUE, values = c(Stmean), 		     labels = LabMF, 	name = "expMeanF")
-
-# Non-standardized variance components
-covA	<- mxAlgebra(expression = a %*% t(a), name = "A")
-covC	<- mxAlgebra(expression = c %*% t(c), name = "C") 
-covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
-
-# Standardized variance components
-covP <- mxAlgebra(expression = A + C + E, name = "V" )  # total variance in the phenotype
-StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
-StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
-StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
-
-# scalar
-ScalarF	<- mxMatrix(type = "Diag", nrow = 2, ncol = 2, free = TRUE, values = c(StScalar, StScalar), label = LabSS, name = "ScF")
-
-matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
-matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
-rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
-rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
-rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") 
-rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
-
-# Cholesky 
-# path estimates
-Sta <- mxAlgebra(isd%*%a, name = "sta")
-Stc <- mxAlgebra(isd%*%c, name = "stc")
-Ste <- mxAlgebra(isd%*%e, name = "ste")
-
-# path estimates squared
-Sta2 <- mxAlgebra(sta*sta, name = "sta2")
-Stc2 <- mxAlgebra(stc*stc, name = "stc2")
-Ste2 <- mxAlgebra(ste*ste, name = "ste2")
-
-# standardise estimates
-rowVars	<- rep('Vars', nv)
-colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
-estVars	<- mxAlgebra(expression = cbind(h2,c2,e2), name = "Est", dimnames = list(rowVars,colVars))
-
-# expected variance/covariance matrices
-covMZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
-                                          cbind(A+C, A+C+E)), name = "expCovMZ" )
-covDZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, 0.5%x%A+C),
-                                          cbind(0.5%x%A+C, A+C+E)), name = "expCovDZ" )
-
-# data objects 
-dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
-dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
-```
-
-

@@ -26,6 +26,18 @@ get_upper_tri <- function(cor_matrix){  # Get upper triangle of the correlation 
   return(cor_matrix)
 }
 
+# non-independent data correction (Huber white cluster)
+huber.white.cluster.linear <- function(regression.outcome){
+  outcome.full <- broom::tidy(lmtest::coeftest(regression.outcome,                          # reports coefficients for new covariance matrix
+                                               vcov = sandwich::vcovHC(regression.outcome,            # estimates a robust covariance matrix
+                                                                       type = "HC0",                  # gives White's estimator 
+                                                                       cluster = "familyid")),        # clusters by familyid
+                              conf.int = TRUE,   
+                              conf.level = 0.95)[2,] %>% # remove intercept
+    select(predictor = term, estimate, p.value, conf.low, conf.high) 
+  return(outcome.full)
+}
+
 ###########################################################################################
 ###### Univariate 
 ###########################################################################################
@@ -1418,6 +1430,8 @@ IPM_esitmates_ACE_8var_het <- function(data, variable1, variable2, variable3, va
     mutate(across(`phenotypic correlation`, ~ str_replace(., "variable6", variable6))) %>%
     mutate(across(`phenotypic correlation`, ~ str_replace(., "variable7", variable7))) %>%
     mutate(across(`phenotypic correlation`, ~ str_replace(., "variable8", variable8))) 
+  
+  
   
   # bind the contribution of A, C, and E together into one table
   contribution_percent_table_f <- plyr::join_all(list(Ra_contribution_percent_f, Rc_contribution_percent_f, Re_contribution_percent_f),
