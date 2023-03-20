@@ -449,16 +449,21 @@ correlation_heat_map
 
 ### Mental health predicting social isolation 
 
+When using linear regression for the full sample, we will need to aply to Huber White cluster to account for the non-independence in our sample (sample of twins). When looking at difference scores we dont need to do this - as we are looking at the difference between two twins. When stratifying to MZ twins only, we don't need to do this as all individuals are independent of eachother. 
+
 ```{r without diff scores linear regression mhealth predicting isolation}
 # MZ and DZ
 reguni_dep12_iso18 <- lm(data = dat, socisoe18norm ~ cdie12norm, na.action = na.exclude)
 summary(reguni_dep12_iso18)
+reguni_dep12_iso18_hw <- huber.white.cluster.linear(regression.outcome = reguni_dep12_iso18)
 
 reguni_con12_iso18 <- lm(data = dat, socisoe18norm ~ conec12norm, na.action = na.exclude)
 summary(reguni_con12_iso18)
+reguni_con12_iso18_hw <- huber.white.cluster.linear(reguni_con12_iso18)
 
 reguni_psy12_iso18 <- lm(data = dat, socisoe18norm ~ psysympe12norm, na.action = na.exclude)
 summary(reguni_psy12_iso18)
+reguni_psy12_iso18_hw <- huber.white.cluster.linear(reguni_psy12_iso18)
 
 # MZ only
 reguni_dep12_iso18_MZ <- lm(data = dat.MZ, socisoe18norm ~ cdie12norm, na.action = na.exclude)
@@ -503,12 +508,15 @@ Depression predicts isolation, when using MZ this effect goes away (p=0.049).
 # MZ and DZ
 reguni_iso12_dep18 <- lm(data = dat, mdesxe18norm ~ sisoe12norm, na.action = na.exclude)
 summary(reguni_iso12_dep18)
+reguni_iso12_dep18_hw <- huber.white.cluster.linear(reguni_iso12_dep18)
 
 reguni_iso12_con18 <- lm(data = dat, cdsxe18norm ~ sisoe12norm, na.action = na.exclude)
 summary(reguni_iso12_con18)
+reguni_iso12_con18_hw <- huber.white.cluster.linear(reguni_iso12_con18)
 
 reguni_iso12_psy18 <- lm(data = dat, psyexpe18norm ~ sisoe12norm, na.action = na.exclude)
 summary(reguni_iso12_psy18)
+reguni_iso12_psy18_hw <- huber.white.cluster.linear(reguni_iso12_psy18)
 
 # MZ only
 reguni_iso12_dep18_MZ <- lm(data = dat.MZ, mdesxe18norm ~ sisoe12norm, na.action = na.exclude)
