@@ -1059,7 +1059,3 @@ Psychosis	18	h2	0.238
 Psychosis at age 18 is the most consistently estimated heritability overall. 
 
 ***
-
-## Bivariate models by phenotype - *only if needed*
-
-FOR THIS I WOULD NEED TO MAKE NEW VARIABLE LISTS 
