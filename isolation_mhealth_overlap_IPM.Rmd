@@ -287,6 +287,92 @@ selvars_norm_reg_elder <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_re
 
 # Data prep
 
+## Missingness
+
+```{r missingness for each variable}
+# isolation12
+dat <- dat %>%
+  mutate(missing.isolation12 =
+           if_else(
+               !is.na(sisoe12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.isolation12)
+
+# isolation18
+dat <- dat %>%
+  mutate(missing.isolation18 =
+           if_else(
+               !is.na(socisoe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.isolation18)
+
+# depression12
+dat <- dat %>%
+  mutate(missing.depression12 =
+           if_else(
+               !is.na(cdie12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.depression12)
+
+# depression18
+dat <- dat %>%
+  mutate(missing.depression18 =
+           if_else(
+               !is.na(mdesxe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.depression18)
+
+# conduct12
+dat <- dat %>%
+  mutate(missing.conduct12 =
+           if_else(
+               !is.na(conec12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.conduct12)
+
+# conduct18
+dat <- dat %>%
+  mutate(missing.conduct18 =
+           if_else(
+               !is.na(cdsxe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.conduct18)
+
+# psychosis12
+dat <- dat %>%
+  mutate(missing.psychosis12 =
+           if_else(
+               !is.na(psysympe12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.psychosis12)
+
+# psychosis18
+dat <- dat %>%
+  mutate(missing.psychosis18 =
+           if_else(
+               !is.na(psyexpe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing.psychosis18)
+```
+
+
+
 ## Skewness
 
 ```{r histograms}
@@ -2785,6 +2871,7 @@ stacked_bar_male <- ggplot(
             position = position_stack(vjust = 0.5), 
             size = 3, 
             color = "#ffffff") +
+  labs(title = "r") +
   scale_fill_manual(values = c("#7B287D", 
                                "#7067CF", 
                                "#CBF3D2"),
@@ -2806,9 +2893,12 @@ stacked_bar_male <- ggplot(
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
         panel.background = element_blank(),
+        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -8),
         legend.position = "bottom",
         strip.background = element_rect(fill = "white"),
-        strip.text = element_text(size = 11)
+        strip.text = element_text(size = 11),
+    
+    
   ) +
   ggforce::facet_col(vars(direction), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
 
@@ -2824,7 +2914,7 @@ stacked_bar_male
 ```
 
 ```{r save male stacked}
-ggsave(stacked_bar_male, file = "../../../preliminary_results/stackedbar_male.png", height = 6, width = 10)
+ggsave(stacked_bar_male, file = "../../../preliminary_results/stackedbar_male.png", height = 6, width = 9)
 ```
 
 ```{r stacked bar for males}
@@ -2845,6 +2935,7 @@ stacked_bar_female <- ggplot(
             position = position_stack(vjust = 0.5), 
             size = 3, 
             color = "#ffffff") +
+  labs(title = "r") +
   scale_fill_manual(values = c("#7B287D", 
                                "#7067CF", 
                                "#CBF3D2"),
@@ -2866,9 +2957,12 @@ stacked_bar_female <- ggplot(
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
         panel.background = element_blank(),
+        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -8),
         legend.position = "bottom",
         strip.background = element_rect(fill = "white"),
-        strip.text = element_text(size = 11)
+        strip.text = element_text(size = 11),
+    
+    
   ) +
   ggforce::facet_col(vars(direction), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
 
@@ -2876,7 +2970,7 @@ stacked_bar_female
 ```
 
 ```{r save female stacked}
-ggsave(stacked_bar_female, file = "../../../preliminary_results/stackedbar_female.png", height = 6, width = 10)
+ggsave(stacked_bar_female, file = "../../../preliminary_results/stackedbar_female.png", height = 6, width = 9)
 ```
 
 ***
