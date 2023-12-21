@@ -1,0 +1,2347 @@
+---
+title: "The overlap between social isolation and mental health problems: sensitivity analyses" 
+output:  
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    number_sections: false
+    highlight: monochrome
+    theme: flatly
+    code_folding: show
+    includes:
+      after_body: footer.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      prompt = FALSE,
+                      cache = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      results = 'markup')
+
+options(bitmapType = 'quartz') # to render fonts better
+```
+
+```{r Clear global environment, include=FALSE}
+remove(list = ls())
+```
+
+```{r Load packages, include=FALSE}
+library(knitr)
+library(haven)
+library(psych) 
+library(bestNormalize)
+library(questionr)
+library(OpenMx)
+library(tidyr)
+library(lavaan)
+library(tidyverse)
+library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
+```
+
+# Source functions
+
+```{r source functions, include=FALSE}
+source("isolation_mhealth_functions.R")
+```
+
+# Read in data
+
+```{r source the data file path, include=FALSE}
+# source raw data directory
+source("../isolation_mentalhealth_data_path.R")
+```
+
+```{r read in dta data file, include=FALSE}
+dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
+colnames(dat.raw)
+```
+
+### Column names
+
+```{r select variables needed}
+dat <- dat.raw %>%
+  dplyr::select(
+         atwinid,
+         btwinid,
+         familyid,
+         rorderp5,
+         torder,
+         zygosity,
+         sampsex,
+         sisoe12, # social isolation 
+         sisoy12,
+         sisoet12, # SI teacher
+         sisoyt12,
+         sisoem12,  # SI mother
+         sisoym12,
+         masce12,     # anxiety
+         mascy12,   
+         cdie12,      # depression
+         cdiy12,
+         conec12,     # antisocial behaviour / conduct disorder
+         conyc12,
+         psysympe12,  # psychosis - why is this not the tot scale variable - to give more variation?
+         psysympy12,
+         socisoe18,
+         socisoy18,
+         gadsxe18,    # anxiety
+         gadsxy18,
+         mdesxe18,    # depression
+         mdesxy18,
+         cdsxe18,     # antisocial behaviour / conduct disorder
+         cdsxy18,
+         psyexpe18,   # psychotic experiences
+         psyexpy18
+  )
+
+colnames(dat)
+```
+
+### Recode variables into factors {.tabset .tabset-fade}
+
+#### Sex
+
+```{r recode sex}
+dat <- dat %>%
+  mutate(
+    sex = 
+      recode_factor(as_factor(sampsex),
+        "1" = "Male",
+        "2" = "Female"))
+
+table(dat$sex)
+```
+
+#### Zygosity
+
+```{r recode zygosity}
+dat <- dat %>%
+  mutate(
+    zygosity = 
+      recode_factor(as_factor(zygosity),
+        "1" = "MZ",
+        "2" = "DZ"))
+table(dat$zygosity)
+```
+
+### Convert variables to numeric
+
+```{r create numeric isolation variables}
+dat <- dat %>%
+  mutate(
+    sisoe12 = as.numeric(sisoe12),
+    sisoy12 = as.numeric(sisoy12),
+    sisoet12 = as.numeric(sisoet12),
+    sisoyt12 = as.numeric(sisoyt12),
+    sisoem12 = as.numeric(sisoem12),
+    sisoym12 = as.numeric(sisoym12),
+    masce12 = as.numeric(masce12),       # anxiety
+    mascy12 = as.numeric(mascy12),   
+    cdie12 = as.numeric(cdie12),         # depression
+    cdiy12 = as.numeric(cdiy12),
+    conec12 = as.numeric(conec12),       # antisocial behaviour / conduct disorder
+    conyc12 = as.numeric(conyc12),
+    psysympe12 = as.numeric(psysympe12), # psychosis - why is this not the tot scale variable - to give more variation?
+    psysympy12 = as.numeric(psysympy12),
+    socisoe18 = as.numeric(socisoe18),
+    socisoy18 = as.numeric(socisoy18),
+    gadsxe18 = as.numeric(gadsxe18),     # anxiety
+    gadsxy18 = as.numeric(gadsxy18),
+    mdesxe18 = as.numeric(mdesxe18),     # depression
+    mdesxy18 = as.numeric(mdesxy18),
+    cdsxe18 = as.numeric(cdsxe18),       # antisocial behaviour / conduct disorder
+    cdsxy18 = as.numeric(cdsxy18),
+    psyexpe18 = as.numeric(psyexpe18),   # psychotic experiences
+    psyexpy18 = as.numeric(psyexpy18)
+  ) %>%
+  select(                                # remove variables not needed
+    -c(sampsex)
+  )
+```
+
+# Variables lists
+
+```{r select variables - raw}
+selvars <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", 
+             "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18",
+             "sisoy12", "mascy12", "cdiy12", "conyc12", "psysympy12", 
+             "socisoy18", "gadsxy18", "mdesxy18", "cdsxy18", "psyexpy18")
+
+selvars_noanx <- c("sisoe12",  "cdie12",   "conec12", "psysympe12", 
+                  "socisoe18", "mdesxe18", "cdsxe18", "psyexpe18",
+                  "sisoy12",   "cdiy12",   "conyc12", "psysympy12", 
+                  "socisoy18", "mdesxy18", "cdsxy18", "psyexpy18")
+
+selvars_elder <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", 
+                   "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18")
+
+selvars_isolation_reporter <- c("sisoe12", "sisoem12", "sisoet12", "conec12", "socisoe18", "cdsxe18",
+                                "sisoy12", "sisoym12", "sisoyt12", "conyc12", "socisoy18", "cdsxy18")
+```
+
+```{r select variables - normalised and sex regressed}
+# all 
+selvars_noanx_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                      "socisoe18norm_reg",  "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                      "sisoy12norm_reg",  "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg",
+                      "socisoy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+selvars_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                      "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                      "sisoy12norm_reg", "mascy12norm_reg", "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg",
+                      "socisoy18norm_reg", "gadsxy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+selvars_noanx_nosoc_norm_reg <- c("cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                                  "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                                  "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg",
+                                  "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+
+# all with non-norm_regalised - not in the twin modelling specific order here only used to standardise all variables at once
+selvars_norm_reg_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdiy12", "conec12", "conyc12", "psysympe12", "psysympy12", 
+                      "socisoe18", "socisoy18", "gadsxe18", "gadsxy18", "mdesxe18", "mdesxy18", "cdsxe18", "cdsxy18", "psyexpe18", "psyexpy18",
+                      "sisoe12norm_reg", "sisoy12norm_reg", "masce12norm_reg", "mascy12norm_reg", "cdie12norm_reg", "cdiy12norm_reg", "conec12norm_reg", "conyc12norm_reg", "psysympe12norm_reg", "psysympy12norm_reg", 
+                      "socisoe18norm_reg", "socisoy18norm_reg", "gadsxe18norm_reg", "gadsxy18norm_reg", "mdesxe18norm_reg", "mdesxy18norm_reg", "cdsxe18norm_reg", "cdsxy18norm_reg", "psyexpe18norm_reg", "psyexpy18norm_reg")
+
+selvars_norm_reg_elder <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                            "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg")
+```
+
+# Data prep
+
+## Missingness
+
+```{r missingness for each variable}
+# isolation12
+dat <- dat %>%
+  mutate(missing_isolation12 =
+           if_else(
+               !is.na(sisoe12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_isolation12)
+
+# isolation18
+dat <- dat %>%
+  mutate(missing_isolation18 =
+           if_else(
+               !is.na(socisoe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_isolation18)
+
+# depression12
+dat <- dat %>%
+  mutate(missing_depression12 =
+           if_else(
+               !is.na(cdie12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_depression12)
+
+# depression18
+dat <- dat %>%
+  mutate(missing_depression18 =
+           if_else(
+               !is.na(mdesxe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_depression18)
+
+# conduct12
+dat <- dat %>%
+  mutate(missing_conduct12 =
+           if_else(
+               !is.na(conec12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_conduct12)
+
+# conduct18
+dat <- dat %>%
+  mutate(missing_conduct18 =
+           if_else(
+               !is.na(cdsxe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_conduct18)
+
+# psychosis12
+dat <- dat %>%
+  mutate(missing_psychosis12 =
+           if_else(
+               !is.na(psysympe12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_psychosis12)
+
+# psychosis18
+dat <- dat %>%
+  mutate(missing_psychosis18 =
+           if_else(
+               !is.na(psyexpe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_psychosis18)
+```
+
+## Skewness
+
+```{r histograms}
+# isolation
+hist(dat$sisoe12)    # not normal
+hist(dat$socisoe18)  # not normal
+# anxiety
+hist(dat$masce12)    # normal
+hist(dat$gadsxe18)   # not normal
+# depression
+hist(dat$cdie12)     # not normal
+hist(dat$mdesxe18)   # not normal
+# conduct
+hist(dat$conec12)    # not normal
+hist(dat$cdsxe18)    # not normal
+# psychosis
+hist(dat$psysympe12) # not normal
+hist(dat$psyexpe18)  # not normal
+```
+
+## Rank transformation
+
+Almost all variables are non-normal. We will use the van der Waerden's rank-based transformation as used in [Rimfeld et al 2021](https://acamh.onlinelibrary.wiley.com/doi/full/10.1002/jcv2.12053). For analyses using transformed data, they conducted the van der Waerden transformation prior to residualizing for age and sex as recommended by [Pain et al. 2018](https://www.nature.com/articles/s41431-018-0159-6).  
+
+I will transform all variables to get the normalised estimate.
+
+```{r rank transform variables elder variables}
+# isolation age 12
+sisoe12_n <- bestNormalize(dat$sisoe12)    # select the type of transformation needed
+dat$sisoe12norm <- predict(sisoe12_n)      # create normalised variable
+hist(dat$sisoe12norm)                  
+summary(dat$sisoe12norm)
+
+sisoem12_n <- bestNormalize(dat$sisoem12)    
+dat$sisoem12norm <- predict(sisoem12_n)     
+hist(dat$sisoem12norm)                  
+summary(dat$sisoem12norm)
+
+sisoet12_n <- bestNormalize(dat$sisoet12)    
+dat$sisoet12norm <- predict(sisoet12_n)     
+hist(dat$sisoet12norm)                  
+summary(dat$sisoet12norm)
+
+# isolation age 18
+socisoe18_n <- bestNormalize(dat$socisoe18)    
+dat$socisoe18norm <- predict(socisoe18_n)  
+hist(dat$socisoe18norm)                  
+summary(dat$socisoe18norm)
+
+# anxiety age 12 - wont actually use this as it's already normally distributed
+masce12_n <- bestNormalize(dat$masce12)    
+dat$masce12norm <- predict(masce12_n)  
+hist(dat$masce12norm)                  
+summary(dat$masce12norm)
+
+# anxiety age 18
+gadsxe18_n <- bestNormalize(dat$gadsxe18)    
+dat$gadsxe18norm <- predict(gadsxe18_n)  
+hist(dat$gadsxe18norm)                  
+summary(dat$gadsxe18norm)
+
+# depression age 12
+cdie12_n <- bestNormalize(dat$cdie12)    
+dat$cdie12norm <- predict(cdie12_n)  
+hist(dat$cdie12norm)                  
+summary(dat$cdie12norm)
+
+# depression age 18
+mdesxe18_n <- bestNormalize(dat$mdesxe18)    
+dat$mdesxe18norm <- predict(mdesxe18_n)  
+hist(dat$mdesxe18norm)                  
+summary(dat$mdesxe18norm)
+
+# conduct age 12
+conec12_n <- bestNormalize(dat$conec12)    
+dat$conec12norm <- predict(conec12_n)  
+hist(dat$conec12norm)                  
+summary(dat$conec12norm)
+
+# conduct age 18
+cdsxe18_n <- bestNormalize(dat$cdsxe18)    
+dat$cdsxe18norm <- predict(cdsxe18_n)  
+hist(dat$cdsxe18norm)                  
+summary(dat$cdsxe18norm)
+
+# psychosis age 12
+psysympe12_n <- bestNormalize(dat$psysympe12)    
+dat$psysympe12norm <- predict(psysympe12_n)  
+hist(dat$psysympe12norm)                  
+summary(dat$psysympe12norm)
+
+# psychosis age 18
+psyexpe18_n <- bestNormalize(dat$psyexpe18)    
+dat$psyexpe18norm <- predict(psyexpe18_n)  
+hist(dat$psyexpe18norm)                  
+summary(dat$psyexpe18norm)
+```
+
+```{r rank transform variables younger variables}
+# isolation age 12
+sisoy12_n <- bestNormalize(dat$sisoy12)    # select the type of transformation needed
+dat$sisoy12norm <- predict(sisoy12_n)  # create normalised variable
+hist(dat$sisoy12norm)                  
+summary(dat$sisoy12norm)
+
+sisoym12_n <- bestNormalize(dat$sisoym12)    
+dat$sisoym12norm <- predict(sisoym12_n)     
+hist(dat$sisoym12norm)                  
+summary(dat$sisoym12norm)
+
+sisoyt12_n <- bestNormalize(dat$sisoyt12)    
+dat$sisoyt12norm <- predict(sisoyt12_n)     
+hist(dat$sisoyt12norm)                  
+summary(dat$sisoyt12norm)
+
+# isolation age 18
+socisoy18_n <- bestNormalize(dat$socisoy18)    
+dat$socisoy18norm <- predict(socisoy18_n)  
+hist(dat$socisoy18norm)                  
+summary(dat$socisoy18norm)
+
+# anxiety age 12 - wont actually use this as it's already normally distributed
+mascy12_n <- bestNormalize(dat$mascy12)    
+dat$mascy12norm <- predict(mascy12_n)  
+hist(dat$mascy12norm)                  
+summary(dat$mascy12norm)
+
+# anxiety age 18
+gadsxy18_n <- bestNormalize(dat$gadsxy18)    
+dat$gadsxy18norm <- predict(gadsxy18_n)  
+hist(dat$gadsxy18norm)                  
+summary(dat$gadsxy18norm)
+
+# depression age 12
+cdiy12_n <- bestNormalize(dat$cdiy12)    
+dat$cdiy12norm <- predict(cdiy12_n)  
+hist(dat$cdiy12norm)                  
+summary(dat$cdiy12norm)
+
+# depression age 18
+mdesxy18_n <- bestNormalize(dat$mdesxy18)    
+dat$mdesxy18norm <- predict(mdesxy18_n)  
+hist(dat$mdesxy18norm)                  
+summary(dat$mdesxy18norm)
+
+# conduct age 12
+conyc12_n <- bestNormalize(dat$conyc12)    
+dat$conyc12norm <- predict(conyc12_n)  
+hist(dat$conyc12norm)                  
+summary(dat$conyc12norm)
+
+# conduct age 18
+cdsxy18_n <- bestNormalize(dat$cdsxy18)    
+dat$cdsxy18norm <- predict(cdsxy18_n)  
+hist(dat$cdsxy18norm)                  
+summary(dat$cdsxy18norm)
+
+# psychosis age 12
+psysympy12_n <- bestNormalize(dat$psysympy12)    
+dat$psysympy12norm <- predict(psysympy12_n)  
+hist(dat$psysympy12norm)                  
+summary(dat$psysympy12norm)
+
+# psychosis age 18
+psyexpy18_n <- bestNormalize(dat$psyexpy18)    
+dat$psyexpy18norm <- predict(psyexpy18_n)  
+hist(dat$psyexpy18norm)                  
+summary(dat$psyexpy18norm)
+```
+
+## Regress out sex
+
+We first normalize the twin variables, then regress out sex. We don't regress out age here as all twins were measured as close to their birthday as possible. 
+
+We also add 1 to the residuals. This makes the means 1 as sometimes the model model can struggle to converge if the means are 0 or if any of the starting values are 0. 
+
+```{r regress out sex to normalised variables}
+# twin 1 - elder
+## isolation
+dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) + 1
+dat$sisoem12norm_reg <- (resid(lm(data = dat, sisoem12norm ~ sex, na.action = na.exclude))) + 1
+dat$sisoet12norm_reg <- (resid(lm(data = dat, sisoet12norm ~ sex, na.action = na.exclude))) + 1
+dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude))) + 1
+dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude))) + 1
+dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude))) + 1
+dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude))) + 1
+dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude))) + 1
+
+# twin 2 - younger
+## isolation
+dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude)))  + 1
+dat$sisoym12norm_reg <- (resid(lm(data = dat, sisoym12norm ~ sex, na.action = na.exclude))) + 1
+dat$sisoyt12norm_reg <- (resid(lm(data = dat, sisoyt12norm ~ sex, na.action = na.exclude))) + 1
+dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude))) + 1
+dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude))) + 1
+dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude))) + 1
+dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude))) + 1
+dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude))) + 1
+```
+
+```{r regress out sex}
+# twin 1 - elder
+## isolation
+dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ sex, na.action = na.exclude)))  + 1
+dat$socisoe18_reg <- (resid(lm(data = dat, socisoe18 ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$masce12_reg <- (resid(lm(data = dat, masce12 ~ sex, na.action = na.exclude))) + 1
+dat$gadsxe18_reg <- (resid(lm(data = dat, gadsxe18 ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdie12_reg <- (resid(lm(data = dat, cdie12 ~ sex, na.action = na.exclude))) + 1
+dat$mdesxe18_reg <- (resid(lm(data = dat, mdesxe18 ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conec12_reg <- (resid(lm(data = dat, conec12 ~ sex, na.action = na.exclude))) + 1
+dat$cdsxe18_reg <- (resid(lm(data = dat, cdsxe18 ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympe12_reg <- (resid(lm(data = dat, psysympe12 ~ sex, na.action = na.exclude))) + 1
+dat$psyexpe18_reg <- (resid(lm(data = dat, psyexpe18 ~ sex, na.action = na.exclude))) + 1
+
+# twin 2 - younger
+## isolation
+dat$sisoy12_reg <- (resid(lm(data = dat, sisoy12 ~ sex, na.action = na.exclude))) + 1 
+dat$socisoy18_reg <- (resid(lm(data = dat, socisoy18 ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$mascy12_reg <- (resid(lm(data = dat, mascy12 ~ sex, na.action = na.exclude))) + 1
+dat$gadsxy18_reg <- (resid(lm(data = dat, gadsxy18 ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdiy12_reg <- (resid(lm(data = dat, cdiy12 ~ sex, na.action = na.exclude))) + 1
+dat$mdesxy18_reg <- (resid(lm(data = dat, mdesxy18 ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conyc12_reg <- (resid(lm(data = dat, conyc12 ~ sex, na.action = na.exclude))) + 1
+dat$cdsxy18_reg <- (resid(lm(data = dat, cdsxy18 ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympy12_reg <- (resid(lm(data = dat, psysympy12 ~ sex, na.action = na.exclude))) + 1
+dat$psyexpy18_reg <- (resid(lm(data = dat, psyexpy18 ~ sex, na.action = na.exclude))) + 1
+```
+
+## Create twin dataset
+
+To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
+
+```{r remove one twin pair row}
+dat.twin <- dat %>% filter(rorderp5 == "1")
+```
+
+```{r datasets for MZ and DZ}
+dat.twin.MZ <- dat.twin %>% filter(zygosity == "MZ")
+dat.twin.DZ <- dat.twin %>% filter(zygosity == "DZ")
+
+# male only
+dat.twin.MZm <- dat.twin.MZ %>% filter(sex == "Male")
+dat.twin.DZm <- dat.twin.DZ %>% filter(sex == "Male")
+# female only
+dat.twin.MZf <- dat.twin.MZ %>% filter(sex == "Female")
+dat.twin.DZf <- dat.twin.DZ %>% filter(sex == "Female")
+```
+
+## Summary of MZ and DZ data
+
+### Overall
+
+```{r describe MZ and DZ data}
+MZ_summary <- psych::describe(dat.twin.MZ, 
+                       skew = FALSE, 
+                       range = FALSE)
+
+DZ_summary <- psych::describe(dat.twin.DZ, 
+                       skew = FALSE, 
+                       range = FALSE)
+# freq(dat$sisoe12)
+# freq(dat$psysympe12)
+# freq(dat$gadsxe18)
+```
+
+### Correlation matrices
+
+```{r check the phenotypic correlations}
+# overall
+cor(dat.twin[, selvars], use = "complete")
+
+# MZ
+cor(dat.twin.MZ[, c("sisoem12", "sisoet12", "sisoym12", "sisoyt12")], use = "complete")
+
+# DZ
+cor(dat.twin.DZ[, c("sisoem12", "sisoet12", "sisoym12", "sisoyt12")], use = "complete")
+```
+
+```{r check the phenotypic correlations for norm and sex regressed variables}
+# overall
+cor(dat.twin[, selvars_norm_reg], use = "complete")
+
+# MZ
+cor.mz <- cor(dat.twin.MZ[, selvars_norm_reg], use = "complete")
+
+# DZ
+cor.dz <- cor(dat.twin.DZ[, selvars_norm_reg], use = "complete")
+```
+
+```{r order according to cross-twin cross-trait matrices for social isolation with each mental health disorder}
+selvars_si12_xtxt <- c("sisoe12", "sisoy12")
+selvars_dep12_xtxt <- c("sisoe12", "cdie12", "sisoy12", "cdiy12")
+selvars_psy12_xtxt <- c("sisoe12", "psysympe12", "sisoy12", "psysympy12")
+selvars_psy12 <- c("psysympe12", "psysympy12")
+selvars_psy18 <- c("psyexpe18", "psyexpy18")
+
+
+var(dat.twin.MZ[, selvars_si12_xtxt], use = "complete")
+var(dat.twin.DZ[, selvars_si12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_dep12_xtxt], use = "complete")
+cor(dat.twin.DZ[, selvars_dep12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy12_xtxt], use = "complete")
+cor(dat.twin.DZ[, selvars_psy12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy12], use = "complete")
+cor(dat.twin.DZ[, selvars_psy12], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy18], use = "complete")
+cor(dat.twin.DZ[, selvars_psy18], use = "complete")
+
+
+```
+
+### Check for dominance
+
+rMZ >2*rDZ
+
+```{r see where the MZ correlations are more than 2 times the DZ correlations}
+# Find indices where cor.mz > 2 * cor.dz
+indices <- which(cor.mz > 2 * cor.dz, arr.ind = TRUE)
+
+# Initialize a list to store selected variable pairs
+selected_pairs <- list()
+
+# Iterate through the indices and select variables
+for (i in 1:nrow(indices)) {
+  row_idx <- indices[i, 1]
+  col_idx <- indices[i, 2]
+  mz_var <- selvars[row_idx]
+  dz_var <- selvars[col_idx]
+  
+  # Check if the first three letters and last two digits match
+  if (substr(mz_var, 1, 3) == substr(dz_var, 1, 3) && substr(mz_var, nchar(mz_var) - 1, nchar(mz_var)) == substr(dz_var, nchar(dz_var) - 1, nchar(dz_var))) {
+    mz_value <- cor.mz[row_idx, col_idx]
+    dz_value <- cor.dz[row_idx, col_idx]
+    selected_pairs[[paste(mz_var, dz_var)]] <- list(Variable1 = mz_var, Variable2 = dz_var, cor.mz = mz_value, cor.dz = dz_value)
+  }
+}
+
+# Print selected variable pairs and corresponding values
+for (pair_name in names(selected_pairs)) {
+  pair_info <- selected_pairs[[pair_name]]
+  cat("Variable 1:", pair_info$Variable1, "Variable 2:", pair_info$Variable2, "cor.mz:", pair_info$cor.mz, "cor.dz:", pair_info$cor.dz, "\n")
+}
+```
+The ADE model may be more appropriate for social isolation age 12 and 18, anxiety age 18, depression age 18. But this is not appropriate across all variables. 
+
+#### Heat map
+
+```{r list of variables for heatmap}
+name.list <- c(
+  "Isolation12",
+  "Anxiety12",
+  "Depression12",
+  "Conduct12",
+  "Psychosis12",
+  "Isolation18",
+  "Anxiety18",
+  "Depression18",
+  "Conduct18",
+  "Psychosis18"
+)
+```
+
+The functions for ordering the heat map below can be found in isolation_mhealth_functions.R
+
+Below we have used the sex regressed and normalised variables to look at the correlations - if you want to look at the raw variables, use selvars_elder
+
+```{r heat map of all correlations}
+# create data frame with just numeric antecedent variables
+variable_data_frame <- as.data.frame(dat[,selvars_norm_reg_elder])
+colnames(variable_data_frame) <- name.list
+
+# get correlation matrix
+isolation_cor_matrix <- cor(variable_data_frame, method = "pearson", use = "complete.obs")
+
+# reorder the correlation matrix
+cor_matrix_full <- reorder_cor_matrix(isolation_cor_matrix)
+  
+# melt the values
+metled_cor_matrix <- reshape::melt(cor_matrix_full, na.rm = TRUE)
+
+# correlation heat map
+correlation_heat_map <- ggplot(metled_cor_matrix, aes(X2, X1, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "#343d99", high = "#a50026", mid = "white",
+   midpoint = 0, limit = c(-1,1), space = "Lab",
+    name="Pearson\nCorrelation") +
+  theme_minimal() +
+  labs(y = "",
+       x = "",
+      # title = "Correlation heat map"
+       ) +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),
+       axis.text.y = element_text(size = 12),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 4)
+
+correlation_heat_map
+
+ggsave(correlation_heat_map, file = "../../plots/correlation_heatmap.jpeg", height = 8, width = 8)
+```
+
+```{r test significance of correlations}
+# isolation12
+cor.test(dat$sisoe12, dat$cdie12, use = "complete")
+cor.test(dat$sisoe12, dat$conec12, use = "complete")
+cor.test(dat$sisoe12, dat$psysympe12, use = "complete")
+cor.test(dat$sisoe12, dat$socisoe18, use = "complete")
+cor.test(dat$sisoe12, dat$mdesxe18, use = "complete")
+cor.test(dat$sisoe12, dat$cdsxe18, use = "complete")
+cor.test(dat$sisoe12, dat$psyexpe18, use = "complete")
+
+# depression12
+cor.test(dat$cdie12, dat$conec12, use = "complete")
+cor.test(dat$cdie12, dat$psysympe12, use = "complete")
+cor.test(dat$cdie12, dat$socisoe18, use = "complete")
+cor.test(dat$cdie12, dat$mdesxe18, use = "complete")
+cor.test(dat$cdie12, dat$cdsxe18, use = "complete")
+cor.test(dat$cdie12, dat$psyexpe18, use = "complete")
+
+# conduct12
+cor.test(dat$conec12, dat$psysympe12, use = "complete")
+cor.test(dat$conec12, dat$socisoe18, use = "complete")
+cor.test(dat$conec12, dat$mdesxe18, use = "complete")
+cor.test(dat$conec12, dat$cdsxe18, use = "complete")
+cor.test(dat$conec12, dat$psyexpe18, use = "complete")
+
+# psychosis12
+cor.test(dat$psysympe12, dat$socisoe18, use = "complete")
+cor.test(dat$psysympe12, dat$mdesxe18, use = "complete")
+cor.test(dat$psysympe12, dat$cdsxe18, use = "complete")
+cor.test(dat$psysympe12, dat$psyexpe18, use = "complete")
+
+# isolation18
+cor.test(dat$socisoe18, dat$mdesxe18, use = "complete")
+cor.test(dat$socisoe18, dat$cdsxe18, use = "complete")
+cor.test(dat$socisoe18, dat$psyexpe18, use = "complete")
+
+# depression18
+cor.test(dat$mdesxe18, dat$cdsxe18, use = "complete")
+cor.test(dat$mdesxe18, dat$psyexpe18, use = "complete")
+
+# conduct18
+cor.test(dat$cdsxe18, dat$psyexpe18, use = "complete")
+```
+
+Here, all the correlations with anxiety are relatively low. We may have to consider removing it, and going for a 4 vairable model (at 2 time points).
+
+#### MZ
+
+```{r MZ matrices}
+# covariance matrix
+covar.mz <- cov(dat.twin.MZ[, selvars_noanx], use = "complete")
+# correlation matrix (standardized covariance)
+cor.mz <- cor(dat.twin.MZ[, selvars_noanx], use = "complete")
+round(cor.mz, 3)
+```
+
+#### DZ
+
+```{r DZ matrices}
+# covariance matrix
+covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
+# correlation matrix (standardized covariance)
+cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
+round(cor.dz, 3)
+```
+
+#### Social isolaion reporters
+
+```{r MZ DZ matrices for social isolation split by reporter}
+# correlation matrix (standardized covariance)
+cor.mz <- cor(dat.twin.MZ[, selvars_isolation_reporter], use = "complete")
+round(cor.mz, 3)
+# DZ correlation matrix (standardized covariance)
+cor.dz <- cor(dat.twin.DZ[, selvars_isolation_reporter], use = "complete")
+round(cor.dz, 3)
+```
+
+Pairwise cross-twin cross-trait correlations (MZ:DZ ratio)
+
+A 2:1 ratio indicates the A factor to play a role in the common etiological influences, that is A is important to explain the correlation between the traits
+A 1:1 ratio indicates the C factor to play a role in explaining the correlation between the traits
+
+* Isolation12_m and Isolation12_t   0.169:0.149 - Mostly C
+* Isolation12 and conduct12         0.169:0.097 - Some A and some C 
+* Isolation18 and conduct18         0.177:0.172 - Mostly C
+* Isolation12 and conduct18         0.145:0.101 - Some A and some C
+* Isolation18 and conduct12         0.145:0.101 - Some A and some C
+* Isolation12_m and conduct12       0.145:0.191 - DZ correlation larger - all C
+* Isolation12_t and conduct12       0.220:0.230 - DZ correlation larger - all C
+* Isolation12_m and conduct18       0.144:0.111 - Mostly C
+* Isolation12_t and conduct18       0.090:0.050 - Some A and some C
+
+# Sensitivity analyses
+
+Comments from M Bartels (Nov 2023): I suggest a bivariate multiple rater model (psychometric model) for social isolation with conduct problems. This analysis will give you better insight into the C component and provides information on rater agreement and disagreement. 
+We have multiple raters at age 12 social isolation and self report for conduct12, isolation18, and conduct18.
+
+I will run the following sensitivity analyses:
+
+1. Psychometric model - to assess rater agreement 
+  1a. Multivariate correlated factors model: isolation12_m, isolation12_t, conduct12
+  1b. Psychometric model: 1 factor for isolation12_m and isolation12_t, and 1 factor for conduct12
+  1c. Choose the best fitting model 
+  1d. Multivariate correlated factors model: isolation12_m, isolation12_t, conduct18
+  1e. Psychometric model: 1 factor for isolation12_m and isolation12_t, and 1 factor for conduct12
+  1f. Choose the best fitting model
+
+2. Independent pathway model with male and female paths for conduct at age 12 AND 18
+  2a. Unconstrained
+  2b. Constrained negative common paths
+  2c. Constrained negative specific paths
+
+## 1: Psychometric model
+
+I will run three  models to look at the psychometric model with conduct problems: 
+  1a. Multivariate correlated factors model: isolation12_m, isolation12_t, conduct12
+  1b. Psychometric model: 1 factor for isolation12_m and isolation12_t, and 1 factor for conduct12
+  1c. Choose the best fitting model for conduct 12
+  1d. Multivariate correlated factors model: isolation12_m, isolation12_t, conduct18
+  1e. Psychometric model: 1 factor for isolation12_m and isolation12_t, and 1 factor for conduct18
+  1f. Choose the best fitting model for conduct 18
+
+### 1a. Multivariate correlated factors model: isolation12_m, isolation12_t, conduct12
+
+```{r variables for 1a}
+# age 12 
+selvars_sens_triv_con_norm_reg <- c("sisoem12norm_reg", "sisoet12norm_reg", "conec12norm_reg",
+                                    "sisoym12norm_reg", "sisoyt12norm_reg", "conyc12norm_reg")
+```
+
+```{r number of variables (phenotypes) for 1a}
+# number of variables
+nv <- 3    					      # number of variables 
+ntv <- nv*2 				      # number of twin variables
+
+# default optimizer 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+```
+
+```{r start values for 1a}
+# start values
+svM	  <- c(rep(0.7, ntv))	  # means               
+svSD  <- c(rep(1.1, ntv))   # standard deviations
+svRmz <- c(rep(0.3, 6))     # correlations for MZ
+svRdz <- c(rep(0.15, 6))    # correlations for DZ 
+
+rowVars	<- rep('Vars', nv)                          
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+```
+
+(row, column)
+
+    a11  a12  a13
+    a21  a22  a23
+    a31  a32  a33
+
+```{r model estimation 1a}
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 6)), 
+                  labels = c("a11", "a21", "a31", "a22", "a32", "a33"), name = "a") 
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 6)), 
+                  labels = c("c11", "c21", "c31", "c22", "c32", "c33"), name = "c")
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 6)), 
+                  labels = c("e11", "e21", "e31", "e22", "e32", "e33"), name = "e")
+
+MeanG	<-mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM, name = "ExpMean")
+
+# Non-standardized variance components
+covA	<- mxAlgebra(expression = a %*% t(a), name = "A")
+covC	<- mxAlgebra(expression = c %*% t(c), name = "C") 
+covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
+
+# Standardized variance components
+covP <- mxAlgebra(expression = A + C + E, name = "V" )  # total variance in the phenotype
+StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
+StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
+StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
+
+matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
+matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
+
+rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
+rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") 
+rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
+
+# path estimates
+Sta <- mxAlgebra(isd%*%a, name = "sta")
+Stc <- mxAlgebra(isd%*%c, name = "stc")
+Ste <- mxAlgebra(isd%*%e, name = "ste")
+
+# path estimates squared
+Sta2 <- mxAlgebra(sta*sta, name = "sta2")
+Stc2 <- mxAlgebra(stc*stc, name = "stc2")
+Ste2 <- mxAlgebra(ste*ste, name = "ste2")
+
+rowVars	<- rep('Vars', nv)
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+estVars	<- mxAlgebra(expression = cbind(h2,c2,e2), name = "Est", dimnames = list(rowVars,colVars))
+
+rphace <- mxAlgebra(expression = cbind(
+              (sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])), # path tracing from isolation12_m to isolation12_t 
+							(sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])),
+							(sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])), 
+							(sqrt(h2[1,1])*Ra[3,1]*sqrt(h2[3,3])), # path tracing from isolation12_m to conduct12
+							(sqrt(c2[1,1])*Rc[3,1]*sqrt(c2[3,3])),
+							(sqrt(e2[1,1])*Re[3,1]*sqrt(e2[3,3])),
+							(sqrt(h2[2,2])*Ra[3,2]*sqrt(h2[3,3])), # path tracing from isolation12_t to conduct12
+							(sqrt(c2[2,2])*Rc[3,2]*sqrt(c2[3,3])),
+							(sqrt(e2[2,2])*Re[3,2]*sqrt(e2[3,3]))
+							), name = "RphACE" )
+
+covMZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
+                                          cbind(A+C, A+C+E)), name = "expCovMZ")
+covDZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, 0.5%x%A+C),
+                                          cbind(0.5%x%A+C, A+C+E)), name = "expCovDZ")
+```
+
+```{r run 1a}
+dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
+dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
+
+objMZ	<- mxExpectationNormal(covariance = "expCovMZ", means = "ExpMean", dimnames = selvars_sens_triv_con_norm_reg)
+objDZ	<- mxExpectationNormal(covariance = "expCovDZ", means = "ExpMean", dimnames = selvars_sens_triv_con_norm_reg)
+
+fitFunction <- mxFitFunctionML()
+
+Conf1 <- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]')) 
+Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]', 'Rph[3,1]', 'Ra[3,1]', 'Rc[3,1]', 'Re[3,1]', 'Rph[3,2]', 'Ra[3,2]', 'Rc[3,2]', 'Re[3,2]')) 
+
+# all parameters to be estimated 
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rC, rE, MeanG, estVars, matIsd, Sta, Sta2, Stc, Stc2, Ste, Ste2, rphace)
+
+# add these to the model for MZ and DZ with the matrices we have created
+modelMZ	<- mxModel(pars, covMZ, dataMZ, objMZ, fitFunction, name = "MZ")
+modelDZ	<- mxModel(pars, covDZ, dataDZ, objDZ, fitFunction, name = "DZ")
+
+# fitting
+minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj <- mxFitFunctionAlgebra("m2LL")
+
+# full model
+AceModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1, Conf2)
+
+# run ACE
+AceFit_sens_triv_con12 <- mxTryHard(AceModel, intervals = TRUE)
+```
+
+```{r output 1a}
+# summary - this shows the position in the cells for each matrix 
+AceFit_sens_triv_con12_summary <- summary(AceFit_sens_triv_con12)
+AceFit_sens_triv_con12_summary
+
+mxEval(ACE.V, AceFit_sens_triv_con12)
+mxEval(ACE.h2, AceFit_sens_triv_con12)     # A variance explained
+mxEval(ACE.c2, AceFit_sens_triv_con12)     # C variance explained
+mxEval(ACE.e2, AceFit_sens_triv_con12)     # E variance explained
+mxEval(ACE.Rph, AceFit_sens_triv_con12)    # phenotypic correlation
+mxEval(ACE.Ra, AceFit_sens_triv_con12)     # genetic correlation 
+mxEval(ACE.Rc, AceFit_sens_triv_con12)     # shared environmental correlation
+mxEval(ACE.Re, AceFit_sens_triv_con12)     # unique environmental correlation 
+mxEval(ACE.RphACE, AceFit_sens_triv_con12) # path tracing for proportion of ACE out of phenotypic correlation
+```
+
+Heritability:
+Isolation12_m 38.86%
+Isolation12_t 38.09%
+Conduct12     11.66%
+
+Shared Environment:
+Isolation12_m 00.02%
+Isolation12_t 00.08%
+Conduct12     32.83%
+
+Unique Environment:
+Isolation12_m 60.92%
+Isolation12_t 61.09%
+Conduct12     55.49%
+
+rPh:
+Isolation12_m and Isolation12_t  0.311
+Isolation12_m and conduct12      0.160
+Isolation12_t and conduct12      0.166
+
+rA:
+Isolation12_m and Isolation12_t  0.496
+Isolation12_m and conduct12      0.559
+Isolation12_t and conduct12      0.345 (non-sig CI)
+
+rC:
+Isolation12_m and Isolation12_t  1     (non-sig CI)
+Isolation12_m and conduct12      1     (non-sig CI)
+Isolation12_t and conduct12      1     (non-sig CI)
+
+rE:
+Isolation12_m and Isolation12_t  0.190
+Isolation12_m and conduct12      0.026 (non-sig CI)
+Isolation12_t and conduct12      0.071 (non-sig CI)
+
+```{r proportions 1a}
+# Proportion of pheno correlation due to ACE 
+# isolation12_m to isolation12_t 
+Iso12m_Iso12tpropA <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,1])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[2,1])
+Iso12m_Iso12tpropC <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,2])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[2,1])
+Iso12m_Iso12tpropE <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,3])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[2,1])
+Iso12m_Iso12tprop <- cbind(Iso12m_Iso12tpropA, Iso12m_Iso12tpropC, Iso12m_Iso12tpropE)
+
+# isolation12_m to conduct12
+Iso12m_Con12propA <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,4])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[3,1])
+Iso12m_Con12propC <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,5])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[3,1])
+Iso12m_Con12propE <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,6])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[3,1])
+Iso12m_Con12prop <- cbind(Iso12m_Con12propA, Iso12m_Con12propC, Iso12m_Con12propE)
+
+# isolation12_t to conduct12 
+Iso12t_Con12propA <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,7])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[3,2])
+Iso12t_Con12propC <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,8])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[3,2])
+Iso12t_Con12propE <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con12)[,9])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con12)[3,2])
+Iso12t_Con12prop <- cbind(Iso12t_Con12propA, Iso12t_Con12propC, Iso12t_Con12propE) 
+
+Iso12m_Iso12tprop
+Iso12m_Con12prop
+Iso12t_Con12prop
+```
+ 
+Proportions here:                  A        C        E
+Isolation12_m and Isolation12_t  61.30%   01.30%   37.38%  
+Isolation12_m and conduct12      74.13%   16.18%   09.67%
+Isolation12_t and conduct12      43.84%   30.94%   25.20%
+
+Proportions in thesis IPM:         A        C        E
+Isolation12 and conduct12         29%      45%      26% 
+
+### 1b. Psychometric model: 1 factor for isolation12_m and isolation12_t, and 1 factor for conduct12 
+
+A, C and E latent factors have a Cholesky Structure in the model below. 
+
+Correlation between Phenotypic Factors only due to shared A, C and E influences - **ask Kunle what this means?**
+
+As we are using two indicators (rather than the optimal three), to identify the psychometric model for the isolation12_m and isolation12_t factor we have to make the following constraints:
+
+* Constrain Asp (A specific), Csp and Esp variance components loading on variables 1 (isolation12_m) and 2 (isolation12_t) to be equal and for variable 3 (conduct12) to 0
+* Estimate the variances of the factors by scaling them to the 1st indicator variable (by fixing the loading to 1), this because applying a constraint on the factor variances of 1 can be problematic in estimation
+
+```{r variables for 1b}
+# age 12 
+selvars_sens_fact_con12_norm_reg <- c("sisoem12norm_reg", "sisoet12norm_reg", "conec12norm_reg",
+                                      "sisoym12norm_reg", "sisoyt12norm_reg", "conyc12norm_reg")
+```
+
+```{r start values and variables 1b}
+nv		<- 3				# number of variables for a twin = 1 in Univariate
+ntv		<- 2*nv			# number of variables for a pair = 2* 1 for Univariate
+nfact		<- 2				# number of Latent Factors for Mediation Model per twin
+nfact2		<- 2*nfact			# number of Latent Factors for Mediation Model per twin
+nlower		<- ntv*(ntv+1)/2 		# number of free elements in a lower matrix ntv*ntv
+
+Groups		<- c("mz", "dz")
+# Vars		<- c('sisoem12','sisoet12','conec12')
+# selVars		<- c('sisoem12norm_reg','sisoet12norm_reg','conec12norm_reg',
+#                'sisoym12norm_reg','sisoyt12norm_reg','conyc12norm_reg')
+
+mzData <- dat.twin.MZ[,selvars_sens_fact_con12_norm_reg]
+dzData <- dat.twin.DZ[,selvars_sens_fact_con12_norm_reg]
+
+psych::describe(mzData)
+psych::describe(dzData)
+
+# CREATE LABELS & START VALUES as objects(to ease specification in the body of the model)
+(mLabs	<- paste("m",1:nv,sep=""))
+(Stmean	<- colMeans(mzData[,1:nv],na.rm=TRUE))
+(Stsd 	<- sapply(mzData[,1:nv],sd, na.rm=TRUE))
+(PatM		<- c(TRUE,TRUE,TRUE))
+
+# Create Labels for Diagonal Matrices
+# To identify this model we need to equate the sp effects of var 1 and 2 and fix the Sp of last variable to 0)
+(LabEs	<- c('es1','es1','es3'))
+(LabAs	<- c('as1','as1','as3'))
+(LabCs	<- c('cs1','cs1','cs3'))
+
+PatSp		<- c(TRUE,TRUE,FALSE)
+StSpa		<- c(.3,.3,0)
+StSpc		<- c(.2,.2,0)
+StSpe		<- c(.3,.3,0)
+
+# all 1st loadings fixed to 1
+PatFl		<- c(F,T,F,			
+		         F,F,F)
+
+StFl		<- c(1,.5,0,
+		         0,0,1)
+
+LabFl		<- c('l1','l2',NA,
+		          NA, NA, 'l3')
+
+# default optimiser 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+```
+
+```{r specify means and covariance structures 1b}
+Means		<-mxMatrix("Full", 1, ntv, free=c(PatM,PatM), values=c(Stmean,Stmean), labels=c(mLabs,mLabs), name="expMean") 
+
+# Define matrices to specify the loadings of the dependent variables on the latent factors
+Load		<-mxMatrix(type="Full",	nrow=nv, ncol=nfact, free=PatFl, values=StFl, labels=LabFl, name="FactL" )
+Id2		<-mxMatrix(type="Iden",	nrow=2, ncol=2, free=F, name="I2" )
+LoadTw	<-mxAlgebra(I2%x%FactL, name="FactLTw")
+ 
+# Define the matrix to hold the A and C effects: Specific 
+PathsAs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpa, labels=LabAs, name="as" )
+PathsCs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpc, labels=LabCs, name="cs" )
+PathsEs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpe, labels=LabEs, name="es" )
+
+covAs		<-mxAlgebra( expression= as %*% t(as), name="As" )
+covCs		<-mxAlgebra( expression= cs %*% t(cs), name="Cs" )
+covEs		<-mxAlgebra( expression= es %*% t(es), name="Es" )
+
+covPs		<-mxAlgebra( expression= As+Cs+Es, name="Vs" )
+
+# Define the matrices to hold the A and C effects: Common 
+PathsAc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.2, labels=c("a11","a21","a22"), name="a_c" )
+PathsCc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.5, labels=c("c11","c21","c22"), name="c_c" )
+PathsEc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.3, labels=c("e11","e21","e22"), name="e_c" )
+
+covAc		<-mxAlgebra( expression= a_c %*% t(a_c), name="Ac" )
+covCc		<-mxAlgebra( expression= c_c %*% t(c_c), name="Cc" )
+covEc		<-mxAlgebra( expression= e_c %*% t(e_c), name="Ec" )
+covPc		<-mxAlgebra( expression= Ac+Cc+Ec, name="Vc" )
+
+# Var-Cov of measured vars in terms of latent factors and AC, Cc, and Ec
+covMZ	<-mxAlgebra( expression= (FactLTw  %&% rbind ( cbind(Vc, Ac+Cc), cbind(Ac+Cc, Vc) )) , name="expCovMZ" )#This traces the path from vars to factors and back to vars
+covDZ	<-mxAlgebra( expression= (FactLTw  %&% rbind ( cbind(Vc, .5%x%Ac+Cc), cbind(.5%x%Ac+Cc, Vc) )) , name="expCovDZ" )
+
+SpcovMZ	<-mxAlgebra( expression= rbind (cbind(Vs, As+Cs), cbind(As+Cs, Vs) ) , name="expSpCovMZ" )
+SpcovDZ	<-mxAlgebra( expression= rbind (cbind(Vs, .5%x%As+Cs), cbind(.5%x%As+Cs, Vs) ) , name="expSpCovDZ" )
+
+TOTcovMZ	<-mxAlgebra( expression= expCovMZ + expSpCovMZ , name="TOTexpCovMZ" )
+TOTcovDZ	<-mxAlgebra( expression= expCovDZ + expSpCovDZ , name="TOTexpCovDZ" )
+```
+
+```{r calculate ACE correlations and path estimates 1b}
+# Calculate genetic,  environmental, and phenotypic correlations
+corA		<- mxAlgebra( expression=solve(sqrt(I2*Ac))%&%Ac, name ="rA" ) 
+corC		<- mxAlgebra( expression=solve(sqrt(I2*Cc))%&%Cc, name ="rC" )
+corE		<- mxAlgebra( expression=solve(sqrt(I2*Ec))%&%Ec, name ="rE" )
+corP		<- mxAlgebra( expression=solve(sqrt(I2*Vc))%&%Vc, name ="rP") 
+
+# Standardize the Total var/covariances matrices of the observed variables
+Id6		<-mxMatrix(type="Iden",	nrow=ntv, ncol=ntv, name="I6" )
+Rfactmz	<-mxAlgebra( expression= solve(sqrt(I6*TOTexpCovMZ)) %&% TOTexpCovMZ, name="FactcorMZ" )
+Rfactdz	<-mxAlgebra( expression= solve(sqrt(I6*TOTexpCovDZ)) %&% TOTexpCovDZ, name="FactcorDZ" )
+
+# Standardize the Common Effects
+stcovAc	<-mxAlgebra( expression= Ac/Vc, name="stAc" )
+stcovCc	<-mxAlgebra( expression= Cc/Vc, name="stCc" )
+stcovEc	<-mxAlgebra( expression= Ec/Vc, name="stEc" )
+
+# Standardize the Specific Effects
+stcovAs	<-mxAlgebra( expression= As/( (FactL %&% Vc) +Vs), name="stAs" )
+stcovCs	<-mxAlgebra( expression= Cs/( (FactL %&% Vc) +Vs), name="stCs" )
+stcovEs	<-mxAlgebra( expression= Es/( (FactL %&% Vc) +Vs), name="stEs" )
+
+# Standardized Effects of Individual variables from the factors (Variance components) above
+stAvar	<-mxAlgebra( expression= sqrt((FactL %&% Ac)/( (FactL %&% Vc) +Vs)), name="stAvariables" )
+stCvar	<-mxAlgebra( expression= sqrt((FactL %&% Cc)/( (FactL %&% Vc) +Vs)), name="stCvariables" )
+stEvar	<-mxAlgebra( expression= sqrt((FactL %&% Ec)/( (FactL %&% Vc) +Vs)), name="stEvariables" )
+
+# Standardized Factor Loadings
+StFL		<-mxAlgebra( expression= (diag2vec( FactL %&% Vc / TOTexpCovMZ[1:3,1:3])) , name="StandFact" )
+```
+
+```{r ACE with factor for isolation 1b}
+# Data objects for Multiple Groups
+dataMZ	<- mxData( observed=mzData, type="raw" )
+dataDZ	<- mxData( observed=dzData, type="raw" )
+
+# Objective objects for Multiple Groups
+objMZ		<- mxExpectationNormal( covariance="TOTexpCovMZ", means="expMean", dimnames=selvars_sens_fact_con12_norm_reg)
+objDZ		<- mxExpectationNormal( covariance="TOTexpCovDZ", means="expMean", dimnames=selvars_sens_fact_con12_norm_reg)
+
+fitFunction <- mxFitFunctionML()
+#fitFunction <- mxFitFunctionWLS()
+ 
+# Combine Groups
+pars1		<-list(Means,Load,LoadTw,PathsAs,PathsAs,PathsCs,PathsEs,covAs,covCs,covEs,covPs,Id2,Id6, stAvar, stCvar, stEvar)
+pars2		<-list(PathsAc,PathsCc,PathsEc,covAc,covCc,covEc,covPc,stcovAc,stcovCc,stcovEc,stcovAs,stcovCs,stcovEs,corA,corC,corE,corP)
+modelMZ	<-mxModel(pars1, pars2, covMZ, SpcovMZ, TOTcovMZ, dataMZ, objMZ, Rfactmz, fitFunction, StFL, name="MZ" )
+modelDZ	<-mxModel(pars1, pars2, covDZ, SpcovDZ, TOTcovDZ, dataDZ, objDZ, Rfactdz, fitFunction, name="DZ" )
+minus2ll	<-mxAlgebra( expression=MZ.objective + DZ.objective, name="m2LL" )
+obj		<-mxFitFunctionAlgebra( "m2LL" )
+cistFL	<-mxCI (c ('MZ.StandFact','MZ.rA','MZ.rC','MZ.rE'))
+cistFc	<-mxCI (c ('MZ.stAc','MZ.stCc','MZ.stEc') ) 	# standardized var comp from Common feactors	
+cistVs	<-mxCI (c ('MZ.stAs','MZ.stCs','MZ.stEs') ) 	# standardized var comp from specific Factors
+cistvars	<-mxCI (c ('MZ.stAvariables','MZ.stCvariables','MZ.stEvariables'))
+ACEModel	<-mxModel("ace", pars1, pars2, modelMZ, modelDZ, minus2ll, obj, cistFc, cistFL, cistVs,cistvars) 
+```
+
+```{r Run ACE with factor for isolation 1b}
+# 4 RUN ACE Factor Model: Cholesky (by Zygosity)
+AceFit_sens_fact_con12		<-mxTryHard(ACEModel, intervals = TRUE)
+(AceFit_sens_fact_con12_sum		<-summary(AceFit_sens_fact_con12, verbose = TRUE))
+```
+
+```{r output 1b}
+mxEval(MZ.Vs, AceFit_sens_fact_con12)    # total variance explained by specific ACE factors - set to be the same for identification
+
+mxEval(MZ.Ac, AceFit_sens_fact_con12)    # UNSTANDARDISED heritability estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Cc, AceFit_sens_fact_con12)    # UNSTANDARDISED shared environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Ec, AceFit_sens_fact_con12)    # UNSTANDARDISED unique environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Vc, AceFit_sens_fact_con12)    # UNSTANDARDISED total variance expained by common ACE factors on diagonal
+
+mxEval(MZ.stAc, AceFit_sens_fact_con12)  # STANDARDISED heritability estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.stCc, AceFit_sens_fact_con12)  # STANDARDISED shared environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.stEc, AceFit_sens_fact_con12)  # STANDARDISED unique environment estimates of isolation and conduct factors (common) on diagonal
+
+mxEval(MZ.stAs, AceFit_sens_fact_con12)  # STANDARDISED heritability estimates of specific isolation factors on diagonal
+mxEval(MZ.stCs, AceFit_sens_fact_con12)  # STANDARDISED shared environment estimates of specific isolation factors on diagonal
+mxEval(MZ.stEs, AceFit_sens_fact_con12)  # STANDARDISED unique environment  estimates of specific isolation factors on diagonal
+
+mxEval(MZ.rA, AceFit_sens_fact_con12)    # Genetic correlations between common factors
+mxEval(MZ.rC, AceFit_sens_fact_con12)    # Shared environmental correlations between factors
+mxEval(MZ.rE, AceFit_sens_fact_con12)    # Unique environmental correlations between factors
+mxEval(MZ.rP, AceFit_sens_fact_con12)    # Phenotypic correlation between factors
+
+mxEval(MZ.StandFact, AceFit_sens_fact_con12) # standardised factor loadings (scaled to first variable loading)
+```
+
+Phenptypic correlation between the isolation factor and conduct problems = 0.291
+
+Heritability:
+Isolation12_cfactor     61.50%
+Conduct12_cfactor       11.77%
+Isolation12_specific    19.62% / 19.57% (set to be equal for mother and teacher but can slightly differ in standardisation)
+
+Shared Environment:
+Isolation12_cfactor     01.10%
+Conduct12_cfactor       32.70%
+Isolation12_specific    00.00% / 00.00% 
+
+Unique Environment:
+Isolation12_cfactor     37.39%
+Conduct12_cfactor       55.51%
+Isolation12_specific    49.15% / 49.02% 
+
+Correlations:
+rA between common factors  0.678
+rC between common factors  1
+rE between common factors  0.107
+
+Factor loadings for isolation:
+Mother    0.312
+Teacher   0.314
+
+The specific factors show that when what is common between mother and teacher has been removed, the rater/context specific effects reflect the environment (0.49) more than the genetic factors (0.19). - ask kunle why these don't add up to 1? standardised to the specific factros variance, surely these should add up to 1?  
+
+```{r proportions for 1b}
+prop_fact12 <- cbind(
+  (
+    (sqrt(as.numeric(mxEval(MZ.stAc, AceFit_sens_fact_con12)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rA, AceFit_sens_fact_con12)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stAc, AceFit_sens_fact_con12)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con12)[2,1])           # Divide by phenotypic correlation
+    ),          
+  (
+    (sqrt(as.numeric(mxEval(MZ.stCc, AceFit_sens_fact_con12)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rC, AceFit_sens_fact_con12)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stCc, AceFit_sens_fact_con12)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con12)[2,1])           # Divide by phenotypic correlation
+    ), 
+  (
+    (sqrt(as.numeric(mxEval(MZ.stEc, AceFit_sens_fact_con12)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rE, AceFit_sens_fact_con12)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stEc, AceFit_sens_fact_con12)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con12)[2,1])           # Divide by phenotypic correlation
+    )
+)
+  
+prop_fact12
+```
+
+                              A        C        E
+Proportions using factors   62.59%   20.57%   16.83%
+IPM                         26%      45%      29%
+
+### 1c. Choose the best fitting model for conduct 12 
+
+Comparing the trivariate unconstrained model (1a) with the psychometric factor model (1b).
+
+```{r compare fit of 1a and 1b}
+mxCompare(AceFit_sens_triv_con12, AceFit_sens_fact_con12)
+```
+
+No significant loss in fit for factor model with conduct at age 12. 
+
+Factor (AceFit_sens_fact_con12) is therefore the prefered model. 
+
+### 1d. Multivariate correlated factors model: isolation12_m, isolation12_t, conduct18
+
+```{r variables for 1d}
+# age 18 
+selvars_sens_triv_con18_norm_reg <- c("sisoem12norm_reg", "sisoet12norm_reg", "cdsxe18norm_reg",
+                                      "sisoym12norm_reg", "sisoyt12norm_reg", "cdsxy18norm_reg")
+```
+
+```{r number of variables (phenotypes) for 1d}
+# number of variables
+nv <- 3    					      # number of variables 
+ntv <- nv*2 				      # number of twin variables
+
+# default optimizer 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+```
+
+```{r start values for 1d}
+# start values
+svM	  <- c(rep(0.7, ntv))	  # means               
+svSD  <- c(rep(1.1, ntv))   # standard deviations
+svRmz <- c(rep(0.3, 6))     # correlations for MZ
+svRdz <- c(rep(0.15, 6))    # correlations for DZ 
+
+rowVars	<- rep('Vars', nv)                          
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+```
+
+(row, column)
+
+    a11  a12  a13
+    a21  a22  a23
+    a31  a32  a33
+
+```{r model estimation 1d}
+pathA	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 6)), 
+                  labels = c("a11", "a21", "a31", "a22", "a32", "a33"), name = "a") 
+pathC	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 6)), 
+                  labels = c("c11", "c21", "c31", "c22", "c32", "c33"), name = "c")
+pathE	<- mxMatrix(type = "Lower", nrow = nv, ncol = nv, free = TRUE, values = c(rep(0.5, 6)), 
+                  labels = c("e11", "e21", "e31", "e22", "e32", "e33"), name = "e")
+
+MeanG	<-mxMatrix(type = "Full", nrow = 1, ncol = ntv, free = TRUE, values = svM, name = "ExpMean")
+
+# Non-standardized variance components
+covA	<- mxAlgebra(expression = a %*% t(a), name = "A")
+covC	<- mxAlgebra(expression = c %*% t(c), name = "C") 
+covE	<- mxAlgebra(expression = e %*% t(e), name = "E")
+
+# Standardized variance components
+covP <- mxAlgebra(expression = A + C + E, name = "V" )  # total variance in the phenotype
+StA	<- mxAlgebra(expression = A/V, name = "h2")         # proportion of variance explained by additive genetic factors
+StC	<- mxAlgebra(expression = C/V, name = "c2")         # proportion of variance explained by shared environment
+StE	<- mxAlgebra(expression = E/V, name = "e2")         # proportion of variance explained by unique environment
+
+matI <- mxMatrix(type = "Iden", nrow = nv, ncol = nv, name = "I")
+matIsd <-mxAlgebra(solve(sqrt(I*V)), name = "isd") # extracting the variances from the diagonal of the covariance matrix V 
+
+rph	<- mxAlgebra(expression = solve(sqrt(I*V)) %*% V %*% solve(sqrt(I*V)), name = "Rph") # new identity matrix for standardising 
+rA	<- mxAlgebra(expression = solve(sqrt(I*A)) %*% A %*% solve(sqrt(I*A)), name = "Ra")
+rC	<- mxAlgebra(expression = solve(sqrt(I*C)) %*% C %*% solve(sqrt(I*C)), name = "Rc") 
+rE	<- mxAlgebra(expression = solve(sqrt(I*E)) %*% E %*% solve(sqrt(I*E)), name = "Re")
+
+# path estimates
+Sta <- mxAlgebra(isd%*%a, name = "sta")
+Stc <- mxAlgebra(isd%*%c, name = "stc")
+Ste <- mxAlgebra(isd%*%e, name = "ste")
+
+# path estimates squared
+Sta2 <- mxAlgebra(sta*sta, name = "sta2")
+Stc2 <- mxAlgebra(stc*stc, name = "stc2")
+Ste2 <- mxAlgebra(ste*ste, name = "ste2")
+
+rowVars	<- rep('Vars', nv)
+colVars	<- rep(c('h2', 'c2', 'e2'), each = nv)
+estVars	<- mxAlgebra(expression = cbind(h2,c2,e2), name = "Est", dimnames = list(rowVars,colVars))
+
+rphace <- mxAlgebra(expression = cbind(
+              (sqrt(h2[1,1])*Ra[2,1]*sqrt(h2[2,2])), # path tracing from isolation12_m to isolation12_t 
+							(sqrt(c2[1,1])*Rc[2,1]*sqrt(c2[2,2])),
+							(sqrt(e2[1,1])*Re[2,1]*sqrt(e2[2,2])), 
+							(sqrt(h2[1,1])*Ra[3,1]*sqrt(h2[3,3])), # path tracing from isolation12_m to conduct12
+							(sqrt(c2[1,1])*Rc[3,1]*sqrt(c2[3,3])),
+							(sqrt(e2[1,1])*Re[3,1]*sqrt(e2[3,3])),
+							(sqrt(h2[2,2])*Ra[3,2]*sqrt(h2[3,3])), # path tracing from isolation12_t to conduct12
+							(sqrt(c2[2,2])*Rc[3,2]*sqrt(c2[3,3])),
+							(sqrt(e2[2,2])*Re[3,2]*sqrt(e2[3,3]))
+							), name = "RphACE" )
+
+covMZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, A+C),
+                                          cbind(A+C, A+C+E)), name = "expCovMZ")
+covDZ	<- mxAlgebra(expression = rbind(cbind(A+C+E, 0.5%x%A+C),
+                                          cbind(0.5%x%A+C, A+C+E)), name = "expCovDZ")
+```
+
+```{r run 1d}
+dataMZ <- mxData(observed = dat.twin.MZ, type = "raw")
+dataDZ <- mxData(observed = dat.twin.DZ, type = "raw")
+
+objMZ	<- mxExpectationNormal(covariance = "expCovMZ", means = "ExpMean", dimnames = selvars_sens_triv_con18_norm_reg)
+objDZ	<- mxExpectationNormal(covariance = "expCovDZ", means = "ExpMean", dimnames = selvars_sens_triv_con18_norm_reg)
+
+fitFunction <- mxFitFunctionML()
+
+Conf1 <- mxCI(c('h2[1,1]', 'h2[2,2]','h2[3,3]', 'c2[1,1]', 'c2[2,2]', 'c2[3,3]', 'e2[1,1]', 'e2[2,2]', 'e2[3,3]')) 
+Conf2	<- mxCI(c('Rph[2,1]', 'Ra[2,1]', 'Rc[2,1]', 'Re[2,1]', 'Rph[3,1]', 'Ra[3,1]', 'Rc[3,1]', 'Re[3,1]', 'Rph[3,2]', 'Ra[3,2]', 'Rc[3,2]', 'Re[3,2]')) 
+
+# all parameters to be estimated 
+pars <- list(pathA, pathC, pathE, covA, covC, covE, covP, StA, StC, StE, matI, rph, rA, rC, rE, MeanG, estVars, matIsd, Sta, Sta2, Stc, Stc2, Ste, Ste2, rphace)
+
+# add these to the model for MZ and DZ with the matrices we have created
+modelMZ	<- mxModel(pars, covMZ, dataMZ, objMZ, fitFunction, name = "MZ")
+modelDZ	<- mxModel(pars, covDZ, dataDZ, objDZ, fitFunction, name = "DZ")
+
+# fitting
+minus2ll <- mxAlgebra(expression = MZ.objective + DZ.objective, name = "m2LL")
+obj <- mxFitFunctionAlgebra("m2LL")
+
+# full model
+AceModel <- mxModel("ACE", pars, modelMZ, modelDZ, minus2ll, obj, Conf1, Conf2)
+
+# run ACE
+AceFit_sens_triv_con18 <- mxTryHard(AceModel, intervals = TRUE)
+```
+
+```{r output 1a}
+# summary - this shows the position in the cells for each matrix 
+AceFit_sens_triv_con18_summary <- summary(AceFit_sens_triv_con18)
+AceFit_sens_triv_con18_summary
+
+mxEval(ACE.V, AceFit_sens_triv_con18)
+mxEval(ACE.h2, AceFit_sens_triv_con18)     # A variance explained
+mxEval(ACE.c2, AceFit_sens_triv_con18)     # C variance explained
+mxEval(ACE.e2, AceFit_sens_triv_con18)     # E variance explained
+mxEval(ACE.Rph, AceFit_sens_triv_con18)    # phenotypic correlation
+mxEval(ACE.Ra, AceFit_sens_triv_con18)     # genetic correlation 
+mxEval(ACE.Rc, AceFit_sens_triv_con18)     # shared environmental correlation
+mxEval(ACE.Re, AceFit_sens_triv_con18)     # unique environmental correlation 
+mxEval(ACE.RphACE, AceFit_sens_triv_con18) # path tracing for proportion of ACE out of phenotypic correlation
+```
+
+Heritability:
+Isolation12_m 37.71%
+Isolation12_t 38.48%
+Conduct18     18.33%
+
+Shared Environment:
+Isolation12_m 00.73%
+Isolation12_t 00.34%
+Conduct18     27.88%
+
+Unique Environment:
+Isolation12_m 61.54%
+Isolation12_t 61.16%
+Conduct18     53.78%
+
+rPh:
+Isolation12_m and Isolation12_t  0.309
+Isolation12_m and conduct18      0.111
+Isolation12_t and conduct18      0.097 (small)
+
+rA:
+Isolation12_m and Isolation12_t  0.489
+Isolation12_m and conduct18      0.321 (non-sig CI)
+Isolation12_t and conduct18      0.242 (non-sig CI)
+
+rC:
+Isolation12_m and Isolation12_t  1     (non-sig CI)
+Isolation12_m and conduct18      1     (non-sig CI)
+Isolation12_t and conduct18      1     (non-sig CI)
+
+rE:
+Isolation12_m and Isolation12_t  0.192
+Isolation12_m and conduct18     -0.030 (non-sig CI)
+Isolation12_t and conduct18      0.003 (non-sig CI)
+
+```{r proportions 1d}
+# Proportion of pheno correlation due to ACE 
+# isolation12_m to isolation12_t 
+Iso12m_Iso12tpropA <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,1])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[2,1])
+Iso12m_Iso12tpropC <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,2])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[2,1])
+Iso12m_Iso12tpropE <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,3])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[2,1])
+Iso12m_Iso12tprop <- cbind(Iso12m_Iso12tpropA, Iso12m_Iso12tpropC, Iso12m_Iso12tpropE)
+
+# isolation12_m to conduct18
+Iso12m_Con18propA <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,4])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[3,1])
+Iso12m_Con18propC <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,5])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[3,1])
+Iso12m_Con18propE <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,6])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[3,1])
+Iso12m_Con18prop <- cbind(Iso12m_Con18propA, Iso12m_Con18propC, Iso12m_Con18propE)
+
+# isolation12_t to conduct18 
+Iso12t_Con18propA <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,7])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[3,2])
+Iso12t_Con18propC <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,8])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[3,2])
+Iso12t_Con18propE <- as.numeric(mxEval(ACE.RphACE, AceFit_sens_triv_con18)[,9])/as.numeric(mxEval(ACE.Rph, AceFit_sens_triv_con18)[3,2])
+Iso12t_Con18prop <- cbind(Iso12t_Con18propA, Iso12t_Con18propC, Iso12t_Con18propE) 
+
+Iso12m_Iso12tprop
+Iso12m_Con18prop
+Iso12t_Con18prop
+```
+ 
+Proportions here:                  A        C        E
+Isolation12_m and Isolation12_t  60.25%   01.62%   38.12%  
+Isolation12_m and conduct12      75.40%   40.44%  -15.84% (negative)
+Isolation12_t and conduct12      66.11%   31.66%   02.22%
+
+Proportions in thesis IPM:         A        C        E
+Isolation12 and conduct12          0%      81%      19% 
+
+### 1e. Psychometric model: 1 factor for isolation12_m and isolation12_t, and 1 factor for conduct18 
+
+A, C and E latent factors have a Cholesky Structure in the model below. 
+
+Correlation between Phenotypic Factors only due to shared A, C and E influences - **ask Kunle what this means?**
+
+As we are using two indicators (rather than the optimal three), to identify the psychometric model for the isolation12_m and isolation12_t factor we have to make the following constraints:
+
+* Constrain Asp (A specific), Csp and Esp variance components loading on variables 1 (isolation12_m) and 2 (isolation12_t) to be equal and for variable 3 (conduct12) to 0
+* Estimate the variances of the factors by scaling them to the 1st indicator variable (by fixing the loading to 1), this because applying a constraint on the factor variances of 1 can be problematic in estimation
+
+```{r variables for 1e}
+# age 18 
+selvars_sens_fact_con18_norm_reg <- c("sisoem12norm_reg", "sisoet12norm_reg", "cdsxe18norm_reg",
+                                      "sisoym12norm_reg", "sisoyt12norm_reg", "cdsxy18norm_reg")
+```
+
+```{r start values and variables 1e}
+nv		<- 3				# number of variables for a twin = 1 in Univariate
+ntv		<- 2*nv			# number of variables for a pair = 2* 1 for Univariate
+nfact		<- 2				# number of Latent Factors for Mediation Model per twin
+nfact2		<- 2*nfact			# number of Latent Factors for Mediation Model per twin
+nlower		<- ntv*(ntv+1)/2 		# number of free elements in a lower matrix ntv*ntv
+
+Groups		<- c("mz", "dz")
+# Vars		<- c('sisoem12','sisoet12','conec12')
+# selVars		<- c('sisoem12norm_reg','sisoet12norm_reg','conec12norm_reg',
+#                'sisoym12norm_reg','sisoyt12norm_reg','conyc12norm_reg')
+
+mzData <- dat.twin.MZ[,selvars_sens_fact_con18_norm_reg]
+dzData <- dat.twin.DZ[,selvars_sens_fact_con18_norm_reg]
+
+psych::describe(mzData)
+psych::describe(dzData)
+
+# CREATE LABELS & START VALUES as objects(to ease specification in the body of the model)
+(mLabs	<- paste("m",1:nv,sep=""))
+(Stmean	<- colMeans(mzData[,1:nv],na.rm=TRUE))
+(Stsd 	<- sapply(mzData[,1:nv],sd, na.rm=TRUE))
+(PatM		<- c(TRUE,TRUE,TRUE))
+
+# Create Labels for Diagonal Matrices
+# To identify this model we need to equate the sp effects of var 1 and 2 and fix the Sp of last variable to 0)
+(LabEs	<- c('es1','es1','es3'))
+(LabAs	<- c('as1','as1','as3'))
+(LabCs	<- c('cs1','cs1','cs3'))
+
+PatSp		<- c(TRUE,TRUE,FALSE)
+StSpa		<- c(.3,.3,0)
+StSpc		<- c(.2,.2,0)
+StSpe		<- c(.3,.3,0)
+
+# all 1st loadings fixed to 1
+PatFl		<- c(F,T,F,			
+		         F,F,F)
+
+StFl		<- c(1,.5,0,
+		         0,0,1)
+
+LabFl		<- c('l1','l2',NA,
+		          NA, NA, 'l3')
+
+# default optimiser 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+```
+
+```{r specify means and covariance structures 1e}
+Means		<-mxMatrix("Full", 1, ntv, free=c(PatM,PatM), values=c(Stmean,Stmean), labels=c(mLabs,mLabs), name="expMean") 
+
+# Define matrices to specify the loadings of the dependent variables on the latent factors
+Load		<-mxMatrix(type="Full",	nrow=nv, ncol=nfact, free=PatFl, values=StFl, labels=LabFl, name="FactL" )
+Id2		<-mxMatrix(type="Iden",	nrow=2, ncol=2, free=F, name="I2" )
+LoadTw	<-mxAlgebra(I2%x%FactL, name="FactLTw")
+ 
+# Define the matrix to hold the A and C effects: Specific 
+PathsAs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpa, labels=LabAs, name="as" )
+PathsCs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpc, labels=LabCs, name="cs" )
+PathsEs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpe, labels=LabEs, name="es" )
+
+covAs		<-mxAlgebra( expression= as %*% t(as), name="As" )
+covCs		<-mxAlgebra( expression= cs %*% t(cs), name="Cs" )
+covEs		<-mxAlgebra( expression= es %*% t(es), name="Es" )
+
+covPs		<-mxAlgebra( expression= As+Cs+Es, name="Vs" )
+
+# Define the matrices to hold the A and C effects: Common 
+PathsAc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.2, labels=c("a11","a21","a22"), name="a_c" )
+PathsCc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.5, labels=c("c11","c21","c22"), name="c_c" )
+PathsEc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.3, labels=c("e11","e21","e22"), name="e_c" )
+
+covAc		<-mxAlgebra( expression= a_c %*% t(a_c), name="Ac" )
+covCc		<-mxAlgebra( expression= c_c %*% t(c_c), name="Cc" )
+covEc		<-mxAlgebra( expression= e_c %*% t(e_c), name="Ec" )
+covPc		<-mxAlgebra( expression= Ac+Cc+Ec, name="Vc" )
+
+# Var-Cov of measured vars in terms of latent factors and AC, Cc, and Ec
+covMZ	<-mxAlgebra( expression= (FactLTw  %&% rbind ( cbind(Vc, Ac+Cc), cbind(Ac+Cc, Vc) )) , name="expCovMZ" )#This traces the path from vars to factors and back to vars
+covDZ	<-mxAlgebra( expression= (FactLTw  %&% rbind ( cbind(Vc, .5%x%Ac+Cc), cbind(.5%x%Ac+Cc, Vc) )) , name="expCovDZ" )
+
+SpcovMZ	<-mxAlgebra( expression= rbind (cbind(Vs, As+Cs), cbind(As+Cs, Vs) ) , name="expSpCovMZ" )
+SpcovDZ	<-mxAlgebra( expression= rbind (cbind(Vs, .5%x%As+Cs), cbind(.5%x%As+Cs, Vs) ) , name="expSpCovDZ" )
+
+TOTcovMZ	<-mxAlgebra( expression= expCovMZ + expSpCovMZ , name="TOTexpCovMZ" )
+TOTcovDZ	<-mxAlgebra( expression= expCovDZ + expSpCovDZ , name="TOTexpCovDZ" )
+```
+
+```{r calculate ACE correlations and path estimates 1e}
+# Calculate genetic,  environmental, and phenotypic correlations
+corA		<- mxAlgebra( expression=solve(sqrt(I2*Ac))%&%Ac, name ="rA" ) 
+corC		<- mxAlgebra( expression=solve(sqrt(I2*Cc))%&%Cc, name ="rC" )
+corE		<- mxAlgebra( expression=solve(sqrt(I2*Ec))%&%Ec, name ="rE" )
+corP		<- mxAlgebra( expression=solve(sqrt(I2*Vc))%&%Vc, name ="rP") 
+
+# Standardize the Total var/covariances matrices of the observed variables
+Id6		<-mxMatrix(type="Iden",	nrow=ntv, ncol=ntv, name="I6" )
+Rfactmz	<-mxAlgebra( expression= solve(sqrt(I6*TOTexpCovMZ)) %&% TOTexpCovMZ, name="FactcorMZ" )
+Rfactdz	<-mxAlgebra( expression= solve(sqrt(I6*TOTexpCovDZ)) %&% TOTexpCovDZ, name="FactcorDZ" )
+
+# Standardize the Common Effects
+stcovAc	<-mxAlgebra( expression= Ac/Vc, name="stAc" )
+stcovCc	<-mxAlgebra( expression= Cc/Vc, name="stCc" )
+stcovEc	<-mxAlgebra( expression= Ec/Vc, name="stEc" )
+
+# Standardize the Specific Effects
+stcovAs	<-mxAlgebra( expression= As/( (FactL %&% Vc) +Vs), name="stAs" )
+stcovCs	<-mxAlgebra( expression= Cs/( (FactL %&% Vc) +Vs), name="stCs" )
+stcovEs	<-mxAlgebra( expression= Es/( (FactL %&% Vc) +Vs), name="stEs" )
+
+# Standardized Effects of Individual variables from the factors (Variance components) above
+stAvar	<-mxAlgebra( expression= sqrt((FactL %&% Ac)/( (FactL %&% Vc) +Vs)), name="stAvariables" )
+stCvar	<-mxAlgebra( expression= sqrt((FactL %&% Cc)/( (FactL %&% Vc) +Vs)), name="stCvariables" )
+stEvar	<-mxAlgebra( expression= sqrt((FactL %&% Ec)/( (FactL %&% Vc) +Vs)), name="stEvariables" )
+
+# Standardized Factor Loadings
+StFL		<-mxAlgebra( expression= (diag2vec( FactL %&% Vc / TOTexpCovMZ[1:3,1:3])) , name="StandFact" )
+```
+
+```{r ACE with factor for isolation 1e}
+# Data objects for Multiple Groups
+dataMZ	<- mxData( observed=mzData, type="raw" )
+dataDZ	<- mxData( observed=dzData, type="raw" )
+
+# Objective objects for Multiple Groups
+objMZ		<- mxExpectationNormal( covariance="TOTexpCovMZ", means="expMean", dimnames=selvars_sens_fact_con18_norm_reg)
+objDZ		<- mxExpectationNormal( covariance="TOTexpCovDZ", means="expMean", dimnames=selvars_sens_fact_con18_norm_reg)
+
+fitFunction <- mxFitFunctionML()
+#fitFunction <- mxFitFunctionWLS()
+ 
+# Combine Groups
+pars1		<-list(Means,Load,LoadTw,PathsAs,PathsAs,PathsCs,PathsEs,covAs,covCs,covEs,covPs,Id2,Id6, stAvar, stCvar, stEvar)
+pars2		<-list(PathsAc,PathsCc,PathsEc,covAc,covCc,covEc,covPc,stcovAc,stcovCc,stcovEc,stcovAs,stcovCs,stcovEs,corA,corC,corE,corP)
+modelMZ	<-mxModel(pars1, pars2, covMZ, SpcovMZ, TOTcovMZ, dataMZ, objMZ, Rfactmz, fitFunction, StFL, name="MZ" )
+modelDZ	<-mxModel(pars1, pars2, covDZ, SpcovDZ, TOTcovDZ, dataDZ, objDZ, Rfactdz, fitFunction, name="DZ" )
+minus2ll	<-mxAlgebra( expression=MZ.objective + DZ.objective, name="m2LL" )
+obj		<-mxFitFunctionAlgebra( "m2LL" )
+cistFL	<-mxCI (c ('MZ.StandFact','MZ.rA','MZ.rC','MZ.rE'))
+cistFc	<-mxCI (c ('MZ.stAc','MZ.stCc','MZ.stEc') ) 	# standardized var comp from Common feactors	
+cistVs	<-mxCI (c ('MZ.stAs','MZ.stCs','MZ.stEs') ) 	# standardized var comp from specific Factors
+cistvars	<-mxCI (c ('MZ.stAvariables','MZ.stCvariables','MZ.stEvariables'))
+ACEModel	<-mxModel("ace", pars1, pars2, modelMZ, modelDZ, minus2ll, obj, cistFc, cistFL, cistVs,cistvars) 
+```
+
+```{r Run ACE with factor for isolation 1e}
+# 4 RUN ACE Factor Model: Cholesky (by Zygosity)
+AceFit_sens_fact_con18		<-mxTryHard(ACEModel, intervals = TRUE)
+(AceFit_sens_fact_con18_sum		<-summary(AceFit_sens_fact_con18, verbose = TRUE))
+```
+
+```{r output 1e}
+mxEval(MZ.Vs, AceFit_sens_fact_con18)    # total variance explained by specific ACE factors - set to be the same for identification
+
+mxEval(MZ.Ac, AceFit_sens_fact_con18)    # UNSTANDARDISED heritability estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Cc, AceFit_sens_fact_con18)    # UNSTANDARDISED shared environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Ec, AceFit_sens_fact_con18)    # UNSTANDARDISED unique environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Vc, AceFit_sens_fact_con18)    # UNSTANDARDISED total variance expained by common ACE factors on diagonal
+
+mxEval(MZ.stAc, AceFit_sens_fact_con18)  # STANDARDISED heritability estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.stCc, AceFit_sens_fact_con18)  # STANDARDISED shared environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.stEc, AceFit_sens_fact_con18)  # STANDARDISED unique environment estimates of isolation and conduct factors (common) on diagonal
+
+mxEval(MZ.stAs, AceFit_sens_fact_con18)  # STANDARDISED heritability estimates of specific isolation factors on diagonal
+mxEval(MZ.stCs, AceFit_sens_fact_con18)  # STANDARDISED shared environment estimates of specific isolation factors on diagonal
+mxEval(MZ.stEs, AceFit_sens_fact_con18)  # STANDARDISED unique environment  estimates of specific isolation factors on diagonal
+
+mxEval(MZ.rA, AceFit_sens_fact_con18)    # Genetic correlations between common factors
+mxEval(MZ.rC, AceFit_sens_fact_con18)    # Shared environmental correlations between factors
+mxEval(MZ.rE, AceFit_sens_fact_con18)    # Unique environmental correlations between factors
+mxEval(MZ.rP, AceFit_sens_fact_con18)    # Phenotypic correlation between factors
+
+mxEval(MZ.StandFact, AceFit_sens_fact_con18) # standardised factor loadings (scaled to first variable loading)
+```
+
+Phenotypic correlation between the isolation factor and conduct problems at age 18 = 0.192
+
+Heritability:
+Isolation12_cfactor     59.23%
+Conduct18_cfactor       18.15%
+Isolation12_specific    19.61% / 19.70% (set to be equal for mother and teacher but can slightly differ in standardisation)
+
+Shared Environment:
+Isolation12_cfactor     02.29%
+Conduct18_cfactor       28.16%
+Isolation12_specific    00.00% / 00.00% 
+
+Unique Environment:
+Isolation12_cfactor     38.47%
+Conduct18_cfactor       53.67%
+Isolation12_specific    49.05% / 49.29% 
+
+Correlations:
+rA between common factors  0.380
+rC between common factors  1
+rE between common factors -0.026 (negative - constrain to be 0? Ask kunle about this)
+
+Factor loadings for isolation:
+Mother    0.313
+Teacher   0.310
+
+The specific factors show that when what is common between mother and teacher has been removed, the rater/context specific effects reflect the environment (0.49) more than the genetic factors (0.19). - ask kunle why these don't add up to 1? standardised to the specific factors variance, surely these should add up to 1?  
+
+```{r proportions for 1e}
+prop_fact18 <- cbind(
+  (
+    (sqrt(as.numeric(mxEval(MZ.stAc, AceFit_sens_fact_con18)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rA, AceFit_sens_fact_con18)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stAc, AceFit_sens_fact_con18)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con18)[2,1])           # Divide by phenotypic correlation
+    ),          
+  (
+    (sqrt(as.numeric(mxEval(MZ.stCc, AceFit_sens_fact_con18)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rC, AceFit_sens_fact_con18)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stCc, AceFit_sens_fact_con18)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con18)[2,1])           # Divide by phenotypic correlation
+    ), 
+  (
+    (sqrt(as.numeric(mxEval(MZ.stEc, AceFit_sens_fact_con18)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rE, AceFit_sens_fact_con18)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stEc, AceFit_sens_fact_con18)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con18)[2,1])           # Divide by phenotypic correlation
+    )
+)
+  
+prop_fact18
+```
+
+                              A        C        E
+Proportions using factors   64.68%   41.62%  -06.30%
+IPM                          0%      81%      19%
+
+### 1f. Choose the best fitting model for conduct 18 
+
+Comparing the trivariate unconstrained model (1d) with the psychometric factor model (1e) for conduct18.
+
+```{r compare fit of 1d and 1e}
+mxCompare(AceFit_sens_triv_con18, AceFit_sens_fact_con18)
+```
+
+No significant loss in fit for factor model with conduct at age 12. 
+
+Factor (AceFit_sens_fact_con18) is therefore the preferred model. 
+
+### 1g. Set negative paths to zero
+
+Now to set the negative path estimate (e21) to zero. 
+
+```{r constrain negative rE}
+# create a "copy" of the model
+AceFit_sens_fact_con18_sub1 <- mxModel(AceFit_sens_fact_con18, name = "AceFit_sens_fact_con18_sub1") 
+
+# set parameters identified above to be zero
+AceFit_sens_fact_con18_sub1 <- omxSetParameters(AceFit_sens_fact_con18_sub1,
+                                         labels = c("e21"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+AceFit_sens_fact_con18_sub1 <- omxAssignFirstParameters(AceFit_sens_fact_con18_sub1)
+
+# Run sunmodels
+AceFit_sens_fact_con18_sub1_fit <- mxTryHard(AceFit_sens_fact_con18_sub1, intervals = TRUE)
+
+# create summary
+AceFit_sens_fact_con18_sub1_sum <- summary(AceFit_sens_fact_con18_sub1_fit)
+
+# compare to original model   
+mxCompare(AceFit_sens_fact_con18, AceFit_sens_fact_con18_sub1_fit)
+```
+
+```{r output 1g}
+mxEval(MZ.Vs, AceFit_sens_fact_con18_sub1_fit)    # total variance explained by specific ACE factors - set to be the same for identification
+
+mxEval(MZ.Ac, AceFit_sens_fact_con18_sub1_fit)    # UNSTANDARDISED heritability estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Cc, AceFit_sens_fact_con18_sub1_fit)    # UNSTANDARDISED shared environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Ec, AceFit_sens_fact_con18_sub1_fit)    # UNSTANDARDISED unique environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.Vc, AceFit_sens_fact_con18_sub1_fit)    # UNSTANDARDISED total variance expained by common ACE factors on diagonal
+
+mxEval(MZ.stAc, AceFit_sens_fact_con18_sub1_fit)  # STANDARDISED heritability estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.stCc, AceFit_sens_fact_con18_sub1_fit)  # STANDARDISED shared environment estimates of isolation and conduct factors (common) on diagonal
+mxEval(MZ.stEc, AceFit_sens_fact_con18_sub1_fit)  # STANDARDISED unique environment estimates of isolation and conduct factors (common) on diagonal
+
+mxEval(MZ.stAs, AceFit_sens_fact_con18_sub1_fit)  # STANDARDISED heritability estimates of specific isolation factors on diagonal
+mxEval(MZ.stCs, AceFit_sens_fact_con18_sub1_fit)  # STANDARDISED shared environment estimates of specific isolation factors on diagonal
+mxEval(MZ.stEs, AceFit_sens_fact_con18_sub1_fit)  # STANDARDISED unique environment  estimates of specific isolation factors on diagonal
+
+mxEval(MZ.rA, AceFit_sens_fact_con18_sub1_fit)    # Genetic correlations between common factors
+mxEval(MZ.rC, AceFit_sens_fact_con18)    # Shared environmental correlations between factors
+mxEval(MZ.rE, AceFit_sens_fact_con18_sub1_fit)    # Unique environmental correlations between factors
+mxEval(MZ.rP, AceFit_sens_fact_con18_sub1_fit)    # Phenotypic correlation between factors
+
+mxEval(MZ.StandFact, AceFit_sens_fact_con18_sub1_fit) # standardised factor loadings (scaled to first variable loading)
+```
+
+```{r proportions for 1g}
+prop_fact18sub <- cbind(
+  (
+    (sqrt(as.numeric(mxEval(MZ.stAc, AceFit_sens_fact_con18_sub1_fit)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rA, AceFit_sens_fact_con18_sub1_fit)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stAc, AceFit_sens_fact_con18_sub1_fit)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con18_sub1_fit)[2,1])           # Divide by phenotypic correlation
+    ),          
+  (
+    (sqrt(as.numeric(mxEval(MZ.stCc, AceFit_sens_fact_con18_sub1_fit)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rC, AceFit_sens_fact_con18_sub1_fit)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stCc, AceFit_sens_fact_con18_sub1_fit)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con18_sub1_fit)[2,1])           # Divide by phenotypic correlation
+    ), 
+  (
+    (sqrt(as.numeric(mxEval(MZ.stEc, AceFit_sens_fact_con18_sub1_fit)[1,1]))*  # A path tracing A loading on isolation
+    as.numeric(mxEval(MZ.rE, AceFit_sens_fact_con18_sub1_fit)[2,1])*           # A path tracing multiply by genetic correlation
+    sqrt(as.numeric(mxEval(MZ.stEc, AceFit_sens_fact_con18_sub1_fit)[2,2])))   # A path tracing multiply by loading for conduct
+    /as.numeric(mxEval(MZ.rP, AceFit_sens_fact_con18_sub1_fit)[2,1])           # Divide by phenotypic correlation
+    )
+)
+  
+prop_fact18sub
+```
+
+
+## 2: Independent pathway model with male and female paths for conduct at age 12 AND 18
+
+To check that the inconsistency with the conduct variable isn't due to sex differences, we  will apply scalars to all variables apart from depression12, conduct12, *and conduct18*. Depression12 (variable2) will have no scalars applied. Conduct12 (variable3) and conduct18 (variable7) will have separate paths for ACE (heterogeneity). 
+
+We allow heterogeneity paths for variable3 and variable7, so we specify separate ACEc (common) and ACEs (specific) matrices in males and females but only allow the labels for variable3 and 7 to vary by sex. All the other labels are the same in males and females - thus constraining these to be equal. 
+
+Scalar for variables 1, 4, 5, 6, 8
+No scalar: 2, 3, 7
+Heterogeneity: 3, 7
+
+We will run several models to check this:
+  2a. Unconstrained
+  2b. Constrained negative common paths
+  2c. Constrained negative specific paths
+
+### 2a. Unconstrained
+
+```{r number of variables (phenotypes) for 2a}
+# number of variables
+nv <- 8    					      # number of variables - 2 for each construct (2*4)
+ntv <- nv*2 				      # number of twin variables
+nlower <- nv*(nv+1)/2 		# number of free elements in an nv*nv lower matrix 
+
+# number of common factors 
+nfAc <- 2 # change dimension of A factor matrix Ac to have *2* common factors
+
+# Set if the parameters are estimated (TRUE) or not (FALSE) 
+Ac2Free   <- c(rep(TRUE, nv), rep(FALSE, nv/2), rep(TRUE, nv/2))  
+
+# Create start values for 2 common ACE Factors - set the start values for common 
+Ac2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))  
+Cc2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+Ec2Values <- c(rep(.1, nv),  rep(0, nv/2), rep(.1, nv/2))
+
+# default optimiser 
+mxOption(NULL, "Default optimizer", "CSOLNP") # change to NPSOL and see?
+```
+
+```{r labels for 2a}
+# labels for common paths for males - note that it is only variable 3 (conduct12) and variable 7 (conduct18) that we allow to vary by sex - being the only variable with 'true' heterogeneity by sex 
+aclab_noanxm <- c("ac1",  "ac2",  "ac3m",  "ac4",  "ac5",  "ac6",  "ac7m",  "ac8", 
+           	    	"ac11", "ac12", "ac13m", "ac14", "ac15", "ac16", "ac17m", "ac18")
+cclab_noanxm <- c("cc1",  "cc2",  "cc3m",  "cc4",  "cc5",  "cc6",  "cc7m",  "cc8", 
+           		    "cc11", "cc12", "cc13m", "cc14", "cc15", "cc16", "cc17m", "cc18")
+eclab_noanxm <- c("ec1",  "ec2",  "ec3m",  "ec4",  "ec5",  "ec6",  "ec7m",  "ec8",  
+          		    "ec11", "ec12", "ec13m", "ec14", "ec15", "ec16", "ec17m", "ec18")
+
+# labels for common paths for females
+aclab_noanxf <- c("ac1",  "ac2",  "ac3f",  "ac4",  "ac5",  "ac6",  "ac7f",  "ac8", 
+          		    "ac11", "ac12", "ac13f", "ac14", "ac15", "ac16", "ac17f", "ac18")
+cclab_noanxf <- c("cc1",  "cc2",  "cc3f",  "cc4",  "cc5",  "cc6",  "cc7f",  "cc8", 
+          		    "cc11", "cc12", "cc13f", "cc14", "cc15", "cc16", "cc17f", "cc18")
+eclab_noanxf <- c("ec1",  "ec2",  "ec3f",  "ec4",  "ec5",  "ec6",  "ec7f",  "ec8",  
+           		    "ec11", "ec12", "ec13f", "ec14", "ec15", "ec16", "ec17f", "ec18")
+
+# labels for specific paths
+aslab_noanxm <- c("as1", "as2", "as3m", "as4", "as5", "as6", "as7m", "as8")
+cslab_noanxm <- c("cs1", "cs2", "cs3m", "cs4", "cs5", "cs6", "cs7m", "cs8")
+eslab_noanxm <- c("es1", "es2", "es3m", "es4", "es5", "es6", "es7m", "es8")
+
+aslab_noanxf <- c("as1", "as2", "as3f", "as4", "as5", "as6", "as7f", "as8")
+cslab_noanxf <- c("cs1", "cs2", "cs3f", "cs4", "cs5", "cs6", "cs7f", "cs8")
+eslab_noanxf <- c("es1", "es2", "es3f", "es4", "es5", "es6", "es7f", "es8")
+```
+
+```{r ACE model for 2a}
+IPM_allvar_noanx_scalarhet <- mxModel("IPM_allvar_noanx_scalarhet",
+	mxModel("ACE",
+    # Common ace paths
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = aclab_noanxm, values = Ac2Values, name = "acm"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = cclab_noanxm, values = Cc2Values, name = "ccm"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = eclab_noanxm, values = Ec2Values, name = "ecm"),
+
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = aclab_noanxf, values = Ac2Values, name = "acf"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = cclab_noanxf, values = Cc2Values, name = "ccf"),
+    mxMatrix("Full", nrow = nv, ncol = nfAc, free = Ac2Free, labels = eclab_noanxf, values = Ec2Values, name = "ecf"),
+
+    # Specific ace paths
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = aslab_noanxm, values = 0.6,  name = "asm"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = cslab_noanxm, values = 0.01, name = "csm"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = eslab_noanxm, values = 0.6,  name = "esm"),
+
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = aslab_noanxf, values = 0.6,  name = "asf"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = cslab_noanxf, values = 0.01, name = "csf"),
+    mxMatrix("Diag", nrow = nv, ncol = nv, free = TRUE, labels = eslab_noanxf, values = 0.6,  name = "esf"),
+
+		# ACE variance components
+    mxAlgebra(acm %*% t(acm) + asm %*% t(asm), name = "Am"),
+    mxAlgebra(ccm %*% t(ccm) + csm %*% t(csm), name = "Cm"),
+    mxAlgebra(ecm %*% t(ecm) + esm %*% t(esm), name = "Em"),
+    mxAlgebra(Am + Cm + Em, name = "Vm"),
+
+    mxAlgebra(acf %*% t(acf) + asf %*% t(asf), name = "Af"),
+    mxAlgebra(ccf %*% t(ccf) + csf %*% t(csf), name = "Cf"),
+    mxAlgebra(ecf %*% t(ecf) + esf %*% t(esf), name = "Ef"),
+    mxAlgebra(Af + Cf + Ef, name = "Vf"),
+
+			# Calculate standard deviation for standardization
+    mxMatrix("Iden", nrow = nv, ncol = nv, name = "I"),
+    mxAlgebra(solve(sqrt(I*Vm)), name = "iSDm"), # extracting the variances from the diagonal of the covariance matrix V
+    mxAlgebra(solve(sqrt(I*Vf)), name = "iSDf"), # extracting the variances from the diagonal of the covariance matrix V
+
+		# Expected means vector
+    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanM"), # mean for males
+    mxAlgebra(cbind(MeanM, MeanM), name = "expMeanM"),
+
+    mxMatrix("Full", nrow = 1, ncol = nv, free = TRUE, values = 0.01, name = "MeanF"), # mean for females
+    mxAlgebra(cbind(MeanF,MeanF), name = "expMeanF"),
+
+    # Genetic and environmental correlations (correlated factor solution)
+    mxAlgebra(solve(sqrt(I*Vm)) %&% Vm, name = "Rphm"),
+    mxAlgebra(solve(sqrt(I*Vf)) %&% Vf, name = "Rphf"),
+		mxAlgebra(solve(sqrt(I*Af)) %&% Af, name = "Raf"),
+    mxAlgebra(solve(sqrt(I*Cf)) %&% Cf, name = "Rcf"),
+    mxAlgebra(solve(sqrt(I*Ef)) %&% Ef, name = "Ref"),
+		mxAlgebra(solve(sqrt(I*Am)) %&% Am, name = "Ram"),
+    mxAlgebra(solve(sqrt(I*Cm)) %&% Cm, name = "Rcm"),
+    mxAlgebra(solve(sqrt(I*Em)) %&% Em, name = "Rem"),
+
+    # Standardised components of variance
+    mxAlgebra(Am/Vm, name = "h2m"),
+    mxAlgebra(Cm/Vm, name = "c2m"),
+    mxAlgebra(Em/Vm, name = "e2m"),
+
+    mxAlgebra(Af/Vf, name = "h2f"),
+    mxAlgebra(Cf/Vf, name = "c2f"),
+    mxAlgebra(Ef/Vf, name = "e2f"),
+
+    # Standardise common parameters (unsquared)
+    mxAlgebra(iSDm %*% acm, name = "stacm"),
+    mxAlgebra(iSDm %*% ccm, name = "stccm"),
+    mxAlgebra(iSDm %*% ecm, name = "stecm"),
+
+    mxAlgebra(iSDf %*% acf, name = "stacf"),
+    mxAlgebra(iSDf %*% ccf, name = "stccf"),
+    mxAlgebra(iSDf %*% ecf, name = "stecf"),
+
+    # Standardise common parameters (Squared)
+    mxAlgebra(stacm*stacm, name = "stac2m"),
+    mxAlgebra(stccm*stccm, name = "stcc2m"),
+    mxAlgebra(stecm*stecm, name = "stec2m"),
+
+    mxAlgebra(stacf*stacf, name = "stac2f"),
+    mxAlgebra(stccf*stccf, name = "stcc2f"),
+    mxAlgebra(stecf*stecf, name = "stec2f"),
+
+    # Standardise specific parameters (unsquared)
+    mxAlgebra(iSDm %*% asm, name = "stasm"),
+    mxAlgebra(iSDm %*% csm, name = "stcsm"),
+    mxAlgebra(iSDm %*% esm, name = "stesm"),
+
+    mxAlgebra(iSDf %*% asf, name = "stasf"),
+    mxAlgebra(iSDf %*% csf, name = "stcsf"),
+    mxAlgebra(iSDf %*% esf, name = "stesf"),
+
+    # Standardise specific parameters (Squared)
+    mxAlgebra(stasm*stasm, name = "stas2m"),
+    mxAlgebra(stcsm*stcsm, name = "stcs2m"),
+    mxAlgebra(stesm*stesm, name = "stes2m"),
+
+    mxAlgebra(stasf*stasf, name = "stas2f"),
+    mxAlgebra(stcsf*stcsf, name = "stcs2f"),
+    mxAlgebra(stesf*stesf, name = "stes2f"),
+
+    # Scalar multiplier 
+    mxMatrix("Diag", nrow = ntv, ncol = ntv, free = c( T, F, F, T, T, T, F, T, # True for all but depression12, conduct12 & 18
+                                                       T, F, F, T, T, T, F, T),
+             values = 1,
+             label  = c("sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7","sc8", 
+                        "sc1", "sc2", "sc3", "sc4", "sc5", "sc6", "sc7","sc8"),
+             name   = "Scalar"),
+
+    mxBounds(c("sc1", "sc4", "sc5", "sc6", "sc8"), 0, NA), # creates bounds for these objects when = TRUE
+
+		# MZ expected covariance matrix
+		mxAlgebra(rbind(cbind(Am+Cm+Em, Am+Cm), cbind(Am+Cm, Am+Cm+Em)), name = "expCovMZm"), 
+		mxAlgebra(Scalar %&% rbind(cbind(Af+Cf+Ef, Af+Cf), cbind(Af+Cf, Af+Cf+Ef)), name = "expCovMZf"),
+
+		# DZ expected covariance matrix
+		mxAlgebra(rbind(cbind(Am+Cm+Em, (0.5%x%Am)+Cm), cbind((0.5%x%Am)+Cm, Am+Cm+Em)), name = "expCovDZm"), 
+		mxAlgebra(Scalar %&% rbind(cbind(Af+Cf+Ef, (0.5%x%Af)+Cf), cbind((0.5%x%Af)+Cf, Af+Cf+Ef)), name = "expCovDZf")
+
+
+	),
+	mxModel("MZM",
+		mxData(observed = dat.twin.MZm, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZm", means = "ACE.expMeanM", dimnames = selvars_noanx_norm_reg),
+		mxFitFunctionML()
+	),
+	mxModel("MZF",
+		mxData(observed = dat.twin.MZf, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovMZf", means = "ACE.expMeanF", dimnames = selvars_noanx_norm_reg),
+		mxFitFunctionML()
+	),
+	mxModel("DZM",
+		mxData(observed = dat.twin.DZm, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZm", means = "ACE.expMeanM", dimnames = selvars_noanx_norm_reg),
+		mxFitFunctionML()
+	),
+	mxModel("DZF",
+		mxData(observed = dat.twin.DZf, type = "raw"),
+		mxExpectationNormal(covariance = "ACE.expCovDZf", means = "ACE.expMeanF", dimnames = selvars_noanx_norm_reg),
+		mxFitFunctionML()
+	),
+
+	mxAlgebra(MZM.objective + DZM.objective + MZF.objective + DZF.objective, name = "m2LL"),
+	mxFitFunctionAlgebra("m2LL"),
+	mxCI(c("ACE.h2m[1,1]", "ACE.h2m[2,2]","ACE.h2m[3,3]", "ACE.h2m[4,4]", "ACE.h2m[5,5]", "ACE.h2m[6,6]", "ACE.h2m[7,7]", "ACE.h2m[8,8]",
+		     "ACE.h2f[1,1]", "ACE.h2f[2,2]","ACE.h2f[3,3]", "ACE.h2f[4,4]", "ACE.h2f[5,5]", "ACE.h2f[6,6]", "ACE.h2f[7,7]", "ACE.h2f[8,8]",
+		     "ACE.c2m[1,1]", "ACE.c2m[2,2]","ACE.c2m[3,3]", "ACE.c2m[4,4]", "ACE.c2m[5,5]", "ACE.c2m[6,6]", "ACE.c2m[7,7]", "ACE.c2m[8,8]",
+		     "ACE.c2f[1,1]", "ACE.c2f[2,2]","ACE.c2f[3,3]", "ACE.c2f[4,4]", "ACE.c2f[5,5]", "ACE.c2f[6,6]", "ACE.c2f[7,7]", "ACE.c2f[8,8]",
+		     "ACE.e2m[1,1]", "ACE.e2m[2,2]","ACE.e2m[3,3]", "ACE.e2m[4,4]", "ACE.e2m[5,5]", "ACE.e2m[6,6]", "ACE.e2m[7,7]", "ACE.e2m[8,8]",
+		     "ACE.e2f[1,1]", "ACE.e2f[2,2]","ACE.e2f[3,3]", "ACE.e2f[4,4]", "ACE.e2f[5,5]", "ACE.e2f[6,6]", "ACE.e2f[7,7]", "ACE.e2f[8,8]",
+		     "ACE.stac2m",
+	       "ACE.stcc2m",
+	       "ACE.stec2m",
+	       "ACE.stas2m",
+	       "ACE.stcs2m",
+	       "ACE.stes2m",
+		     "ACE.stac2f",
+	       "ACE.stcc2f",
+	       "ACE.stec2f",
+	       "ACE.stas2f",
+	       "ACE.stcs2f",
+	       "ACE.stes2f"
+		     ))
+)
+```
+
+```{r run ACE model 2a}
+# IPM_allvar_noanx_scalarhet_fit <- mxTryHard(IPM_allvar_noanx_scalarhet, intervals = TRUE)
+# saveRDS(IPM_allvar_noanx_scalarhet_fit, "IPM_allvar_noanx_scalarhet_fit.rds")
+
+IPM_allvar_noanx_scalarhet_fit <- readRDS("IPM_allvar_noanx_scalarhet_fit.rds")
+```
+
+```{r summary for 2a}
+IPM_allvar_noanx_scalarhet_sum <- summary(IPM_allvar_noanx_scalarhet_fit)
+```
+
+```{r output for 2a}
+IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalarhet_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Depression12",
+                  variable3 = "Conduct12",
+                  variable4 = "Psychosis12",
+                  variable5 = "Isolation18",
+                  variable6 = "Depression18",
+                  variable7 = "Conduct18",
+                  variable8 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+# AIC
+IPM_allvar_noanx_scalarhet_sum$AIC.Mx
+IPM_allvar_noanx_scalarhet_sum$degreesOfFreedom
+```
+
+Associations that add up to over 100% (Male):
+Isolation12_Conduct18
+Depression12_Conduct18
+Conduct12_Conduct18
+Psychosis12_Conduct18
+Isolation18_Conduct18
+Depression18_Conduct18
+Conduct18_Psychosis18
+
+Associations that add up to over 100% (Female):
+Isolation12_Conduct18
+Depression12_Conduct18
+Conduct12_Conduct18
+Psychosis12_Conduct18
+Isolation18_Conduct18
+Depression18_Conduct18
+Conduct18_Psychosis18
+
+*Conduct problems at age 18 is the problem for both sexes*. 
+
+Now to check which estimates are negative that are causing this. 
+* Conduct 18 has a negative loading (-0.04 and -0.07) for the common genetic factor A1 for both sexes
+
+* Conduct 18 has a negative loading (-1.415474e-05) on  specific A for females
+* Social isolation 12 has a negative loading (-8.278629e-07) on specific C
+* Conduct disorder 12 has a negative loading on specific C for both sexes
+* Conduct disorder 18 has a negative loading on specific C for females
+
+```{r check for negative loadings for 2a}
+# common parameters - unsquared
+mxEval(ACE.stacm, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stacf, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stccm, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stccf, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stecm, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stecf, IPM_allvar_noanx_scalarhet_fit)
+
+# specific parameters - unsquared
+mxEval(ACE.stasm, IPM_allvar_noanx_scalarhet_fit) 
+mxEval(ACE.stasf, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stcsm, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stcsf, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stesm, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stesf, IPM_allvar_noanx_scalarhet_fit)
+```
+
+```{r output for 2a - genetic and environmental correlations}
+mxEval(ACE.h2f, IPM_allvar_noanx_scalarhet_fit)     # A variance explained
+mxEval(ACE.c2f, IPM_allvar_noanx_scalarhet_fit)     # C variance explained
+mxEval(ACE.e2f, IPM_allvar_noanx_scalarhet_fit)     # E variance explained
+mxEval(ACE.h2m, IPM_allvar_noanx_scalarhet_fit)     # A variance explained
+mxEval(ACE.c2m, IPM_allvar_noanx_scalarhet_fit)     # C variance explained
+mxEval(ACE.e2m, IPM_allvar_noanx_scalarhet_fit)     # E variance explained
+
+mxEval(ACE.Rphf, IPM_allvar_noanx_scalarhet_fit)    # phenotypic correlation
+mxEval(ACE.Raf, IPM_allvar_noanx_scalarhet_fit)     # genetic correlation 
+mxEval(ACE.Rcf, IPM_allvar_noanx_scalarhet_fit)     # shared environmental correlation
+mxEval(ACE.Ref, IPM_allvar_noanx_scalarhet_fit)   
+
+mxEval(ACE.Rphm, IPM_allvar_noanx_scalarhet_fit)    # phenotypic correlation
+mxEval(ACE.Ram, IPM_allvar_noanx_scalarhet_fit)     # genetic correlation 
+mxEval(ACE.Rcm, IPM_allvar_noanx_scalarhet_fit)     # shared environmental correlation
+mxEval(ACE.Rem, IPM_allvar_noanx_scalarhet_fit)  
+
+# common parameters
+mxEval(ACE.stac2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stac2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stcc2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stcc2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stec2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stec2f, IPM_allvar_noanx_scalarhet_fit)
+
+# specific parameters 
+mxEval(ACE.stas2m, IPM_allvar_noanx_scalarhet_fit) 
+mxEval(ACE.stas2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stcs2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stcs2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stes2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stes2f, IPM_allvar_noanx_scalarhet_fit)
+
+IPM_allvar_noanx_scalarhet_sum_nonsig <- IPM_allvar_noanx_scalarhet_sum$CI %>%
+  filter(lbound < 0 | lbound == 0)
+```
+
+### 2b. Constrained negative common paths
+
+```{r common factor constrained het submodel 2b}
+# create a "copy" of the model
+IPM_allvar_noanx_scalarhet_sub1modelc <- mxModel(IPM_allvar_noanx_scalarhet_fit, name = "IPM_allvar_noanx_scalarhet_sub1c") 
+
+# set parameters identified above to be zero
+IPM_allvar_noanx_scalarhet_sub1modelc <- omxSetParameters(IPM_allvar_noanx_scalarhet_sub1modelc,
+                                         labels = c("ac7f", "cc4"
+                                                    ),
+                                         free = FALSE, 
+                                         values = 0)
+
+IPM_allvar_noanx_scalarhet_sub1modelc <- omxAssignFirstParameters(IPM_allvar_noanx_scalarhet_sub1modelc)
+
+# Run sunmodels
+#IPM_allvar_noanx_scalarhet_sub1modelc_fit <- mxTryHard(IPM_allvar_noanx_scalarhet_sub1modelc, intervals = TRUE)
+#saveRDS(IPM_allvar_noanx_scalarhet_sub1modelc_fit, "IPM_allvar_noanx_scalarhet_sub1modelc_fit.rds")
+IPM_allvar_noanx_scalarhet_sub1modelc_fit <- readRDS("IPM_allvar_noanx_scalarhet_sub1modelc_fit.rds")
+
+# create summary
+IPM_allvar_noanx_scalarhet_sub1modelc_sum <- summary(IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+
+# compare to original model   
+mxCompare(IPM_allvar_noanx_scalarhet_fit, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+```
+
+```{r check for negative loadings for IPM_allvar_noanx_scalarhet_fit}
+# common parameters - unsquared
+mxEval(ACE.stacm, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+mxEval(ACE.stacf, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+
+mxEval(ACE.stccm, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+mxEval(ACE.stccf, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+
+mxEval(ACE.stecm, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+mxEval(ACE.stecf, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+```
+
+```{r full output for 2b}
+IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalarhet_sub1modelc_fit,
+                  variable1 = "Isolation12",
+                  variable2 = "Depression12",
+                  variable3 = "Conduct12",
+                  variable4 = "Psychosis12",
+                  variable5 = "Isolation18",
+                  variable6 = "Depression18",
+                  variable7 = "Conduct18",
+                  variable8 = "Psychosis18",
+                  model = "ACE",
+                  uniACEestimates = TRUE,
+                  pathestimates = TRUE,
+                  A_percent = TRUE,
+                  C_percent = TRUE,
+                  E_percent = TRUE,
+                  common_factor_contribution = TRUE)
+```
+
+```{r genetic correlations for 2b}
+mxEval(ACE.h2f, IPM_allvar_noanx_scalarhet_fit)     # A variance explained
+mxEval(ACE.c2f, IPM_allvar_noanx_scalarhet_fit)     # C variance explained
+mxEval(ACE.e2f, IPM_allvar_noanx_scalarhet_fit)     # E variance explained
+mxEval(ACE.h2m, IPM_allvar_noanx_scalarhet_fit)     # A variance explained
+mxEval(ACE.c2m, IPM_allvar_noanx_scalarhet_fit)     # C variance explained
+mxEval(ACE.e2m, IPM_allvar_noanx_scalarhet_fit)     # E variance explained
+
+mxEval(ACE.Rphf, IPM_allvar_noanx_scalarhet_fit)    # phenotypic correlation
+mxEval(ACE.Raf, IPM_allvar_noanx_scalarhet_fit)     # genetic correlation 
+mxEval(ACE.Rcf, IPM_allvar_noanx_scalarhet_fit)     # shared environmental correlation
+mxEval(ACE.Ref, IPM_allvar_noanx_scalarhet_fit)   
+
+mxEval(ACE.Rphm, IPM_allvar_noanx_scalarhet_fit)    # phenotypic correlation
+mxEval(ACE.Ram, IPM_allvar_noanx_scalarhet_fit)     # genetic correlation 
+mxEval(ACE.Rcm, IPM_allvar_noanx_scalarhet_fit)     # shared environmental correlation
+mxEval(ACE.Rem, IPM_allvar_noanx_scalarhet_fit) 
+```
+
+### 2c. Constrained negative specific paths - KT LEFT OFF HERE
+
+```{r check for negative loadings for specific paths 2c }
+# specific parameters - unsquared
+mxEval(ACE.stasm, IPM_allvar_noanx_scalarhet_sub1modelc_fit) 
+mxEval(ACE.stasf, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+
+mxEval(ACE.stcsm, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+mxEval(ACE.stcsf, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+
+mxEval(ACE.stesm, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+mxEval(ACE.stesf, IPM_allvar_noanx_scalarhet_sub1modelc_fit)
+```
+
+Negative loadings are:
+
+A
+- Dep12 
+- Con12 - male only
+- Dep18
+- Con18 - female only
+
+C
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

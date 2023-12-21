@@ -953,6 +953,10 @@ AceFit_conduct1218_summary
 # Table
 conduct1218_table <- ACE_esitmates_table_crosstime(data = AceFit_conduct1218_summary, variable = "Conduct Disorder")
 conduct1218_table
+
+mxEval(ACE.Ra, AceFit_conduct1218)
+mxEval(ACE.Rc, AceFit_conduct1218)
+mxEval(ACE.Re, AceFit_conduct1218)
 ```
 
 From the univariate models (raw):
@@ -978,6 +982,11 @@ Conduct Disorder	18	h2	0.173
 bivariate normalised and sex regressed:
 Conduct Disorder	12	h2	0.093	
 Conduct Disorder	18	h2	0.184
+
+
+
+
+
 
 ***
 
@@ -1059,3 +1068,13 @@ Psychosis	18	h2	0.238
 Psychosis at age 18 is the most consistently estimated heritability overall. 
 
 ***
+
+
+
+
+
+
+
+
+
+

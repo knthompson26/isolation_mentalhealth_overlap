@@ -996,8 +996,20 @@ round(mxEval(AE.ste2, AEFit), 3)
 Here are the Choleksy estimates shown in a figure:
 ![](cholesky_AE.jpg) 
 
-
 ```{r table with all parameters with confidence intervals}
+# ACE
+as.tibble(AceSumm$CI) %>%
+    mutate(ACE = c(rep("h2",4), rep("c2",4), rep("e2",4),
+                   rep(c("sta2", "stc2", "ste2"),10))) %>%
+    mutate(Age = c(rep(c("5", "7", "10", "12"), 3),
+                   rep("5 to 7", 3), rep("5 to 10", 3), rep("5 to 12", 3), 
+                   rep("7 to 10", 3), rep("7 to 12", 3), 
+                   rep("10 to 12", 3),
+                   rep("5", 3), rep("7", 3), rep("10", 3), rep("12", 3))) %>%
+    select(ACE, Age, lbound, estimate, ubound) %>% 
+    mutate(across(is.numeric, round, digits = 3))
+
+# AE
 as.tibble(AESumm$CI) %>%
     mutate(ACE = c(rep("h2",4), rep("c2",4), rep("e2",4),
                    rep(c("sta2", "stc2", "ste2"),10))) %>%
