@@ -39,6 +39,7 @@ library(bestNormalize)
 library(questionr)
 library(OpenMx)
 library(tidyr)
+library(lavaan)
 library(tidyverse)
 library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
 ```
@@ -292,83 +293,83 @@ selvars_norm_reg_elder <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_re
 ```{r missingness for each variable}
 # isolation12
 dat <- dat %>%
-  mutate(missing.isolation12 =
+  mutate(missing_isolation12 =
            if_else(
                !is.na(sisoe12), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.isolation12)
+table(dat$missing_isolation12)
 
 # isolation18
 dat <- dat %>%
-  mutate(missing.isolation18 =
+  mutate(missing_isolation18 =
            if_else(
                !is.na(socisoe18), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.isolation18)
+table(dat$missing_isolation18)
 
 # depression12
 dat <- dat %>%
-  mutate(missing.depression12 =
+  mutate(missing_depression12 =
            if_else(
                !is.na(cdie12), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.depression12)
+table(dat$missing_depression12)
 
 # depression18
 dat <- dat %>%
-  mutate(missing.depression18 =
+  mutate(missing_depression18 =
            if_else(
                !is.na(mdesxe18), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.depression18)
+table(dat$missing_depression18)
 
 # conduct12
 dat <- dat %>%
-  mutate(missing.conduct12 =
+  mutate(missing_conduct12 =
            if_else(
                !is.na(conec12), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.conduct12)
+table(dat$missing_conduct12)
 
 # conduct18
 dat <- dat %>%
-  mutate(missing.conduct18 =
+  mutate(missing_conduct18 =
            if_else(
                !is.na(cdsxe18), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.conduct18)
+table(dat$missing_conduct18)
 
 # psychosis12
 dat <- dat %>%
-  mutate(missing.psychosis12 =
+  mutate(missing_psychosis12 =
            if_else(
                !is.na(psysympe12), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.psychosis12)
+table(dat$missing_psychosis12)
 
 # psychosis18
 dat <- dat %>%
-  mutate(missing.psychosis18 =
+  mutate(missing_psychosis18 =
            if_else(
                !is.na(psyexpe18), 
                true = "Not missing",
                false = "Missing"
            ))
-table(dat$missing.psychosis18)
+table(dat$missing_psychosis18)
 ```
 
 
@@ -527,7 +528,7 @@ summary(dat$psyexpy18norm)
 
 We first normalize the twin variables, then regress out sex. We don't regress out age here as all twins were measured as close to their birthday as possible. 
 
-We also add 1 to the residuals. This  makes the means 1 as sometimes the model model can struggle to converge if the means are 0 or if any of the starting values are 0. 
+We also add 1 to the residuals. This makes the means 1 as sometimes the model model can struggle to converge if the means are 0 or if any of the starting values are 0. 
 
 ```{r regress out sex to normalised variables}
 # twin 1 - elder
@@ -656,11 +657,71 @@ cor(dat.twin.DZ[, selvars], use = "complete")
 cor(dat.twin[, selvars_norm_reg], use = "complete")
 
 # MZ
-cor(dat.twin.MZ[, selvars_norm_reg], use = "complete")
+cor.mz <- cor(dat.twin.MZ[, selvars_norm_reg], use = "complete")
 
 # DZ
-cor(dat.twin.DZ[, selvars_norm_reg], use = "complete")
+cor.dz <- cor(dat.twin.DZ[, selvars_norm_reg], use = "complete")
 ```
+
+```{r order according to cross-twin cross-trait matrices for social isolation with each mental health disorder}
+selvars_si12_xtxt <- c("sisoe12", "sisoy12")
+selvars_dep12_xtxt <- c("sisoe12", "cdie12", "sisoy12", "cdiy12")
+selvars_psy12_xtxt <- c("sisoe12", "psysympe12", "sisoy12", "psysympy12")
+selvars_psy12 <- c("psysympe12", "psysympy12")
+selvars_psy18 <- c("psyexpe18", "psyexpy18")
+
+
+var(dat.twin.MZ[, selvars_si12_xtxt], use = "complete")
+var(dat.twin.DZ[, selvars_si12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_dep12_xtxt], use = "complete")
+cor(dat.twin.DZ[, selvars_dep12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy12_xtxt], use = "complete")
+cor(dat.twin.DZ[, selvars_psy12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy12], use = "complete")
+cor(dat.twin.DZ[, selvars_psy12], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy18], use = "complete")
+cor(dat.twin.DZ[, selvars_psy18], use = "complete")
+
+
+```
+
+### Check for dominance
+
+rMZ >2*rDZ
+
+```{r see where the MZ correlations are more than 2 times the DZ correlations}
+# Find indices where cor.mz > 2 * cor.dz
+indices <- which(cor.mz > 2 * cor.dz, arr.ind = TRUE)
+
+# Initialize a list to store selected variable pairs
+selected_pairs <- list()
+
+# Iterate through the indices and select variables
+for (i in 1:nrow(indices)) {
+  row_idx <- indices[i, 1]
+  col_idx <- indices[i, 2]
+  mz_var <- selvars[row_idx]
+  dz_var <- selvars[col_idx]
+  
+  # Check if the first three letters and last two digits match
+  if (substr(mz_var, 1, 3) == substr(dz_var, 1, 3) && substr(mz_var, nchar(mz_var) - 1, nchar(mz_var)) == substr(dz_var, nchar(dz_var) - 1, nchar(dz_var))) {
+    mz_value <- cor.mz[row_idx, col_idx]
+    dz_value <- cor.dz[row_idx, col_idx]
+    selected_pairs[[paste(mz_var, dz_var)]] <- list(Variable1 = mz_var, Variable2 = dz_var, cor.mz = mz_value, cor.dz = dz_value)
+  }
+}
+
+# Print selected variable pairs and corresponding values
+for (pair_name in names(selected_pairs)) {
+  pair_info <- selected_pairs[[pair_name]]
+  cat("Variable 1:", pair_info$Variable1, "Variable 2:", pair_info$Variable2, "cor.mz:", pair_info$cor.mz, "cor.dz:", pair_info$cor.dz, "\n")
+}
+```
+The ADE model may be more appropriate for social isolation age 12 and 18, anxiety age 18, depression age 18. But this is not appropriate across all variables. 
 
 #### Heat map
 
@@ -706,7 +767,8 @@ correlation_heat_map <- ggplot(metled_cor_matrix, aes(X2, X1, fill = value)) +
   theme_minimal() +
   labs(y = "",
        x = "",
-       title = "Correlation heat map") +
+      # title = "Correlation heat map"
+       ) +
  theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),
        axis.text.y = element_text(size = 12),
        plot.margin=grid::unit(c(0,0,0,0), "mm"),
@@ -716,6 +778,8 @@ correlation_heat_map <- ggplot(metled_cor_matrix, aes(X2, X1, fill = value)) +
   geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 4)
 
 correlation_heat_map
+
+ggsave(correlation_heat_map, file = "../../plots/correlation_heatmap.jpeg", height = 8, width = 8)
 ```
 
 ```{r test significance of correlations}
@@ -953,7 +1017,7 @@ PhCSrphFit	<-mxTryHard(PhCSrphModel, intervals=F)
 ## Output
 
 ```{r output of phenotypic model}
-mxEval(MZ.Rwithin, PhCSrphFit)  # correlation between latent factors - shoudl be 0
+mxEval(MZ.Rwithin, PhCSrphFit)  # correlation between latent factors - should be 0
 mxEval(MZ.RbetweenMZ, PhCSrphFit) # Xtwin correlations between factors - MZ
 mxEval(DZ.RbetweenDZ, PhCSrphFit) # Xtwin correlations between factors - DZ
 
@@ -967,22 +1031,52 @@ mxEval(MZ.TOTexpCovMZ, PhCSrphFit) # total variance - you can see most vairance 
 mxEval(DZ.TOTexpCovDZ, PhCSrphFit)
 
 mxEval(MZ.FactL, PhCSrphFit)       # unstandardised factor loadings - fix the factor loadings for the first variable - isolation 
-mxEval(MZ.StandFact, PhCSrphFit)   # first 5 are from factor 1, and the second five are the last five from factor 2
-mxEval(MZ.StandFact61, PhCSrphFit)  # time two variables factor 1 for variables 6-10
-mxEval(MZ.StandFact71, PhCSrphFit)  # small - Anxiety age 18 on factor 1
-mxEval(MZ.StandFact81, PhCSrphFit)
-mxEval(MZ.StandFact91, PhCSrphFit)
-mxEval(MZ.StandFact101, PhCSrphFit)
+mxEval(MZ.StandFact, PhCSrphFit)   # first 5 loadings are from factor 1, and the second five are the last five from factor 2 (loadings for each age for that factor at that age)
+
+# Standardised loadings on factor 1 for variables at age 18 (6-10) 
+mxEval(MZ.StandFact61, PhCSrphFit)  # isolation18 loading on factor 1
+mxEval(MZ.StandFact71, PhCSrphFit)  # anxiety18 loading on factor 1 - small 
+mxEval(MZ.StandFact81, PhCSrphFit)  # depression18 loading on factor 1
+mxEval(MZ.StandFact91, PhCSrphFit)  # conduct18 loading on factor 1
+mxEval(MZ.StandFact101, PhCSrphFit) # psychosis18 loading on factor 1
 
 mxEval(MZ.Error, PhCSrphFit)
 mxEval(MZ.StandEr, PhCSrphFit) # to get the variance component remove the square root above or square these values
 ```
+
+```{r table of phenotypic factor loadings}
+# Standardised loadings on factor 1 for variables at age 18 (6-10) 
+isolation18_loading <- as.numeric(mxEval(MZ.StandFact61, PhCSrphFit))  # isolation18 loading on factor 1
+anxiety18_loading <- as.numeric(mxEval(MZ.StandFact71, PhCSrphFit))  # anxiety18 loading on factor 1 - small 
+depression18_loading <- as.numeric(mxEval(MZ.StandFact81, PhCSrphFit))  # depression18 loading on factor 1
+conduct18_loading <- as.numeric(mxEval(MZ.StandFact91, PhCSrphFit))  # conduct18 loading on factor 1
+psychosis18_loading <- as.numeric(mxEval(MZ.StandFact101, PhCSrphFit)) # psychosis18 loading on factor 1
+
+loadings18 <- broom::tidy(rbind(isolation18_loading, anxiety18_loading, depression18_loading, conduct18_loading, psychosis18_loading)) # loadings for variables at age 18 on factor 1 (common12&18)
+
+phno_factor_loadings <- broom::tidy(mxEval(MZ.StandFact, PhCSrphFit)) %>%
+  rbind(loadings18) %>%
+  mutate(Factor = c(rep("Common all", 5), rep("Common age 18", 5), rep("Common all", 5))) %>%
+  mutate(Variable = c("Isolation12", "Anxiety12", "Depression12", "Conduct12", "Psychosis12", "Isolation18", "Anxiety18", "Depression18", "Conduct18", "Psychosis18", "Isolation18", "Anxiety18", "Depression18", "Conduct18", "Psychosis18")) %>%
+  mutate(`Standardised factor loading` = round(x, 3)) %>%
+  select(Factor, 
+         Variable, 
+         `Standardised factor loading`) %>%
+  arrange(desc(Factor))
+
+phno_factor_loadings
+```
+
 
 * The factor loadings look okay, so not the problem though loadings of factor 1 (phenotypic equivalent of ACE at time 1) has smaller loadings on the time 2 variables which could be slightly more difficult to parse into ACE components in the genetic models. This was most so for variable 7 - anxiety at 18 and may be linked to the relatively smaller correlations with anxiety across time (r=0.04 with isolation). 
 * Factor loading for anxiety 18 on factor 1 (time point 1) is small - this justifies dropping anxiety. Supports that the phenotypic correlations were also small with the anxiety variable. If we drop anxiety, (potentially) the factors will be better defined and larger amount of variance will go into the factors. 
 * Large proportion of the variance goes into the residuals (specific factor equivalent). 
 
 Overall, it is likely a good idea to **remove anxiety** going forward with the genetic models. 
+
+
+
+
 
 ****
 
@@ -1533,7 +1627,7 @@ We now will apply scalars to all variables apart from depression12 and conduct12
 
 #### Labels
 
-We allow heterogeneity paths for variable 2, so we specify separate ACEc (common) and ACEs (specific) matrices in males and females but only allow the labels for variable 2 to vary by sex. All the other labels are the same in males and females - thus constraining these to be equal. 
+We allow heterogeneity paths for variable 3, so we specify separate ACEc (common) and ACEs (specific) matrices in males and females but only allow the labels for variable 3 to vary by sex. All the other labels are the same in males and females - thus constraining these to be equal. 
 
 Scalar for variables 1, 4, 5, 6, 7, 8
 No scalar: 2, 3,
@@ -1615,6 +1709,12 @@ IPM_allvar_noanx_scalarhet <- mxModel("IPM_allvar_noanx_scalarhet",
     # Genetic and environmental correlations (correlated factor solution)
     mxAlgebra(solve(sqrt(I*Vm)) %&% Vm, name = "Rphm"),
     mxAlgebra(solve(sqrt(I*Vf)) %&% Vf, name = "Rphf"),
+		mxAlgebra(solve(sqrt(I*Af)) %&% Af, name = "Raf"),
+    mxAlgebra(solve(sqrt(I*Cf)) %&% Cf, name = "Rcf"),
+    mxAlgebra(solve(sqrt(I*Ef)) %&% Ef, name = "Ref"),
+		mxAlgebra(solve(sqrt(I*Am)) %&% Am, name = "Ram"),
+    mxAlgebra(solve(sqrt(I*Cm)) %&% Cm, name = "Rcm"),
+    mxAlgebra(solve(sqrt(I*Em)) %&% Em, name = "Rem"),
 
     # Standardised components of variance
     mxAlgebra(Am/Vm, name = "h2m"),
@@ -1727,7 +1827,9 @@ IPM_allvar_noanx_scalarhet <- mxModel("IPM_allvar_noanx_scalarhet",
 ```
 
 ```{r run ACE model for IPM_allvar_noanx_scalarhet_fit}
-IPM_allvar_noanx_scalarhet_fit <- mxTryHard(IPM_allvar_noanx_scalarhet, intervals = TRUE)
+# IPM_allvar_noanx_scalarhet_fit <- mxTryHard(IPM_allvar_noanx_scalarhet, intervals = TRUE)
+# saveRDS(IPM_allvar_noanx_scalarhet_fit, "IPM_allvar_noanx_scalarhet_fit.rds")
+IPM_allvar_noanx_scalarhet_fit <- readRDS("IPM_allvar_noanx_scalarhet_fit.rds")
 ```
 
 #### Output
@@ -1756,6 +1858,72 @@ IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalarhet_fit,
 # AIC
 IPM_allvar_noanx_scalarhet_sum$AIC.Mx
 ```
+
+```{r}
+mxEval(ACE.h2f, IPM_allvar_noanx_scalarhet_fit)     # A variance explained
+mxEval(ACE.c2f, IPM_allvar_noanx_scalarhet_fit)     # C variance explained
+mxEval(ACE.e2f, IPM_allvar_noanx_scalarhet_fit)     # E variance explained
+mxEval(ACE.h2m, IPM_allvar_noanx_scalarhet_fit)     # A variance explained
+mxEval(ACE.c2m, IPM_allvar_noanx_scalarhet_fit)     # C variance explained
+mxEval(ACE.e2m, IPM_allvar_noanx_scalarhet_fit)     # E variance explained
+
+mxEval(ACE.Rphf, IPM_allvar_noanx_scalarhet_fit)    # phenotypic correlation
+mxEval(ACE.Raf, IPM_allvar_noanx_scalarhet_fit)     # genetic correlation 
+mxEval(ACE.Rcf, IPM_allvar_noanx_scalarhet_fit)     # shared environmental correlation
+mxEval(ACE.Ref, IPM_allvar_noanx_scalarhet_fit)   
+
+mxEval(ACE.Rphm, IPM_allvar_noanx_scalarhet_fit)    # phenotypic correlation
+mxEval(ACE.Ram, IPM_allvar_noanx_scalarhet_fit)     # genetic correlation 
+mxEval(ACE.Rcm, IPM_allvar_noanx_scalarhet_fit)     # shared environmental correlation
+mxEval(ACE.Rem, IPM_allvar_noanx_scalarhet_fit)   
+
+# common parameters
+mxEval(ACE.stac2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stac2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stcc2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stcc2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stec2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stec2f, IPM_allvar_noanx_scalarhet_fit)
+
+# specific parameters 
+mxEval(ACE.stas2m, IPM_allvar_noanx_scalarhet_fit) 
+mxEval(ACE.stas2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stcs2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stcs2f, IPM_allvar_noanx_scalarhet_fit)
+
+mxEval(ACE.stes2m, IPM_allvar_noanx_scalarhet_fit)
+mxEval(ACE.stes2f, IPM_allvar_noanx_scalarhet_fit)
+```
+
+Based on small effects (<0.01)
+ac3 (male)
+ac7
+ac16
+ac18
+
+cc4
+cc8
+cc15
+
+ec5
+ec6
+
+as2
+as3 (male)
+as4 (0.003)
+as7
+as8
+
+cs1
+cs3 (female)
+cs5
+cs6
+cs7
+cs8
+
 
 ```{r check for negative loadings for IPM_allvar_noanx_scalarhet_fit}
 # common parameters - unsquared
@@ -2092,7 +2260,7 @@ mxEval(ACE.stcsf, IPM_allvar_noanx_scalarhet_sub2models_fit)
 mxEval(ACE.stesm, IPM_allvar_noanx_scalarhet_sub2models_fit)
 mxEval(ACE.stesf, IPM_allvar_noanx_scalarhet_sub2models_fit)
 ```
-###### Output for chosen model SO FAR
+###### Output for chosen model 
 
 ```{r output for IPM_allvar_noanx_scalarhet_sub2models_fit}
 IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalarhet_sub2models_fit,
@@ -2248,6 +2416,17 @@ IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalarhet_sub2models_fit_load
                   C_percent = TRUE,
                   E_percent = TRUE,
                   common_factor_contribution = TRUE)
+
+IPM_allvar_noanx_scalarhet_sub2models_fit_loaded
+
+mxEval(ACE.h2, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)     # A variance explained (diagonal)
+mxEval(ACE.c2, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)     # C variance explained (diagonal)
+mxEval(ACE.e2, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)     # E variance explained (diagonal)
+mxEval(ACE.Rph, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)    # phenotypic correlation
+mxEval(ACE.Ra, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)     # genetic correlation 
+mxEval(ACE.Rc, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)     # shared environmental correlation
+mxEval(ACE.Re, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)     # unique environmental correlation 
+mxEval(ACE.RphACE, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded) 
 ```
 
 Univariate heritabilities: 
@@ -2288,6 +2467,29 @@ contribution_output <- IPM_esitmates_ACE_8var_het(data = IPM_allvar_noanx_scalar
                   E_percent = FALSE,
                   common_factor_contribution = TRUE)
 ```
+
+```{r check for negative loadings for IPM_allvar_noanx_scalarhet_fit}
+# common parameters - unsquared
+mxEval(ACE.stacm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+mxEval(ACE.stacf, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+
+mxEval(ACE.stccm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+mxEval(ACE.stccf, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+
+mxEval(ACE.stecm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+mxEval(ACE.stecf, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+
+# specific parameters - unsquared
+mxEval(ACE.stasm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded) 
+mxEval(ACE.stasf, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+
+mxEval(ACE.stcsm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+mxEval(ACE.stcsf, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+
+mxEval(ACE.stesm, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+mxEval(ACE.stesf, IPM_allvar_noanx_scalarhet_sub2models_fit_loaded)
+```
+
 
 # Figures 
 
@@ -2578,8 +2780,6 @@ ggsave(contribution_female, file = "../../../preliminary_results/contribution_he
 
 ## Stacked bar
 
-### Male
-
 We want to only show the correlations that include social isolation. 
 
 ```{r split the contribution output by sex}
@@ -2680,19 +2880,19 @@ contribution_output.female.Rph <- plyr::join_all(list(contribution_output.female
 contribution_output.female.Rph
 ```
 ```{r order of variables in bar chat}
-cor.levels = c(
-  "Psychosis12 - Isolation18",
-  "Isolation12 - Psychosis18", 
+cor.levels = c( # this is in the reversed order that you want it to appear in the bar chart
   "Conduct12 - Isolation18",
   "Isolation12 - Conduct18",
+  "Psychosis12 - Isolation18",
+  "Isolation12 - Psychosis18", 
   "Depression12 - Isolation18",
   "Isolation12 - Depression18",
- # "Isolation12 - Isolation18", 
+ # "Isolation12 - Isolation18", #Isolartion to isolation correlation has ben hashed out 
+  "Isolation18 - Conduct18",  
   "Isolation18 - Psychosis18", 
-  "Isolation18 - Conduct18", 
   "Isolation18 - Depression18",
+  "Isolation12 - Conduct12",  
   "Isolation12 - Psychosis12", 
-  "Isolation12 - Conduct12", 
   "Isolation12 - Depression12") 
 ```
 
@@ -2701,18 +2901,18 @@ cor.levels = c(
 contribution_output.male.formatted <- contribution_output.male.Rph %>%
   filter(
          `phenotypic correlation` == "Isolation12_Depression12"|
-         `phenotypic correlation` == "Isolation12_Conduct12"|
          `phenotypic correlation` == "Isolation12_Psychosis12"|
+         `phenotypic correlation` == "Isolation12_Conduct12"|
          `phenotypic correlation` == "Isolation18_Depression18"|
-         `phenotypic correlation` == "Isolation18_Conduct18"|
          `phenotypic correlation` == "Isolation18_Psychosis18" |
+         `phenotypic correlation` == "Isolation18_Conduct18"|
      #    `phenotypic correlation` == "Isolation12_Isolation18"|
          `phenotypic correlation` == "Isolation12_Depression18"|
-         `phenotypic correlation` == "Isolation12_Conduct18"|
          `phenotypic correlation` == "Isolation12_Psychosis18"|
+         `phenotypic correlation` == "Isolation12_Conduct18"|
          `phenotypic correlation` == "Depression12_Isolation18"|
-         `phenotypic correlation` == "Conduct12_Isolation18"|
-         `phenotypic correlation` == "Psychosis12_Isolation18"
+         `phenotypic correlation` == "Psychosis12_Isolation18" |
+         `phenotypic correlation` == "Conduct12_Isolation18"
   ) %>%
   mutate(across(`phenotypic correlation`, ~ str_replace(., "_", " - "))) %>%
   mutate(`phenotypic correlation` = factor(`phenotypic correlation`, levels = cor.levels))
@@ -2722,18 +2922,18 @@ contribution_output.male.formatted # check
 contribution_output.female.formatted <- contribution_output.female.Rph %>%
   filter(
          `phenotypic correlation` == "Isolation12_Depression12"|
-         `phenotypic correlation` == "Isolation12_Conduct12"|
          `phenotypic correlation` == "Isolation12_Psychosis12"|
+         `phenotypic correlation` == "Isolation12_Conduct12"|
          `phenotypic correlation` == "Isolation18_Depression18"|
-         `phenotypic correlation` == "Isolation18_Conduct18"|
          `phenotypic correlation` == "Isolation18_Psychosis18" |
-      #   `phenotypic correlation` == "Isolation12_Isolation18"|
+         `phenotypic correlation` == "Isolation18_Conduct18"|
+     #    `phenotypic correlation` == "Isolation12_Isolation18"|
          `phenotypic correlation` == "Isolation12_Depression18"|
-         `phenotypic correlation` == "Isolation12_Conduct18"|
          `phenotypic correlation` == "Isolation12_Psychosis18"|
+         `phenotypic correlation` == "Isolation12_Conduct18"|
          `phenotypic correlation` == "Depression12_Isolation18"|
-         `phenotypic correlation` == "Conduct12_Isolation18"|
-         `phenotypic correlation` == "Psychosis12_Isolation18"
+         `phenotypic correlation` == "Psychosis12_Isolation18" |
+         `phenotypic correlation` == "Conduct12_Isolation18"
   ) %>%
   mutate(across(`phenotypic correlation`, ~ str_replace(., "_", " - "))) %>%
   mutate(`phenotypic correlation` = factor(`phenotypic correlation`, levels = cor.levels))
@@ -2745,30 +2945,27 @@ contribution_output.female.formatted # check
 contribution_output.male.formatted <- contribution_output.male.formatted %>% 
   mutate(`phenotypic correlation` = 
            fct_relevel(`phenotypic correlation`,
-            "Psychosis12 to Isolation18",
-            "Isolation12 to Psychosis18", 
-            "Conduct12 to Isolation18",
-            "Isolation12 to Conduct18",
-            "Depression12 to Isolation18",
-            "Isolation12 to Depression18",
-         #   "Isolation12 to Isolation18", 
-            "Isolation18 to Psychosis18", 
-            "Isolation18 to Conduct18", 
-            "Isolation18 to Depression18",
-            "Isolation12 to Psychosis12", 
-            "Isolation12 to Conduct12", 
-            "Isolation12 to Depression12")) %>%
-  mutate(direction = c(rep("Concurrent associations at age 12", 3), 
-                     #  "Longitudinal Isolation", 
-                       rep(c("Longitudinal associations with depression symptoms", 
-                             "Longitudinal associations with conduct problems", 
-                             "Longitudinal associations with psychotic experiences"
+            "Conduct12 - Isolation18",
+            "Isolation12 - Conduct18",
+            "Psychosis12 - Isolation18",
+            "Isolation12 - Psychosis18", 
+            "Depression12 - Isolation18",
+            "Isolation12 - Depression18",
+            "Isolation18 - Conduct18",    
+            "Isolation18 - Psychosis18", 
+            "Isolation18 - Depression18",
+            "Isolation12 - Conduct12",    
+            "Isolation12 - Psychosis12", 
+            "Isolation12 - Depression12")) %>%
+  mutate(direction = c(rep("Age 12", 3),   
+                       rep(c("Depression symptoms", 
+                             "Conduct problems", 
+                             "Psychotic experiences"
                              ), 2), 
-                       rep("Concurrent associations at age 18", 3))) %>%
+                       rep("Age 18", 3))) %>%
   mutate(construct = c("Depression", 
                        "Conduct", 
                        "Psychosis", 
-                     #  "Isolation", 
                        "Depression", 
                        "Conduct", 
                        "Psychosis", 
@@ -2784,30 +2981,27 @@ contribution_output.male.formatted
 contribution_output.female.formatted <- contribution_output.female.formatted %>% 
   mutate(`phenotypic correlation` = 
            fct_relevel(`phenotypic correlation`,
-            "Psychosis12 to Isolation18",
-            "Isolation12 to Psychosis18", 
-            "Conduct12 to Isolation18",
-            "Isolation12 to Conduct18",
-            "Depression12 to Isolation18",
-            "Isolation12 to Depression18",
-        #    "Isolation12 to Isolation18", 
-            "Isolation18 to Psychosis18", 
-            "Isolation18 to Conduct18", 
-            "Isolation18 to Depression18",
-            "Isolation12 to Psychosis12", 
-            "Isolation12 to Conduct12", 
-            "Isolation12 to Depression12")) %>%
-  mutate(direction = c(rep("Concurrent associations at age 12", 3), 
-                     #  "Longitudinal Isolation", 
-                       rep(c("Longitudinal associations with depression symptoms", 
-                             "Longitudinal associations with conduct problems", 
-                             "Longitudinal associations with psychotic experiences"
+            "Conduct12 - Isolation18",
+            "Isolation12 - Conduct18",
+            "Psychosis12 - Isolation18",
+            "Isolation12 - Psychosis18", 
+            "Depression12 - Isolation18",
+            "Isolation12 - Depression18",
+            "Isolation18 - Conduct18",    
+            "Isolation18 - Psychosis18", 
+            "Isolation18 - Depression18",
+            "Isolation12 - Conduct12",    
+            "Isolation12 - Psychosis12", 
+            "Isolation12 - Depression12")) %>%
+  mutate(direction = c(rep("Age 12", 3),   
+                       rep(c("Depression symptoms", 
+                             "Conduct problems", 
+                             "Psychotic experiences"
                              ), 2), 
-                       rep("Concurrent associations at age 18", 3))) %>%
+                       rep("Age 18", 3))) %>%
   mutate(construct = c("Depression", 
                        "Conduct", 
                        "Psychosis", 
-                     #  "Isolation", 
                        "Depression", 
                        "Conduct", 
                        "Psychosis", 
@@ -2831,8 +3025,6 @@ R_female <- as.vector(contribution_output.female.formatted$r) # export the order
 labels_female <- unlist(lapply(as.character(R_female), function(x) c(x, rep("", 2)))) # create a vector of correlations with two spaces in between
 ```
 
-We need to do the above in order to get the correlations to show nicely on the graph - not repeated three times for each A/C/E percentage. 
-
 ```{r reordered long dataframe}
 # male 
 contribution_output.male.reorder <- contribution_output.male.formatted %>%
@@ -2841,7 +3033,8 @@ contribution_output.male.reorder <- contribution_output.male.formatted %>%
                names_to = "Percentage contribution", 
                values_to = "Percent (%)") %>%
   mutate(r = labels_male) %>%
-  mutate(position = 100)
+  mutate(position = 100) %>%
+  mutate_if(is.numeric, ~na_if(., 0)) 
 
 # female 
 contribution_output.female.reorder <- contribution_output.female.formatted %>%
@@ -2850,8 +3043,27 @@ contribution_output.female.reorder <- contribution_output.female.formatted %>%
                names_to = "Percentage contribution", 
                values_to = "Percent (%)") %>%
   mutate(r = labels_male) %>%
-  mutate(position = 100)
+  mutate(position = 100) %>%
+  mutate_if(is.numeric, ~na_if(., 0))
 ```
+
+```{r bar chart colours}
+# sgdp.colours <- c("#FBDE4E", 
+#                   "#8CD7E7", 
+#                   "#FC7ECF")
+
+sgdp.colours <- c("#CDF7F6", 
+                  "#8FB8DE", 
+                  "#E0B0FF") 
+#9A5D9E
+
+
+paper.colours <- c("#CBF3D2",  # remember to change bar font back to white
+                   "#7B287D",
+                   "#7067CF")
+```
+
+### Males
 
 ```{r stacked bar for males}
 stacked_bar_male <- ggplot(
@@ -2860,7 +3072,7 @@ stacked_bar_male <- ggplot(
       y = `Percent (%)`,
       x = `phenotypic correlation`)) + 
   geom_bar(position = "stack", 
-           stat = "identity") +
+           stat = "identity", ) +
   geom_text(aes(x = `phenotypic correlation`, 
                 y = 35.5, 
                 label = r), 
@@ -2870,14 +3082,17 @@ stacked_bar_male <- ggplot(
   geom_text(aes(label = round(`Percent (%)`)), 
             position = position_stack(vjust = 0.5), 
             size = 3, 
-            color = "#ffffff") +
-  labs(title = "r") +
-  scale_fill_manual(values = c("#7B287D", 
-                               "#7067CF", 
-                               "#CBF3D2"),
-                    labels = c("Additive genetic", 
-                               "Shared environment", 
-                               "Non-shared environment"),
+            color = "black") +
+  labs(title = "r") + 
+  labs(subtitle = "Concurrent associations") + 
+  labs(caption = "Longitudinal associations") + 
+  scale_fill_manual(values = sgdp.colours,
+                    breaks = c("Ec % contribution",
+                               "Cc % contribution",
+                               "Ac % contribution"),
+                    labels = c("Non-shared environment",
+                               "Shared environment",
+                               "Additive genetic"),
                     name = "Contribution to phenotypic correlation") + 
   scale_y_continuous(breaks=c(0, 25, 50, 75, 100), 
                      labels = c(0, 25, 50, 75, 100)) +
@@ -2893,31 +3108,102 @@ stacked_bar_male <- ggplot(
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
         panel.background = element_blank(),
-        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -8),
+        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -15),
+        plot.subtitle = element_text(face = "bold", size = 11, hjust = -0.3, vjust = -7),
+        plot.caption = element_text(face = "bold", size = 11, hjust = -0.32, vjust = 102),
         legend.position = "bottom",
         strip.background = element_rect(fill = "white"),
         strip.text = element_text(size = 11),
     
     
   ) +
-  ggforce::facet_col(vars(direction), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
+  ggforce::facet_col(vars(factor(direction, levels = c("Age 12", "Age 18", "Depression symptoms", "Psychotic experiences", "Conduct problems"))), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
 
 stacked_bar_male
-
-#  facet_grid(direction ~ ., scales = "free_y", space = "free") +
-# facet_wrap(~direction, 
-#            strip.position = "top",  
-#            nrow = 5, 
-#            drop = TRUE,
-#            scales = "free_y",
-#            space = "free_y") +
 ```
 
 ```{r save male stacked}
-ggsave(stacked_bar_male, file = "../../../preliminary_results/stackedbar_male.png", height = 6, width = 9)
+ggsave(stacked_bar_male, file = "../../../preliminary_results/stackedbar_male2.png", height = 6, width = 9)
+```
+
+```{r reformatting to reflect size of r}
+contribution_output.male.reorder_new <- contribution_output.male.formatted %>%
+  select(-total, -sex) %>%
+  pivot_longer(!`phenotypic correlation` & !direction & !construct & !r, 
+               names_to = "Percentage contribution", 
+               values_to = "Percent (%)") %>%
+  rename(r_new = r) %>%
+  mutate(r_labels = labels_male) %>%
+  mutate(position = 100) %>%
+  mutate_if(is.numeric, ~na_if(., 0)) %>%
+  mutate(r = `Percent (%)`*0.01*r_new)
 ```
 
 ```{r stacked bar for males}
+stacked_bar_male_resized <- ggplot(
+  contribution_output.male.reorder_new,
+  aes(fill = `Percentage contribution`,
+      y = `r`,
+      x = `phenotypic correlation`)) + 
+  geom_bar(position = "stack", 
+           stat = "identity", ) +
+  geom_text(aes(x = `phenotypic correlation`, 
+                y = 0.1, 
+                label = r_labels), 
+            size = 4, 
+            color = "black", 
+            position = "stack") +
+  geom_text(aes(label = round(`Percent (%)`)), 
+            position = position_stack(vjust = 0.5), 
+            size = 3, 
+            color = "black") +
+  labs(title = "r") + 
+  labs(subtitle = "Concurrent associations") + 
+  labs(caption = "Longitudinal associations") + 
+  scale_fill_manual(values = sgdp.colours,
+                    breaks = c("Ec % contribution",
+                               "Cc % contribution",
+                               "Ac % contribution"),
+                    labels = c("Non-shared environment",
+                               "Shared environment",
+                               "Additive genetic"),
+                    name = "Contribution to phenotypic correlation") + 
+ # scale_y_continuous(labels = c(0, 0.05, 0.1, 0.15, 0.2, 0.25)) +
+  scale_y_continuous(breaks = c(0, 0.05, 0.1, 0.15, 0.2, 0.25),
+                   labels = c(0, 0.05, 0.1, 0.15, 0.2, 0.25)) +
+  coord_flip() +
+  theme(
+    panel.grid.major.x = element_line(size = 0.5,
+                                          linetype = 'dashed',
+                                          colour = "gray"),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(colour = "black", size = 10),
+        axis.text.y = element_text(colour = "black", size = 10),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_blank(),
+        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -15),
+        plot.subtitle = element_text(face = "bold", size = 11, hjust = -0.3, vjust = -7),
+        plot.caption = element_text(face = "bold", size = 11, hjust = -0.32, vjust = 102),
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white"),
+        strip.text = element_text(size = 11),
+    
+    
+  ) +
+  ggforce::facet_col(vars(factor(direction, levels = c("Age 12", "Age 18", "Depression symptoms", "Psychotic experiences", "Conduct problems"))), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
+
+stacked_bar_male_resized
+```
+
+```{r save male stacked}
+ggsave(stacked_bar_male_resized, file = "/Users/katiethompson/Documents/PhD/LISS-DTP_Louise_and_Tim/Thesis/figures/corrections/stackedbar_male_resized.png", height = 6, width = 9)
+```
+
+### Females
+
+```{r stacked bar for females}
 stacked_bar_female <- ggplot(
   contribution_output.female.reorder,
   aes(fill = `Percentage contribution`,
@@ -2934,14 +3220,17 @@ stacked_bar_female <- ggplot(
   geom_text(aes(label = round(`Percent (%)`)), 
             position = position_stack(vjust = 0.5), 
             size = 3, 
-            color = "#ffffff") +
-  labs(title = "r") +
-  scale_fill_manual(values = c("#7B287D", 
-                               "#7067CF", 
-                               "#CBF3D2"),
-                    labels = c("Additive genetic", 
-                               "Shared environment", 
-                               "Non-shared environment"),
+            color = "black") +
+  labs(title = "r") + 
+  labs(subtitle = "Concurrent associations") + 
+  labs(caption = "Longitudinal associations") + 
+  scale_fill_manual(values = sgdp.colours,
+                    breaks = c("Ec % contribution",
+                               "Cc % contribution",
+                               "Ac % contribution"),
+                    labels = c("Non-shared environment",
+                               "Shared environment",
+                               "Additive genetic"),
                     name = "Contribution to phenotypic correlation") + 
   scale_y_continuous(breaks=c(0, 25, 50, 75, 100), 
                      labels = c(0, 25, 50, 75, 100)) +
@@ -2957,20 +3246,22 @@ stacked_bar_female <- ggplot(
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
         panel.background = element_blank(),
-        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -8),
+        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -15),
+        plot.subtitle = element_text(face = "bold", size = 11, hjust = -0.3, vjust = -7),
+        plot.caption = element_text(face = "bold", size = 11, hjust = -0.32, vjust = 102),
         legend.position = "bottom",
         strip.background = element_rect(fill = "white"),
         strip.text = element_text(size = 11),
     
     
   ) +
-  ggforce::facet_col(vars(direction), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
+  ggforce::facet_col(vars(factor(direction, levels = c("Age 12", "Age 18", "Depression symptoms", "Psychotic experiences", "Conduct problems"))), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
 
 stacked_bar_female
 ```
 
 ```{r save female stacked}
-ggsave(stacked_bar_female, file = "../../../preliminary_results/stackedbar_female.png", height = 6, width = 9)
+ggsave(stacked_bar_female, file = "../../plots/stackedbar_female.png", height = 6, width = 9)
 ```
 
 ***

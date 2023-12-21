@@ -1,0 +1,1081 @@
+---
+title: "The overlap between social isolation and mental health problems: sensitivity analyses" 
+output:  
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    number_sections: false
+    highlight: monochrome
+    theme: flatly
+    code_folding: show
+    includes:
+      after_body: footer.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      prompt = FALSE,
+                      cache = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      results = 'markup')
+
+options(bitmapType = 'quartz') # to render fonts better
+```
+
+```{r Clear global environment, include=FALSE}
+remove(list = ls())
+```
+
+```{r Load packages, include=FALSE}
+library(knitr)
+library(haven)
+library(psych) 
+library(bestNormalize)
+library(questionr)
+library(OpenMx)
+library(tidyr)
+library(lavaan)
+library(tidyverse)
+library(dplyr) #conflicts with tidyverse for e.g. rename and row_number
+```
+
+# Source functions
+
+```{r source functions, include=FALSE}
+source("isolation_mhealth_functions.R")
+```
+
+# Read in data
+
+```{r source the data file path, include=FALSE}
+# source raw data directory
+source("../isolation_mentalhealth_data_path.R")
+```
+
+```{r read in dta data file, include=FALSE}
+dat.raw <- read_dta(paste0(data_path_raw, "Katie_23Sep22.dta"))
+colnames(dat.raw)
+```
+
+### Column names
+
+```{r select variables needed}
+dat <- dat.raw %>%
+  dplyr::select(
+         atwinid,
+         btwinid,
+         familyid,
+         rorderp5,
+         torder,
+         zygosity,
+         sampsex,
+         sisoe12, # social isolation 
+         sisoy12,
+         sisoet12, # SI teacher
+         sisoyt12,
+         sisoem12,  # SI mother
+         sisoym12,
+         masce12,     # anxiety
+         mascy12,   
+         cdie12,      # depression
+         cdiy12,
+         conec12,     # antisocial behaviour / conduct disorder
+         conyc12,
+         psysympe12,  # psychosis - why is this not the tot scale variable - to give more variation?
+         psysympy12,
+         socisoe18,
+         socisoy18,
+         gadsxe18,    # anxiety
+         gadsxy18,
+         mdesxe18,    # depression
+         mdesxy18,
+         cdsxe18,     # antisocial behaviour / conduct disorder
+         cdsxy18,
+         psyexpe18,   # psychotic experiences
+         psyexpy18
+  )
+
+colnames(dat)
+```
+
+### Recode variables into factors {.tabset .tabset-fade}
+
+#### Sex
+
+```{r recode sex}
+dat <- dat %>%
+  mutate(
+    sex = 
+      recode_factor(as_factor(sampsex),
+        "1" = "Male",
+        "2" = "Female"))
+
+table(dat$sex)
+```
+
+#### Zygosity
+
+```{r recode zygosity}
+dat <- dat %>%
+  mutate(
+    zygosity = 
+      recode_factor(as_factor(zygosity),
+        "1" = "MZ",
+        "2" = "DZ"))
+table(dat$zygosity)
+```
+
+### Convert variables to numeric
+
+```{r create numeric isolation variables}
+dat <- dat %>%
+  mutate(
+    sisoe12 = as.numeric(sisoe12),
+    sisoy12 = as.numeric(sisoy12),
+    sisoet12 = as.numeric(sisoet12),
+    sisoyt12 = as.numeric(sisoyt12),
+    sisoem12 = as.numeric(sisoem12),
+    sisoym12 = as.numeric(sisoym12),
+    masce12 = as.numeric(masce12),       # anxiety
+    mascy12 = as.numeric(mascy12),   
+    cdie12 = as.numeric(cdie12),         # depression
+    cdiy12 = as.numeric(cdiy12),
+    conec12 = as.numeric(conec12),       # antisocial behaviour / conduct disorder
+    conyc12 = as.numeric(conyc12),
+    psysympe12 = as.numeric(psysympe12), # psychosis - why is this not the tot scale variable - to give more variation?
+    psysympy12 = as.numeric(psysympy12),
+    socisoe18 = as.numeric(socisoe18),
+    socisoy18 = as.numeric(socisoy18),
+    gadsxe18 = as.numeric(gadsxe18),     # anxiety
+    gadsxy18 = as.numeric(gadsxy18),
+    mdesxe18 = as.numeric(mdesxe18),     # depression
+    mdesxy18 = as.numeric(mdesxy18),
+    cdsxe18 = as.numeric(cdsxe18),       # antisocial behaviour / conduct disorder
+    cdsxy18 = as.numeric(cdsxy18),
+    psyexpe18 = as.numeric(psyexpe18),   # psychotic experiences
+    psyexpy18 = as.numeric(psyexpy18)
+  ) %>%
+  select(                                # remove variables not needed
+    -c(sampsex)
+  )
+```
+
+# Variables lists
+
+```{r select variables - raw}
+# anxiety
+selvars_anxe <- c("sisoe12", "masce12", "socisoe18", "gadsxe18")
+selvars_anx <- c("sisoe12", "masce12", "socisoe18", "gadsxe18", 
+                 "sisoy12", "mascy12", "socisoy18", "gadsxy18")
+
+# depression
+selvars_depe <- c("sisoe12", "cdie12", "socisoe18", "mdesxe18")
+selvars_dep <- c("sisoe12", "cdie12", "socisoe18", "mdesxe18", 
+                 "sisoy12", "cdiy12", "socisoy18", "mdesxy18")
+
+# conduct
+selvars_cone <- c("sisoe12", "conec12", "socisoe18", "cdsxe18")
+selvars_con <- c("sisoe12", "conec12", "socisoe18", "cdsxe18", 
+                 "sisoy12", "conyc12", "socisoy18", "cdsxy18")
+
+# psychosis
+selvars_psye <- c("sisoe12", "psysympe12", "socisoe18", "psyexpe18")
+selvars_psy <- c("sisoe12", "psysympe12", "socisoe18", "psyexpe18",
+                 "sisoy12", "psysympy12", "socisoy18", "psyexpy18")
+
+# all 
+selvars_anx_dep <- c("sisoe12", "masce12", "cdie12", "socisoe18", "gadsxe18", "mdesxe18",
+                     "sisoy12", "mascy12", "cdiy12", "socisoy18", "gadsxy18", "mdesxy18")
+
+selvars_dep_con <- c("sisoe12", "cdie12", "conec12", "socisoe18", "mdesxe18", "cdsxe18",
+                     "sisoy12", "cdiy12", "conyc12", "socisoy18", "mdesxy18", "cdsxy18")
+
+selvars <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", 
+             "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18",
+             "sisoy12", "mascy12", "cdiy12", "conyc12", "psysympy12", 
+             "socisoy18", "gadsxy18", "mdesxy18", "cdsxy18", "psyexpy18")
+
+selvars_noanx <- c("sisoe12",  "cdie12",   "conec12", "psysympe12", 
+                  "socisoe18", "mdesxe18", "cdsxe18", "psyexpe18",
+                  "sisoy12",   "cdiy12",   "conyc12", "psysympy12", 
+                  "socisoy18", "mdesxy18", "cdsxy18", "psyexpy18")
+
+selvars_elder <- c("sisoe12", "masce12", "cdie12", "conec12", "psysympe12", 
+                   "socisoe18", "gadsxe18", "mdesxe18", "cdsxe18", "psyexpe18")
+```
+
+```{r select variables - normalised}
+# anxiety
+selvars_anxe_norm <- c("sisoe12norm", "masce12norm", "socisoe18norm", "gadsxe18norm")
+selvars_anx_norm <- c("sisoe12norm", "masce12norm", "socisoe18norm", "gadsxe18norm", 
+                      "sisoy12norm", "mascy12norm", "socisoy18norm", "gadsxy18norm")
+
+# depression
+selvars_depe_norm <- c("sisoe12norm", "cdie12norm", "socisoe18norm", "mdesxe18norm")
+selvars_dep_norm <- c("sisoe12norm", "cdie12norm", "socisoe18norm", "mdesxe18norm", 
+                      "sisoy12norm", "cdiy12norm", "socisoy18norm", "mdesxy18norm")
+
+# conduct
+selvars_cone_norm <- c("sisoe12norm", "conec12norm", "socisoe18norm", "cdsxe18norm")
+selvars_con_norm <- c("sisoe12norm", "conec12norm", "socisoe18norm", "cdsxe18norm", 
+                      "sisoy12norm", "conyc12norm", "socisoy18norm", "cdsxy18norm")
+
+# psychosis
+selvars_psye_norm <- c("sisoe12norm", "psysympe12norm", "socisoe18norm", "psyexpe18norm")
+selvars_psy_norm <- c("sisoe12norm", "psysympe12norm", "socisoe18norm", "psyexpe18norm",
+                      "sisoy12norm", "psysympy12norm", "socisoy18norm", "psyexpy18norm")
+
+# all 
+selvars_norm <- c("sisoe12norm", "masce12norm", "cdie12norm", "conec12norm", "psysympe12norm", "socisoe18norm", "gadsxe18norm", "mdesxe18norm", "cdsxe18norm", "psyexpe18norm",
+             "sisoy12norm", "mascy12norm", "cdiy12norm", "conyc12norm", "psysympy12norm", "socisoy18norm", "gadsxy18norm", "mdesxy18norm", "cdsxy18norm", "psyexpy18norm")
+
+# all with non-normalised - not in the twin modelling specific order here only used to standardise all variables at once
+selvars_norm_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdiy12", "conec12", "conyc12", "psysympe12", "psysympy12", 
+                      "socisoe18", "socisoy18", "gadsxe18", "gadsxy18", "mdesxe18", "mdesxy18", "cdsxe18", "cdsxy18", "psyexpe18", "psyexpy18",
+                      "sisoe12norm", "sisoy12norm", "masce12norm", "mascy12norm", "cdie12norm", "cdiy12norm", "conec12norm", "conyc12norm", "psysympe12norm", "psysympy12norm", 
+                      "socisoe18norm", "socisoy18norm", "gadsxe18norm", "gadsxy18norm", "mdesxe18norm", "mdesxy18norm", "cdsxe18norm", "cdsxy18norm", "psyexpe18norm", "psyexpy18norm")
+```
+
+```{r select variables - normalised and sex regressed}
+# anxiety
+selvars_anxe_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg")
+selvars_anx_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "socisoe18norm_reg", "gadsxe18norm_reg", 
+                 "sisoy12norm_reg", "mascy12norm_reg", "socisoy18norm_reg", "gadsxy18norm_reg")
+
+# depression
+selvars_depe_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "socisoe18norm_reg", "mdesxe18norm_reg")
+selvars_dep_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "socisoe18norm_reg", "mdesxe18norm_reg", 
+                 "sisoy12norm_reg", "cdiy12norm_reg", "socisoy18norm_reg", "mdesxy18norm_reg")
+
+# conduct
+selvars_cone_norm_reg <- c("sisoe12norm_reg", "conec12norm_reg", "socisoe18norm_reg", "cdsxe18norm_reg")
+selvars_con_norm_reg <- c("sisoe12norm_reg", "conec12norm_reg", "socisoe18norm_reg", "cdsxe18norm_reg", 
+                 "sisoy12norm_reg", "conyc12norm_reg", "socisoy18norm_reg", "cdsxy18norm_reg")
+
+# psychosis
+selvars_psye_norm_reg <- c("sisoe12norm_reg", "psysympe12norm_reg", "socisoe18norm_reg", "psyexpe18norm_reg")
+selvars_psy_norm_reg <- c("sisoe12norm_reg", "psysympe12norm_reg", "socisoe18norm_reg", "psyexpe18norm_reg",
+                 "sisoy12norm_reg", "psysympy12norm_reg", "socisoy18norm_reg", "psyexpy18norm_reg")
+
+# all 
+selvars_noanx_norm_reg <- c("sisoe12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                      "socisoe18norm_reg",  "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                      "sisoy12norm_reg",  "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg",
+                      "socisoy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+selvars_noanx_reg <- c("sisoe12_reg", "cdie12_reg", "conec12_reg", "psysympe12_reg", 
+                      "socisoe18_reg",  "mdesxe18_reg", "cdsxe18_reg", "psyexpe18_reg",
+                      "sisoy12_reg",  "cdiy12_reg", "conyc12_reg", "psysympy12_reg",
+                      "socisoy18_reg", "mdesxy18_reg", "cdsxy18_reg", "psyexpy18_reg")
+
+selvars_norm_reg <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                      "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                      "sisoy12norm_reg", "mascy12norm_reg", "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg",
+                      "socisoy18norm_reg", "gadsxy18norm_reg", "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+selvars_noanx_nosoc_norm_reg <- c("cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                                  "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg",
+                                  "cdiy12norm_reg", "conyc12norm_reg", "psysympy12norm_reg",
+                                  "mdesxy18norm_reg", "cdsxy18norm_reg", "psyexpy18norm_reg")
+
+
+# all with non-norm_regalised - not in the twin modelling specific order here only used to standardise all variables at once
+selvars_norm_reg_all <- c("sisoe12", "sisoy12", "masce12", "mascy12", "cdie12", "cdiy12", "conec12", "conyc12", "psysympe12", "psysympy12", 
+                      "socisoe18", "socisoy18", "gadsxe18", "gadsxy18", "mdesxe18", "mdesxy18", "cdsxe18", "cdsxy18", "psyexpe18", "psyexpy18",
+                      "sisoe12norm_reg", "sisoy12norm_reg", "masce12norm_reg", "mascy12norm_reg", "cdie12norm_reg", "cdiy12norm_reg", "conec12norm_reg", "conyc12norm_reg", "psysympe12norm_reg", "psysympy12norm_reg", 
+                      "socisoe18norm_reg", "socisoy18norm_reg", "gadsxe18norm_reg", "gadsxy18norm_reg", "mdesxe18norm_reg", "mdesxy18norm_reg", "cdsxe18norm_reg", "cdsxy18norm_reg", "psyexpe18norm_reg", "psyexpy18norm_reg")
+
+selvars_norm_reg_elder <- c("sisoe12norm_reg", "masce12norm_reg", "cdie12norm_reg", "conec12norm_reg", "psysympe12norm_reg", 
+                            "socisoe18norm_reg", "gadsxe18norm_reg", "mdesxe18norm_reg", "cdsxe18norm_reg", "psyexpe18norm_reg")
+```
+
+# Data prep
+
+## Missingness
+
+```{r missingness for each variable}
+# isolation12
+dat <- dat %>%
+  mutate(missing_isolation12 =
+           if_else(
+               !is.na(sisoe12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_isolation12)
+
+# isolation18
+dat <- dat %>%
+  mutate(missing_isolation18 =
+           if_else(
+               !is.na(socisoe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_isolation18)
+
+# depression12
+dat <- dat %>%
+  mutate(missing_depression12 =
+           if_else(
+               !is.na(cdie12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_depression12)
+
+# depression18
+dat <- dat %>%
+  mutate(missing_depression18 =
+           if_else(
+               !is.na(mdesxe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_depression18)
+
+# conduct12
+dat <- dat %>%
+  mutate(missing_conduct12 =
+           if_else(
+               !is.na(conec12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_conduct12)
+
+# conduct18
+dat <- dat %>%
+  mutate(missing_conduct18 =
+           if_else(
+               !is.na(cdsxe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_conduct18)
+
+# psychosis12
+dat <- dat %>%
+  mutate(missing_psychosis12 =
+           if_else(
+               !is.na(psysympe12), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_psychosis12)
+
+# psychosis18
+dat <- dat %>%
+  mutate(missing_psychosis18 =
+           if_else(
+               !is.na(psyexpe18), 
+               true = "Not missing",
+               false = "Missing"
+           ))
+table(dat$missing_psychosis18)
+```
+
+## Skewness
+
+```{r histograms}
+# isolation
+hist(dat$sisoe12)    # not normal
+hist(dat$socisoe18)  # not normal
+# anxiety
+hist(dat$masce12)    # normal
+hist(dat$gadsxe18)   # not normal
+# depression
+hist(dat$cdie12)     # not normal
+hist(dat$mdesxe18)   # not normal
+# conduct
+hist(dat$conec12)    # not normal
+hist(dat$cdsxe18)    # not normal
+# psychosis
+hist(dat$psysympe12) # not normal
+hist(dat$psyexpe18)  # not normal
+```
+
+## Rank transformation
+
+Almost all variables are non-normal. We will use the van der Waerden's rank-based transformation as used in [Rimfeld et al 2021](https://acamh.onlinelibrary.wiley.com/doi/full/10.1002/jcv2.12053). For analyses using transformed data, they conducted the van der Waerden transformation prior to residualizing for age and sex as recommended by [Pain et al. 2018](https://www.nature.com/articles/s41431-018-0159-6).  
+
+I will transform all variables to get the normalised estimate.
+
+```{r rank transform variables elder variables}
+# isolation age 12
+sisoe12_n <- bestNormalize(dat$sisoe12)    # select the type of transformation needed
+dat$sisoe12norm <- predict(sisoe12_n)      # create normalised variable
+hist(dat$sisoe12norm)                  
+summary(dat$sisoe12norm)
+
+sisoem12_n <- bestNormalize(dat$sisoem12)    
+dat$sisoem12norm <- predict(sisoem12_n)     
+hist(dat$sisoem12norm)                  
+summary(dat$sisoem12norm)
+
+sisoet12_n <- bestNormalize(dat$sisoet12)    
+dat$sisoet12norm <- predict(sisoet12_n)     
+hist(dat$sisoet12norm)                  
+summary(dat$sisoet12norm)
+
+# isolation age 18
+socisoe18_n <- bestNormalize(dat$socisoe18)    
+dat$socisoe18norm <- predict(socisoe18_n)  
+hist(dat$socisoe18norm)                  
+summary(dat$socisoe18norm)
+
+# anxiety age 12 - wont actually use this as it's already normally distributed
+masce12_n <- bestNormalize(dat$masce12)    
+dat$masce12norm <- predict(masce12_n)  
+hist(dat$masce12norm)                  
+summary(dat$masce12norm)
+
+# anxiety age 18
+gadsxe18_n <- bestNormalize(dat$gadsxe18)    
+dat$gadsxe18norm <- predict(gadsxe18_n)  
+hist(dat$gadsxe18norm)                  
+summary(dat$gadsxe18norm)
+
+# depression age 12
+cdie12_n <- bestNormalize(dat$cdie12)    
+dat$cdie12norm <- predict(cdie12_n)  
+hist(dat$cdie12norm)                  
+summary(dat$cdie12norm)
+
+# depression age 18
+mdesxe18_n <- bestNormalize(dat$mdesxe18)    
+dat$mdesxe18norm <- predict(mdesxe18_n)  
+hist(dat$mdesxe18norm)                  
+summary(dat$mdesxe18norm)
+
+# conduct age 12
+conec12_n <- bestNormalize(dat$conec12)    
+dat$conec12norm <- predict(conec12_n)  
+hist(dat$conec12norm)                  
+summary(dat$conec12norm)
+
+# conduct age 18
+cdsxe18_n <- bestNormalize(dat$cdsxe18)    
+dat$cdsxe18norm <- predict(cdsxe18_n)  
+hist(dat$cdsxe18norm)                  
+summary(dat$cdsxe18norm)
+
+# psychosis age 12
+psysympe12_n <- bestNormalize(dat$psysympe12)    
+dat$psysympe12norm <- predict(psysympe12_n)  
+hist(dat$psysympe12norm)                  
+summary(dat$psysympe12norm)
+
+# psychosis age 18
+psyexpe18_n <- bestNormalize(dat$psyexpe18)    
+dat$psyexpe18norm <- predict(psyexpe18_n)  
+hist(dat$psyexpe18norm)                  
+summary(dat$psyexpe18norm)
+```
+
+```{r rank transform variables younger variables}
+# isolation age 12
+sisoy12_n <- bestNormalize(dat$sisoy12)    # select the type of transformation needed
+dat$sisoy12norm <- predict(sisoy12_n)  # create normalised variable
+hist(dat$sisoy12norm)                  
+summary(dat$sisoy12norm)
+
+sisoym12_n <- bestNormalize(dat$sisoym12)    
+dat$sisoym12norm <- predict(sisoym12_n)     
+hist(dat$sisoym12norm)                  
+summary(dat$sisoym12norm)
+
+sisoyt12_n <- bestNormalize(dat$sisoyt12)    
+dat$sisoyt12norm <- predict(sisoyt12_n)     
+hist(dat$sisoyt12norm)                  
+summary(dat$sisoyt12norm)
+
+# isolation age 18
+socisoy18_n <- bestNormalize(dat$socisoy18)    
+dat$socisoy18norm <- predict(socisoy18_n)  
+hist(dat$socisoy18norm)                  
+summary(dat$socisoy18norm)
+
+# anxiety age 12 - wont actually use this as it's already normally distributed
+mascy12_n <- bestNormalize(dat$mascy12)    
+dat$mascy12norm <- predict(mascy12_n)  
+hist(dat$mascy12norm)                  
+summary(dat$mascy12norm)
+
+# anxiety age 18
+gadsxy18_n <- bestNormalize(dat$gadsxy18)    
+dat$gadsxy18norm <- predict(gadsxy18_n)  
+hist(dat$gadsxy18norm)                  
+summary(dat$gadsxy18norm)
+
+# depression age 12
+cdiy12_n <- bestNormalize(dat$cdiy12)    
+dat$cdiy12norm <- predict(cdiy12_n)  
+hist(dat$cdiy12norm)                  
+summary(dat$cdiy12norm)
+
+# depression age 18
+mdesxy18_n <- bestNormalize(dat$mdesxy18)    
+dat$mdesxy18norm <- predict(mdesxy18_n)  
+hist(dat$mdesxy18norm)                  
+summary(dat$mdesxy18norm)
+
+# conduct age 12
+conyc12_n <- bestNormalize(dat$conyc12)    
+dat$conyc12norm <- predict(conyc12_n)  
+hist(dat$conyc12norm)                  
+summary(dat$conyc12norm)
+
+# conduct age 18
+cdsxy18_n <- bestNormalize(dat$cdsxy18)    
+dat$cdsxy18norm <- predict(cdsxy18_n)  
+hist(dat$cdsxy18norm)                  
+summary(dat$cdsxy18norm)
+
+# psychosis age 12
+psysympy12_n <- bestNormalize(dat$psysympy12)    
+dat$psysympy12norm <- predict(psysympy12_n)  
+hist(dat$psysympy12norm)                  
+summary(dat$psysympy12norm)
+
+# psychosis age 18
+psyexpy18_n <- bestNormalize(dat$psyexpy18)    
+dat$psyexpy18norm <- predict(psyexpy18_n)  
+hist(dat$psyexpy18norm)                  
+summary(dat$psyexpy18norm)
+```
+
+## Regress out sex
+
+We first normalize the twin variables, then regress out sex. We don't regress out age here as all twins were measured as close to their birthday as possible. 
+
+We also add 1 to the residuals. This makes the means 1 as sometimes the model model can struggle to converge if the means are 0 or if any of the starting values are 0. 
+
+```{r regress out sex to normalised variables}
+# twin 1 - elder
+## isolation
+dat$sisoe12norm_reg <- (resid(lm(data = dat, sisoe12norm ~ sex, na.action = na.exclude))) + 1
+dat$sisoem12norm_reg <- (resid(lm(data = dat, sisoem12norm ~ sex, na.action = na.exclude))) + 1
+dat$sisoet12norm_reg <- (resid(lm(data = dat, sisoet12norm ~ sex, na.action = na.exclude))) + 1
+dat$socisoe18norm_reg <- (resid(lm(data = dat, socisoe18norm ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$masce12norm_reg <- (resid(lm(data = dat, masce12norm ~ sex, na.action = na.exclude))) + 1
+dat$gadsxe18norm_reg <- (resid(lm(data = dat, gadsxe18norm ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdie12norm_reg <- (resid(lm(data = dat, cdie12norm ~ sex, na.action = na.exclude))) + 1
+dat$mdesxe18norm_reg <- (resid(lm(data = dat, mdesxe18norm ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conec12norm_reg <- (resid(lm(data = dat, conec12norm ~ sex, na.action = na.exclude))) + 1
+dat$cdsxe18norm_reg <- (resid(lm(data = dat, cdsxe18norm ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympe12norm_reg <- (resid(lm(data = dat, psysympe12norm ~ sex, na.action = na.exclude))) + 1
+dat$psyexpe18norm_reg <- (resid(lm(data = dat, psyexpe18norm ~ sex, na.action = na.exclude))) + 1
+
+# twin 2 - younger
+## isolation
+dat$sisoy12norm_reg <- (resid(lm(data = dat, sisoy12norm ~ sex, na.action = na.exclude)))  + 1
+dat$sisoym12norm_reg <- (resid(lm(data = dat, sisoym12norm ~ sex, na.action = na.exclude))) + 1
+dat$sisoyt12norm_reg <- (resid(lm(data = dat, sisoyt12norm ~ sex, na.action = na.exclude))) + 1
+dat$socisoy18norm_reg <- (resid(lm(data = dat, socisoy18norm ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$mascy12norm_reg <- (resid(lm(data = dat, mascy12norm ~ sex, na.action = na.exclude))) + 1
+dat$gadsxy18norm_reg <- (resid(lm(data = dat, gadsxy18norm ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdiy12norm_reg <- (resid(lm(data = dat, cdiy12norm ~ sex, na.action = na.exclude))) + 1
+dat$mdesxy18norm_reg <- (resid(lm(data = dat, mdesxy18norm ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conyc12norm_reg <- (resid(lm(data = dat, conyc12norm ~ sex, na.action = na.exclude))) + 1
+dat$cdsxy18norm_reg <- (resid(lm(data = dat, cdsxy18norm ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympy12norm_reg <- (resid(lm(data = dat, psysympy12norm ~ sex, na.action = na.exclude))) + 1
+dat$psyexpy18norm_reg <- (resid(lm(data = dat, psyexpy18norm ~ sex, na.action = na.exclude))) + 1
+```
+
+```{r regress out sex}
+# twin 1 - elder
+## isolation
+dat$sisoe12_reg <- (resid(lm(data = dat, sisoe12 ~ sex, na.action = na.exclude)))  + 1
+dat$socisoe18_reg <- (resid(lm(data = dat, socisoe18 ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$masce12_reg <- (resid(lm(data = dat, masce12 ~ sex, na.action = na.exclude))) + 1
+dat$gadsxe18_reg <- (resid(lm(data = dat, gadsxe18 ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdie12_reg <- (resid(lm(data = dat, cdie12 ~ sex, na.action = na.exclude))) + 1
+dat$mdesxe18_reg <- (resid(lm(data = dat, mdesxe18 ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conec12_reg <- (resid(lm(data = dat, conec12 ~ sex, na.action = na.exclude))) + 1
+dat$cdsxe18_reg <- (resid(lm(data = dat, cdsxe18 ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympe12_reg <- (resid(lm(data = dat, psysympe12 ~ sex, na.action = na.exclude))) + 1
+dat$psyexpe18_reg <- (resid(lm(data = dat, psyexpe18 ~ sex, na.action = na.exclude))) + 1
+
+# twin 2 - younger
+## isolation
+dat$sisoy12_reg <- (resid(lm(data = dat, sisoy12 ~ sex, na.action = na.exclude))) + 1 
+dat$socisoy18_reg <- (resid(lm(data = dat, socisoy18 ~ sex, na.action = na.exclude))) + 1
+## anxiety
+dat$mascy12_reg <- (resid(lm(data = dat, mascy12 ~ sex, na.action = na.exclude))) + 1
+dat$gadsxy18_reg <- (resid(lm(data = dat, gadsxy18 ~ sex, na.action = na.exclude))) + 1
+## depression
+dat$cdiy12_reg <- (resid(lm(data = dat, cdiy12 ~ sex, na.action = na.exclude))) + 1
+dat$mdesxy18_reg <- (resid(lm(data = dat, mdesxy18 ~ sex, na.action = na.exclude))) + 1
+## conduct
+dat$conyc12_reg <- (resid(lm(data = dat, conyc12 ~ sex, na.action = na.exclude))) + 1
+dat$cdsxy18_reg <- (resid(lm(data = dat, cdsxy18 ~ sex, na.action = na.exclude))) + 1
+## psychosis
+dat$psysympy12_reg <- (resid(lm(data = dat, psysympy12 ~ sex, na.action = na.exclude))) + 1
+dat$psyexpy18_reg <- (resid(lm(data = dat, psyexpy18 ~ sex, na.action = na.exclude))) + 1
+```
+
+## Create twin dataset
+
+To remove the double entry in the data, we will remove everyone who has a "random twin order" variable of 0. This will then remove any birth order effects. 
+
+```{r remove one twin pair row}
+dat.twin <- dat %>% filter(rorderp5 == "1")
+```
+
+```{r datasets for MZ and DZ}
+dat.twin.MZ <- dat.twin %>% filter(zygosity == "MZ")
+dat.twin.DZ <- dat.twin %>% filter(zygosity == "DZ")
+
+# male only
+dat.twin.MZm <- dat.twin.MZ %>% filter(sex == "Male")
+dat.twin.DZm <- dat.twin.DZ %>% filter(sex == "Male")
+# female only
+dat.twin.MZf <- dat.twin.MZ %>% filter(sex == "Female")
+dat.twin.DZf <- dat.twin.DZ %>% filter(sex == "Female")
+```
+
+## Summary of MZ and DZ data
+
+### Overall
+
+```{r describe MZ and DZ data}
+selVars		<- c('sisoem12norm_reg','sisoet12norm_reg','conec12norm_reg',
+               'sisoym12norm_reg','sisoyt12norm_reg','conyc12norm_reg')
+MZ_summary <- psych::describe(dat.twin.MZ[,selVars], 
+                       skew = FALSE, 
+                       range = FALSE)
+
+DZ_summary <- psych::describe(dat.twin.DZ[,selVars], 
+                       skew = FALSE, 
+                       range = FALSE)
+# freq(dat$sisoe12)
+# freq(dat$psysympe12)
+# freq(dat$gadsxe18)
+```
+
+### Correlation matrices
+
+```{r check the phenotypic correlations}
+# overall
+cor(dat.twin[, selvars], use = "complete")
+
+# MZ
+cor(dat.twin.MZ[, c("sisoe12", "sisoem12", "sisoet12", "sisoy12", "sisoym12", "sisoyt12")], use = "complete")
+
+# DZ
+cor(dat.twin.DZ[, c("sisoe12", "sisoem12", "sisoet12", "sisoy12", "sisoym12", "sisoyt12")], use = "complete")
+```
+
+```{r check the phenotypic correlations for norm and sex regressed variables}
+# overall
+cor(dat.twin[, selvars_norm_reg], use = "complete")
+
+# MZ
+cor.mz <- cor(dat.twin.MZ[, selvars_norm_reg], use = "complete")
+
+# DZ
+cor.dz <- cor(dat.twin.DZ[, selvars_norm_reg], use = "complete")
+```
+
+```{r order according to cross-twin cross-trait matrices for social isolation with each mental health disorder}
+selvars_si12_xtxt <- c("sisoe12", "sisoy12")
+selvars_dep12_xtxt <- c("sisoe12", "cdie12", "sisoy12", "cdiy12")
+selvars_psy12_xtxt <- c("sisoe12", "psysympe12", "sisoy12", "psysympy12")
+selvars_psy12 <- c("psysympe12", "psysympy12")
+selvars_psy18 <- c("psyexpe18", "psyexpy18")
+
+
+var(dat.twin.MZ[, selvars_si12_xtxt], use = "complete")
+var(dat.twin.DZ[, selvars_si12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_dep12_xtxt], use = "complete")
+cor(dat.twin.DZ[, selvars_dep12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy12_xtxt], use = "complete")
+cor(dat.twin.DZ[, selvars_psy12_xtxt], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy12], use = "complete")
+cor(dat.twin.DZ[, selvars_psy12], use = "complete")
+
+cor(dat.twin.MZ[, selvars_psy18], use = "complete")
+cor(dat.twin.DZ[, selvars_psy18], use = "complete")
+
+
+```
+
+### Check for dominance
+
+rMZ >2*rDZ
+
+```{r see where the MZ correlations are more than 2 times the DZ correlations}
+# Find indices where cor.mz > 2 * cor.dz
+indices <- which(cor.mz > 2 * cor.dz, arr.ind = TRUE)
+
+# Initialize a list to store selected variable pairs
+selected_pairs <- list()
+
+# Iterate through the indices and select variables
+for (i in 1:nrow(indices)) {
+  row_idx <- indices[i, 1]
+  col_idx <- indices[i, 2]
+  mz_var <- selvars[row_idx]
+  dz_var <- selvars[col_idx]
+  
+  # Check if the first three letters and last two digits match
+  if (substr(mz_var, 1, 3) == substr(dz_var, 1, 3) && substr(mz_var, nchar(mz_var) - 1, nchar(mz_var)) == substr(dz_var, nchar(dz_var) - 1, nchar(dz_var))) {
+    mz_value <- cor.mz[row_idx, col_idx]
+    dz_value <- cor.dz[row_idx, col_idx]
+    selected_pairs[[paste(mz_var, dz_var)]] <- list(Variable1 = mz_var, Variable2 = dz_var, cor.mz = mz_value, cor.dz = dz_value)
+  }
+}
+
+# Print selected variable pairs and corresponding values
+for (pair_name in names(selected_pairs)) {
+  pair_info <- selected_pairs[[pair_name]]
+  cat("Variable 1:", pair_info$Variable1, "Variable 2:", pair_info$Variable2, "cor.mz:", pair_info$cor.mz, "cor.dz:", pair_info$cor.dz, "\n")
+}
+```
+The ADE model may be more appropriate for social isolation age 12 and 18, anxiety age 18, depression age 18. But this is not appropriate across all variables. 
+
+#### Heat map
+
+```{r list of variables for heatmap}
+name.list <- c(
+  "Isolation12",
+  "Anxiety12",
+  "Depression12",
+  "Conduct12",
+  "Psychosis12",
+  "Isolation18",
+  "Anxiety18",
+  "Depression18",
+  "Conduct18",
+  "Psychosis18"
+)
+```
+
+The functions for ordering the heat map below can be found in isolation_mhealth_functions.R
+
+Below we have used the sex regressed and normalised variables to look at the correlations - if you want to look at the raw variables, use selvars_elder
+
+```{r heat map of all correlations}
+# create data frame with just numeric antecedent variables
+variable_data_frame <- as.data.frame(dat[,selvars_norm_reg_elder])
+colnames(variable_data_frame) <- name.list
+
+# get correlation matrix
+isolation_cor_matrix <- cor(variable_data_frame, method = "pearson", use = "complete.obs")
+
+# reorder the correlation matrix
+cor_matrix_full <- reorder_cor_matrix(isolation_cor_matrix)
+  
+# melt the values
+metled_cor_matrix <- reshape::melt(cor_matrix_full, na.rm = TRUE)
+
+# correlation heat map
+correlation_heat_map <- ggplot(metled_cor_matrix, aes(X2, X1, fill = value)) +
+ geom_tile(color = "white") +
+ scale_fill_gradient2(low = "#343d99", high = "#a50026", mid = "white",
+   midpoint = 0, limit = c(-1,1), space = "Lab",
+    name="Pearson\nCorrelation") +
+  theme_minimal() +
+  labs(y = "",
+       x = "",
+      # title = "Correlation heat map"
+       ) +
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1),
+       axis.text.y = element_text(size = 12),
+       plot.margin=grid::unit(c(0,0,0,0), "mm"),
+       plot.title = element_text(size = 20),
+       )+
+ coord_fixed() +
+  geom_text(aes(X2, X1, label = round(value, digits = 2)), color = "black", size = 4)
+
+correlation_heat_map
+
+ggsave(correlation_heat_map, file = "../../plots/correlation_heatmap.jpeg", height = 8, width = 8)
+```
+
+```{r test significance of correlations}
+# isolation12
+cor.test(dat$sisoe12, dat$cdie12, use = "complete")
+cor.test(dat$sisoe12, dat$conec12, use = "complete")
+cor.test(dat$sisoe12, dat$psysympe12, use = "complete")
+cor.test(dat$sisoe12, dat$socisoe18, use = "complete")
+cor.test(dat$sisoe12, dat$mdesxe18, use = "complete")
+cor.test(dat$sisoe12, dat$cdsxe18, use = "complete")
+cor.test(dat$sisoe12, dat$psyexpe18, use = "complete")
+
+# depression12
+cor.test(dat$cdie12, dat$conec12, use = "complete")
+cor.test(dat$cdie12, dat$psysympe12, use = "complete")
+cor.test(dat$cdie12, dat$socisoe18, use = "complete")
+cor.test(dat$cdie12, dat$mdesxe18, use = "complete")
+cor.test(dat$cdie12, dat$cdsxe18, use = "complete")
+cor.test(dat$cdie12, dat$psyexpe18, use = "complete")
+
+# conduct12
+cor.test(dat$conec12, dat$psysympe12, use = "complete")
+cor.test(dat$conec12, dat$socisoe18, use = "complete")
+cor.test(dat$conec12, dat$mdesxe18, use = "complete")
+cor.test(dat$conec12, dat$cdsxe18, use = "complete")
+cor.test(dat$conec12, dat$psyexpe18, use = "complete")
+
+# psychosis12
+cor.test(dat$psysympe12, dat$socisoe18, use = "complete")
+cor.test(dat$psysympe12, dat$mdesxe18, use = "complete")
+cor.test(dat$psysympe12, dat$cdsxe18, use = "complete")
+cor.test(dat$psysympe12, dat$psyexpe18, use = "complete")
+
+# isolation18
+cor.test(dat$socisoe18, dat$mdesxe18, use = "complete")
+cor.test(dat$socisoe18, dat$cdsxe18, use = "complete")
+cor.test(dat$socisoe18, dat$psyexpe18, use = "complete")
+
+# depression18
+cor.test(dat$mdesxe18, dat$cdsxe18, use = "complete")
+cor.test(dat$mdesxe18, dat$psyexpe18, use = "complete")
+
+# conduct18
+cor.test(dat$cdsxe18, dat$psyexpe18, use = "complete")
+```
+
+Here, all the correlations with anxiety are relatively low. We may have to consider removing it, and going for a 4 vairable model (at 2 time points).
+
+#### MZ
+
+```{r MZ matrices}
+# covariance matrix
+covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
+# correlation matrix (standardized covariance)
+cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
+round(cor.mz, 3)
+```
+
+#### DZ
+
+```{r DZ matrices}
+# covariance matrix
+covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
+# correlation matrix (standardized covariance)
+cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
+round(cor.dz, 3)
+```
+# Factor model 
+
+```{r}
+
+# __(IV)_____________________________________________________________________________________________________________________
+# ACE Factor MODEL by zygosity
+# A, C and E latent factors have Cholesky Structure
+# + Asp, Csp and Esp in the bottom with constraints to identify the model on top
+# Correlation between Phenotypic Factors only due to shared A, C and E influences
+# We are estimating the variances of the factors by scaling them to the 1st indicator variable (by fixing the loading to 1), 
+# this because applying a constraint on the factor variances of 1 is problematic especially when we model the causal paths.
+# To identify the model we constrain Asp, Csp and Esp variance components loading on variables 1 and 2 to be equal and for variable 3 to 0
+#_____________________________________________________________________________________________________________________________
+
+nv		<- 3				# number of variables for a twin = 1 in Univariate
+ntv		<- 2*nv			# number of variables for a pair = 2* 1 for Univariate
+nfact		<- 2				# number of Latent Factors for Mediation Model per twin
+nfact2		<- 2*nfact			# number of Latent Factors for Mediation Model per twin
+nlower		<- ntv*(ntv+1)/2 		# number of free elements in a lower matrix ntv*ntv
+
+Groups		<- c("mz", "dz")
+#Vars		<- c('sisoem12','sisoet12','conec12')
+selVars		<- c('sisoem12norm_reg','sisoet12norm_reg','conec12norm_reg',
+               'sisoym12norm_reg','sisoyt12norm_reg','conyc12norm_reg')
+
+dataMZ <- dat.twin.MZ[,selVars]
+dataDZ <- dat.twin.DZ[,selVars]
+
+psych::describe(dataMZ)
+psych::describe(dataDZ)
+
+# CREATE LABELS & START VALUES as objects(to ease specification in the body of the model)
+(mLabs	<- paste("m",1:nv,sep=""))
+(Stmean	<- colMeans(dataMZ[,1:nv],na.rm=TRUE))
+(Stsd 	<- sapply(dataMZ[,1:nv],sd, na.rm=TRUE))
+(PatM		<- c(TRUE,TRUE,TRUE))
+
+# Create Labels for Diagonal Matrices
+# To identify this model we need to equate the sp effects of var 1 and 2 and fix the Sp of last variable to 0)
+(LabEs	<- c('es1','es1','es3'))
+(LabAs	<- c('as1','as1','as3'))
+(LabCs	<- c('cs1','cs1','cs3'))
+
+PatSp		<- c(TRUE,TRUE,FALSE)
+StSpa		<- c(.3,.3,0)
+StSpc		<- c(.2,.2,0)
+StSpe		<- c(.3,.3,0)
+
+# all 1st loadings fixed to 1
+PatFl		<- c(F,T,F,			
+		         F,F,F)
+
+StFl		<- c(1,.5,0,
+		         0,0,1)
+
+LabFl		<- c('l1','l2',NA,
+		          NA, NA, 'l3')
+
+# default optimiser 
+mxOption(NULL, "Default optimizer", "CSOLNP")
+```
+
+Specify the model
+
+```{r}
+# ______________________________________________________________________________________________________
+# Define matrices to hold the Means, SD, correlations
+# Use Algebra to generate expected var/cov matrices and Means
+# Specify: data objects, Fitfunction, the Model, 
+# Run the Model 
+# ______________________________________________________________________________________________________
+
+Means		<-mxMatrix("Full", 1, ntv, free=c(PatM,PatM), values=c(Stmean,Stmean), labels=c(mLabs,mLabs), name="expMean") 
+
+# Define matrices to specify the loadings of the dependent variables on the latent factors
+Load		<-mxMatrix(type="Full",	nrow=nv, ncol=nfact, free=PatFl, values=StFl, labels=LabFl, name="FactL" )
+Id2		<-mxMatrix(type="Iden",	nrow=2, ncol=2, free=F, name="I2" )
+LoadTw	<-mxAlgebra(I2%x%FactL, name="FactLTw")
+ 
+# Define the matrix to hold the A and C effects: Specific 
+PathsAs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpa, labels=LabAs, name="as" )
+PathsCs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpc, labels=LabCs, name="cs" )
+PathsEs	<-mxMatrix(type="Diag",	nrow=nv, ncol=nv, free=PatSp, values=StSpe, labels=LabEs, name="es" )
+
+covAs		<-mxAlgebra( expression= as %*% t(as), name="As" )
+covCs		<-mxAlgebra( expression= cs %*% t(cs), name="Cs" )
+covEs		<-mxAlgebra( expression= es %*% t(es), name="Es" )
+
+covPs		<-mxAlgebra( expression= As+Cs+Es, name="Vs" )
+
+# Define the matrices to hold the A and C effects: Common 
+PathsAc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.2, labels=c("a11","a21","a22"), name="a_c" )
+PathsCc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.5, labels=c("c11","c21","c22"), name="c_c" )
+PathsEc	<-mxMatrix(type="Lower", nrow=nfact, ncol=nfact, free=TRUE, values=.3, labels=c("e11","e21","e22"), name="e_c" )
+
+covAc		<-mxAlgebra( expression= a_c %*% t(a_c), name="Ac" )
+covCc		<-mxAlgebra( expression= c_c %*% t(c_c), name="Cc" )
+covEc		<-mxAlgebra( expression= e_c %*% t(e_c), name="Ec" )
+covPc		<-mxAlgebra( expression= Ac+Cc+Ec, name="Vc" )
+
+# Var-Cov of measured vars in terms of latent factors and AC, Cc, and Ec
+covMZ	<-mxAlgebra( expression= (FactLTw  %&% rbind ( cbind(Vc, Ac+Cc), cbind(Ac+Cc, Vc) )) , name="expCovMZ" )#This traces the path from vars to factors and back to vars
+covDZ	<-mxAlgebra( expression= (FactLTw  %&% rbind ( cbind(Vc, .5%x%Ac+Cc), cbind(.5%x%Ac+Cc, Vc) )) , name="expCovDZ" )
+
+SpcovMZ	<-mxAlgebra( expression= rbind (cbind(Vs, As+Cs), cbind(As+Cs, Vs) ) , name="expSpCovMZ" )
+SpcovDZ	<-mxAlgebra( expression= rbind (cbind(Vs, .5%x%As+Cs), cbind(.5%x%As+Cs, Vs) ) , name="expSpCovDZ" )
+
+TOTcovMZ	<-mxAlgebra( expression= expCovMZ + expSpCovMZ , name="TOTexpCovMZ" )
+TOTcovDZ	<-mxAlgebra( expression= expCovDZ + expSpCovDZ , name="TOTexpCovDZ" )
+```
+
+```{r}
+# Calculator
+
+# Calculate genetic,  environmental, and phenotypic correlations
+corA		<- mxAlgebra( expression=solve(sqrt(I2*Ac))%&%Ac, name ="rA" ) 
+corC		<- mxAlgebra( expression=solve(sqrt(I2*Cc))%&%Cc, name ="rC" )
+corE		<- mxAlgebra( expression=solve(sqrt(I2*Ec))%&%Ec, name ="rE" )
+corP		<- mxAlgebra( expression=solve(sqrt(I2*Vc))%&%Vc, name ="rP") 
+
+# Standardize the Total var/covariances matrices of the observed variables
+Id6		<-mxMatrix(type="Iden",	nrow=ntv, ncol=ntv, name="I6" )
+Rfactmz	<-mxAlgebra( expression= solve(sqrt(I6*TOTexpCovMZ)) %&% TOTexpCovMZ, name="FactcorMZ" )
+Rfactdz	<-mxAlgebra( expression= solve(sqrt(I6*TOTexpCovDZ)) %&% TOTexpCovDZ, name="FactcorDZ" )
+
+# Standardize the Common Effects
+stcovAc	<-mxAlgebra( expression= Ac/Vc, name="stAc" )
+stcovCc	<-mxAlgebra( expression= Cc/Vc, name="stCc" )
+stcovEc	<-mxAlgebra( expression= Ec/Vc, name="stEc" )
+
+# Standardize the Specific Effects
+stcovAs	<-mxAlgebra( expression= As/( (FactL %&% Vc) +Vs), name="stAs" )
+stcovCs	<-mxAlgebra( expression= Cs/( (FactL %&% Vc) +Vs), name="stCs" )
+stcovEs	<-mxAlgebra( expression= Es/( (FactL %&% Vc) +Vs), name="stEs" )
+
+# Standardized Effects of Individual variables from the factors (Variance components) above
+stAvar	<-mxAlgebra( expression= sqrt((FactL %&% Ac)/( (FactL %&% Vc) +Vs)), name="stAvariables" )
+stCvar	<-mxAlgebra( expression= sqrt((FactL %&% Cc)/( (FactL %&% Vc) +Vs)), name="stCvariables" )
+stEvar	<-mxAlgebra( expression= sqrt((FactL %&% Ec)/( (FactL %&% Vc) +Vs)), name="stEvariables" )
+
+# Standardized Factor Loadings
+StFL		<-mxAlgebra( expression= (diag2vec( FactL %&% Vc / TOTexpCovMZ[1:3,1:3])) , name="StandFact" )
+```
+
+```{r ACE with factor }
+# Data objects for Multiple Groups
+dataMZ	<- mxData( observed=mzData, type="raw" )
+dataDZ	<- mxData( observed=dzData, type="raw" )
+
+# Objective objects for Multiple Groups
+objMZ		<- mxExpectationNormal( covariance="TOTexpCovMZ", means="expMean", dimnames=selVars)
+objDZ		<- mxExpectationNormal( covariance="TOTexpCovDZ", means="expMean", dimnames=selVars)
+
+fitFunction <- mxFitFunctionML()
+#fitFunction <- mxFitFunctionWLS()
+ 
+# Combine Groups
+pars1		<-list(Means,Load,LoadTw,PathsAs,PathsAs,PathsCs,PathsEs,covAs,covCs,covEs,covPs,Id2,Id6, stAvar, stCvar, stEvar)
+pars2		<-list(PathsAc,PathsCc,PathsEc,covAc,covCc,covEc,covPc,stcovAc,stcovCc,stcovEc, stcovAs, stcovCs, stcovEs, corA, corC, corE)
+modelMZ	<-mxModel(pars1, pars2, covMZ, SpcovMZ, TOTcovMZ, dataMZ, objMZ, Rfactmz, fitFunction, StFL, name="MZ" )
+modelDZ	<-mxModel(pars1, pars2, covDZ, SpcovDZ, TOTcovDZ, dataDZ, objDZ, Rfactdz, fitFunction, name="DZ" )
+minus2ll	<-mxAlgebra( expression=MZ.objective + DZ.objective, name="m2LL" )
+obj		<-mxFitFunctionAlgebra( "m2LL" )
+cistFL	<-mxCI (c ('MZ.StandFact','MZ.rA','MZ.rC','MZ.rE'))
+cistFc	<-mxCI (c ('MZ.stAc','MZ.stCc','MZ.stEc') ) 	# standardized var comp from Common feactors	
+cistVs	<-mxCI (c ('MZ.stAs','MZ.stCs','MZ.stEs') ) 	# standardized var comp from specific Factors
+cistvars	<-mxCI (c ('MZ.stAvariables','MZ.stCvariables','MZ.stEvariables'))
+ACEModel	<-mxModel("ace", pars1, pars2, modelMZ, modelDZ, minus2ll, obj, cistFc, cistFL, cistVs,cistvars) 
+```
+
+```{r}
+# 4 RUN ACE Factor Model: Cholesky (by Zygosity)
+ACEFit		<-mxTryHard(ACEModel, intervals=F)
+(ACESumm		<-summary(ACEFit, verbose=F))
+```
+
+
+```{r}
+mxEval(MZ.Vs, ACEFit)
+
+mxEval(MZ.Ac, ACEFit)
+mxEval(MZ.Cc, ACEFit)
+mxEval(MZ.Ec, ACEFit)
+mxEval(MZ.Vc, ACEFit)
+
+mxEval(MZ.stAc, ACEFit)
+mxEval(MZ.stCc, ACEFit)
+mxEval(MZ.stEc, ACEFit)
+
+mxEval(MZ.stAs, ACEFit)
+mxEval(MZ.stCs, ACEFit)
+mxEval(MZ.stEs, ACEFit)
+
+mxEval(MZ.StandFact, ACEFit)
+
+mxEval(MZ.stAvariables, ACEFit)
+mxEval(MZ.stCvariables, ACEFit)
+mxEval(MZ.stEvariables, ACEFit)
+```
+

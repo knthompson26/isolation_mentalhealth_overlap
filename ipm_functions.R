@@ -38,7 +38,7 @@ library(dplyr)     # conflicts with tidyverse for e.g. rename and row_number
 nv = 6
 nfAc = 3
 
-########### IPM function to run ACE model at two time points ############ THINK ABOUT NAME OF FUNCTION
+########### IPM function to run ACE model at two time points 
 
 IPM_ace <- function(dataMZ, dataDZ, nv, ncf, selvars_chosen, model_name){ 
   
@@ -153,8 +153,8 @@ IPM_ace <- function(dataMZ, dataDZ, nv, ncf, selvars_chosen, model_name){
 ########### IPM function to run ACE model at two time points - including scalar means ############
 
 # Here, two extra bits of input are needed. 
-# * sex_diff_list is a c() list containing either TRUE or FALSE depending on which variables you want the scalar to be applied to. The order of this will be the same as the selvars order you have already provided. e
-# .g. if I wanted scalar applied to anxiety12 and depression18 in my example for both twins:
+# * sex_diff_list is a c() list containing either TRUE or FALSE depending on which variables you want the scalar to be applied to. The order of this will be the same as the selvars order you have already provided. 
+# e.g. if I wanted scalar applied to anxiety12 and depression18 in my example for both twins:
 # selvars_chosen = c(anxiety12_twin1, depression12_twin1, anxiety18_twin1, depression18_twin1, 
 #                    anxiety12_twin2, depression12_twin2, anxiety18_twin2, depression18_twin2) and 
 # sex_diff_list = c(TRUE, FALSE, FALSE, TRUE, 
@@ -164,7 +164,7 @@ IPM_ace <- function(dataMZ, dataDZ, nv, ncf, selvars_chosen, model_name){
 # bounds = c("sc1", "sc3") to indicate that I want bounds for the 1st and 3rd variable in the sex_diff_list (the ones that are TRUE). This will be the same for both twins. 
 # we will also need to specify separate data frames for the male and female MZ and DZ data. 
 
-IPM_ACE_2time_sexmean <- function(dataMZm, dataMZf, dataDZ, dataDZ, nv, selvars_chosen, model_name, sex_diff_list, bounds){ 
+IPM_ace_scalar <- function(dataMZm, dataMZf, dataDZ, dataDZ, nv, selvars_chosen, model_name, sex_diff_list, bounds){ 
   
   # number of variables
   nv = nv    					      # number of variables - e.g. 2 at age 12 and 2 at age 18

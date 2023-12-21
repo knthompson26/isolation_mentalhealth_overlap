@@ -449,7 +449,7 @@ summary(dat$psyexpy18norm)
 
 ## Regress out sex
 
-We first normalised the twin variables, then regress out sex. We don't regress out age here as all twins were measured as close to thir birthday as possible. 
+We first normalised the twin variables, then regress out sex. We don't regress out age here as all twins were measured as close to their birthday as possible. 
 
 ```{r Regress out age and sex}
 # twin 1 - elder
@@ -545,7 +545,7 @@ DZ_summary <- describe(dat.twin.DZ,
 covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
 # correlation matrix (standardized covariance)
 cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
-# round(cor.mz, 3)
+round(cor.mz, 3)
 ```
 
 ### DZ correlations
@@ -555,7 +555,7 @@ cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
 covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
 # correlation matrix (standardized covariance)
 cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
-# round(cor.dz, 3)
+round(cor.dz, 3)
 ```
 
 # Univariate ACE model
@@ -1274,7 +1274,8 @@ ACE_estimates <- rbind(isolation12_table,
                      conduct18_table,
                      psychosis18_table) 
 
-ACE_estimates
+ACE_estimates %>%
+  filter(ACE == "e2")
 ```
 
 # Multivariate correlated factors
