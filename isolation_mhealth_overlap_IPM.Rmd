@@ -627,11 +627,11 @@ dat.twin.DZf <- dat.twin.DZ %>% filter(sex == "Female")
 ### Overall
 
 ```{r describe MZ and DZ data}
-MZ_summary <- psych::describe(dat.twin.MZ, 
+MZ_summary <- psych::describe(dat.twin.MZ[,selvars], 
                        skew = FALSE, 
                        range = FALSE)
 
-DZ_summary <- psych::describe(dat.twin.DZ, 
+DZ_summary <- psych::describe(dat.twin.DZ[,selvars], 
                        skew = FALSE, 
                        range = FALSE)
 # freq(dat$sisoe12)
@@ -832,20 +832,20 @@ Here, all the correlations with anxiety are relatively low. We may have to consi
 
 ```{r MZ matrices}
 # covariance matrix
-covar.mz <- cov(dat.twin.MZ[, selvars], use = "complete")
+covar.mz <- cov(dat.twin.MZ[, selvars_noanx], use = "complete")
 # correlation matrix (standardized covariance)
-cor.mz <- cor(dat.twin.MZ[, selvars], use = "complete")
-round(cor.mz, 3)
+cor.mz <- cor(dat.twin.MZ[, selvars_noanx], use = "complete")
+as.data.frame(round(cor.mz, 3))
 ```
 
 #### DZ
 
 ```{r DZ matrices}
 # covariance matrix
-covar.dz <- cov(dat.twin.DZ[, selvars], use = "complete")
+covar.dz <- cov(dat.twin.DZ[, selvars_noanx], use = "complete")
 # correlation matrix (standardized covariance)
-cor.dz <- cor(dat.twin.DZ[, selvars], use = "complete")
-round(cor.dz, 3)
+cor.dz <- cor(dat.twin.DZ[, selvars_noanx], use = "complete")
+as.data.frame(round(cor.dz, 3))
 ```
 
 # Phenotypic factor model
@@ -1828,8 +1828,8 @@ IPM_allvar_noanx_scalarhet <- mxModel("IPM_allvar_noanx_scalarhet",
 
 ```{r run ACE model for IPM_allvar_noanx_scalarhet_fit}
 # IPM_allvar_noanx_scalarhet_fit <- mxTryHard(IPM_allvar_noanx_scalarhet, intervals = TRUE)
-# saveRDS(IPM_allvar_noanx_scalarhet_fit, "IPM_allvar_noanx_scalarhet_fit.rds")
-IPM_allvar_noanx_scalarhet_fit <- readRDS("IPM_allvar_noanx_scalarhet_fit.rds")
+# saveRDS(IPM_allvar_noanx_scalarhet_fit, "../../data_full/IPM_allvar_noanx_scalarhet_fit.rds")
+IPM_allvar_noanx_scalarhet_fit <- readRDS("../../data_full/IPM_allvar_noanx_scalarhet_fit.rds")
 ```
 
 #### Output
@@ -3126,7 +3126,7 @@ stacked_bar_male
 ggsave(stacked_bar_male, file = "../../../preliminary_results/stackedbar_male2.png", height = 6, width = 9)
 ```
 
-```{r reformatting to reflect size of r}
+```{r reformatting to reflect size of r males}
 contribution_output.male.reorder_new <- contribution_output.male.formatted %>%
   select(-total, -sex) %>%
   pivot_longer(!`phenotypic correlation` & !direction & !construct & !r, 
@@ -3198,7 +3198,7 @@ stacked_bar_male_resized
 ```
 
 ```{r save male stacked}
-ggsave(stacked_bar_male_resized, file = "/Users/katiethompson/Documents/PhD/LISS-DTP_Louise_and_Tim/Thesis/figures/corrections/stackedbar_male_resized.png", height = 6, width = 9)
+ggsave(stacked_bar_male_resized, file = "/Users/katiethompson/Documents/PhD/LISS-DTP_Louise_and_Tim/Social isolation_genetics_Paper 3/data_analysis/plots/stackedbar_male_resized.png", height = 6, width = 9)
 ```
 
 ### Females
@@ -3263,6 +3263,82 @@ stacked_bar_female
 ```{r save female stacked}
 ggsave(stacked_bar_female, file = "../../plots/stackedbar_female.png", height = 6, width = 9)
 ```
+
+```{r reformatting to reflect size of r females}
+contribution_output.female.reorder_new <- contribution_output.female.formatted %>%
+  select(-total, -sex) %>%
+  pivot_longer(!`phenotypic correlation` & !direction & !construct & !r, 
+               names_to = "Percentage contribution", 
+               values_to = "Percent (%)") %>%
+  rename(r_new = r) %>%
+  mutate(r_labels = labels_female) %>%
+  mutate(position = 100) %>%
+  mutate_if(is.numeric, ~na_if(., 0)) %>%
+  mutate(r = `Percent (%)`*0.01*r_new)
+```
+
+```{r stacked bar for females}
+stacked_bar_female_resized <- ggplot(
+  contribution_output.female.reorder_new,
+  aes(fill = `Percentage contribution`,
+      y = `r`,
+      x = `phenotypic correlation`)) + 
+  geom_bar(position = "stack", 
+           stat = "identity", ) +
+  geom_text(aes(x = `phenotypic correlation`, 
+                y = 0.1, 
+                label = r_labels), 
+            size = 4, 
+            color = "black", 
+            position = "stack") +
+  geom_text(aes(label = round(`Percent (%)`)), 
+            position = position_stack(vjust = 0.5), 
+            size = 3, 
+            color = "black") +
+  labs(title = "r") + 
+  labs(subtitle = "Concurrent associations") + 
+  labs(caption = "Longitudinal associations") + 
+  scale_fill_manual(values = sgdp.colours,
+                    breaks = c("Ec % contribution",
+                               "Cc % contribution",
+                               "Ac % contribution"),
+                    labels = c("Non-shared environment",
+                               "Shared environment",
+                               "Additive genetic"),
+                    name = "Contribution to phenotypic correlation") + 
+ # scale_y_continuous(labels = c(0, 0.05, 0.1, 0.15, 0.2, 0.25)) +
+  scale_y_continuous(breaks = c(0, 0.05, 0.1, 0.15, 0.2, 0.25),
+                   labels = c(0, 0.05, 0.1, 0.15, 0.2, 0.25)) +
+  coord_flip() +
+  theme(
+    panel.grid.major.x = element_line(size = 0.5,
+                                          linetype = 'dashed',
+                                          colour = "gray"),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(colour = "black", size = 10),
+        axis.text.y = element_text(colour = "black", size = 10),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.background = element_blank(),
+        plot.title = element_text(face = "italic", size = 10, hjust = 0.95, vjust = -15),
+        plot.subtitle = element_text(face = "bold", size = 11, hjust = -0.3, vjust = -7),
+        plot.caption = element_text(face = "bold", size = 11, hjust = -0.32, vjust = 102),
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "white"),
+        strip.text = element_text(size = 11),
+    
+    
+  ) +
+  ggforce::facet_col(vars(factor(direction, levels = c("Age 12", "Age 18", "Depression symptoms", "Psychotic experiences", "Conduct problems"))), scales = "free_y", space = "free") # creates facet_grid but with headings at the top 
+
+stacked_bar_female_resized
+```
+
+```{r save female stacked resized}
+ggsave(stacked_bar_female_resized, file = "/Users/katiethompson/Documents/PhD/LISS-DTP_Louise_and_Tim/Social isolation_genetics_Paper 3/data_analysis/plots/stackedbar_female_resized.png", height = 6, width = 9)
+```
+
 
 ***
 
