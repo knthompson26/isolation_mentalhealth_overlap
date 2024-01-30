@@ -5,7 +5,7 @@ September, 2022
 
 ***
 
-This repository holds code for for manuscript titled "The overlap between social isolation and mental health problems: a longitudinal behavioural genetic analysis" DOI: XXX. 
+This repository holds code for for manuscript titled "Social isolation and poor mental health in young people: Testing genetic and environmental influences in a longitudinal cohort study". 
 
 We conducted two stages of analyses. First, we computed multivariate ACE models with a longitudinal Cholesky decomposition across ages 5, 7, 10, and 12 years to test for genetic and environmental influences on social isolation across childhood. Second, we computed an independent pathway model (IPM) to assess genetic and environmental influences on the overlap between social isolation and mental health symptoms. Third, I have  provided preliminary functions that you can use to compute a longitudinal IPM. All data from the E-Risk Study. 
 
@@ -36,6 +36,9 @@ This script contains univariate ACE models with heterogeneity paths and scalars 
 
 4. isolation_mhealth_overlap_IPM.Rmd
 This script contains longitudinal independent pathway models for all variables with appropriate heterogeneity paths and scalars applied. 
+
+5. isolation_mhealth_overlap_sensitivity.Rmd 
+This script contains two sensitivity analyses: 1. Psychometric model for social isolation and conduct problems. 2. Sex differences for conduct problems at age 18.  
 
 ***
 

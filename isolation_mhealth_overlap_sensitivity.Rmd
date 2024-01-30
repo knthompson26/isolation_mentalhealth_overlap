@@ -2105,7 +2105,7 @@ IPM_allvar_noanx_scalarhet <- mxModel("IPM_allvar_noanx_scalarhet",
 # IPM_allvar_noanx_scalarhet_fit <- mxTryHard(IPM_allvar_noanx_scalarhet, intervals = TRUE)
 # saveRDS(IPM_allvar_noanx_scalarhet_fit, "IPM_allvar_noanx_scalarhet_fit.rds")
 
-IPM_allvar_noanx_scalarhet_fit <- readRDS("IPM_allvar_noanx_scalarhet_fit.rds")
+IPM_allvar_noanx_scalarhet_fit <- readRDS("../../data_full/IPM_allvar_noanx_scalarhet_fit_con18sensitivity.rds")
 ```
 
 ```{r summary for 2a}
@@ -2244,7 +2244,7 @@ IPM_allvar_noanx_scalarhet_sub1modelc <- omxAssignFirstParameters(IPM_allvar_noa
 # Run sunmodels
 #IPM_allvar_noanx_scalarhet_sub1modelc_fit <- mxTryHard(IPM_allvar_noanx_scalarhet_sub1modelc, intervals = TRUE)
 #saveRDS(IPM_allvar_noanx_scalarhet_sub1modelc_fit, "IPM_allvar_noanx_scalarhet_sub1modelc_fit.rds")
-IPM_allvar_noanx_scalarhet_sub1modelc_fit <- readRDS("IPM_allvar_noanx_scalarhet_sub1modelc_fit.rds")
+IPM_allvar_noanx_scalarhet_sub1modelc_fit <- readRDS("../../data_full/IPM_allvar_noanx_scalarhet_sub1modelc_fit.rds")
 
 # create summary
 IPM_allvar_noanx_scalarhet_sub1modelc_sum <- summary(IPM_allvar_noanx_scalarhet_sub1modelc_fit)
