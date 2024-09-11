@@ -5,13 +5,11 @@ September, 2022
 
 ***
 
-This repository holds code for for manuscript titled "Social isolation and poor mental health in young people: Testing genetic and environmental influences in a longitudinal cohort study". 
+This repository holds code for for manuscript titled "Social isolation and poor mental health in young people: Testing genetic and environmental influences in a longitudinal cohort study". This paper is published in European Child & Adolescent Psychiatry and can be found here: https://doi.org/10.1007/s00787-024-02573-w 
 
 We conducted two stages of analyses. First, we computed multivariate ACE models with a longitudinal Cholesky decomposition across ages 5, 7, 10, and 12 years to test for genetic and environmental influences on social isolation across childhood. Second, we computed an independent pathway model (IPM) to assess genetic and environmental influences on the overlap between social isolation and mental health symptoms. Third, I have  provided preliminary functions that you can use to compute a longitudinal IPM. All data from the E-Risk Study. 
 
-For greater clarity when reviewing the code and results for this manuscript, this repository has been converted into an R pages website. **The website can be accessed here: XXX** 
-
-Analyses for this project were conducted in R (Version 4.0.3). I have listed all the names of the scripts used below, with a brief explanation of what each script entails. For more detail please go to the [website](). 
+Analyses for this project were conducted in R (Version 4.0.3). I have listed all the names of the scripts used below, with a brief explanation of what each script entails. 
 
 ***
 
