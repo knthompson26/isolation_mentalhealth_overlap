@@ -1,4 +1,4 @@
-# Genetic and environmental overlap between social isolation and mental health symptoms from childhood to early adulthood 
+# Social isolation and poor mental health in young people: testing genetic and environmental influences in a longitudinal cohort study
 [Katherine N Thompson](https://twitter.com/KTNThompson)
 
 September, 2022
